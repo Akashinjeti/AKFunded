@@ -655,7 +655,7 @@ elif st.session_state.page == "leaderboard":
 
     if not data:
         data = [
-            {"name":"Rahul S.","country":"India","profit_pct":18.4,"status":"passed","plan":"elite"},
+            {"name":"Akshay I.","country":"India","profit_pct":18.4,"status":"passed","plan":"elite"},
             {"name":"Priya M.","country":"India","profit_pct":15.2,"status":"passed","plan":"pro"},
             {"name":"Kiran T.","country":"India","profit_pct":12.7,"status":"active","plan":"pro"},
             {"name":"Arun K.","country":"India","profit_pct":11.1,"status":"passed","plan":"starter"},
