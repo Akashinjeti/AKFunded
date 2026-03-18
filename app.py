@@ -26,33 +26,86 @@ st.markdown("""
 :root {
   --gold: #F0B429; --gold-dim: #7a5c0a; --black: #070707;
   --s1: #111; --s2: #181818; --border: #222; --border2: #2a2a2a;
-  --text: #E8E8E8; --dim: #555; --green: #00C896; --red: #FF4560; --blue: #4C9BE8;
+  --text: #E8E8E8; --dim: #666; --green: #00C896; --red: #FF4560; --blue: #4C9BE8;
 }
-html,body,[class*="css"]{ font-family:'DM Sans',sans-serif; background:var(--black)!important; color:var(--text)!important; }
-#MainMenu,footer,header{visibility:hidden;}
-.block-container{padding:0 2rem 3rem!important; max-width:1380px!important;}
-::-webkit-scrollbar{width:3px;} ::-webkit-scrollbar-thumb{background:var(--gold-dim);}
 
-/* NAVBAR */
-.ak-nav{display:flex;align-items:center;justify-content:space-between;padding:1.2rem 0;border-bottom:1px solid var(--border);margin-bottom:2.5rem;}
-.ak-logo{font-family:'Bebas Neue',sans-serif;font-size:2.4rem;letter-spacing:4px;background:linear-gradient(135deg,#F0B429 0%,#fffde0 50%,#F0B429 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.ak-logo b{-webkit-text-fill-color:#fff;color:#fff;}
-.ak-beta{background:var(--gold);color:#000;font-size:.55rem;font-weight:800;padding:2px 7px;border-radius:20px;letter-spacing:1.5px;vertical-align:super;margin-left:4px;}
-.ak-powered{font-size:.68rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;}
-.ak-powered b{color:var(--gold);}
+/* ── FORCE BLACK BACKGROUND — cover every Streamlit layer ── */
+html, body { background-color: #070707 !important; }
+[class*="css"], .main, .stApp, .stApp > div,
+section.main, section[data-testid="stSidebar"],
+div[data-testid="stAppViewContainer"],
+div[data-testid="stHeader"],
+div[data-testid="stToolbar"],
+div[data-testid="stDecoration"],
+div[data-testid="stBottom"],
+.stApp > header,
+.appview-container,
+.reportview-container,
+.main .block-container,
+iframe { background-color: #070707 !important; background: #070707 !important; }
+
+* { font-family: 'DM Sans', sans-serif; color: var(--text); }
+#MainMenu, footer, header { visibility: hidden !important; display: none !important; }
+.block-container { padding: 1rem 2.5rem 3rem !important; max-width: 1380px !important; }
+::-webkit-scrollbar { width: 3px; } ::-webkit-scrollbar-thumb { background: var(--gold-dim); }
+
+/* ── NAVBAR ── */
+.ak-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.4rem 0; border-bottom: 1px solid var(--border); margin-bottom: 2.5rem;
+}
+.ak-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.5rem; letter-spacing: 5px; display: inline-flex; align-items: baseline; gap: 0;
+}
+.ak-logo .ak-part { color: var(--gold); -webkit-text-fill-color: var(--gold); }
+.ak-logo .funded-part { color: #ffffff; -webkit-text-fill-color: #ffffff; }
+.ak-beta {
+  background: var(--gold); color: #000; font-size: .55rem; font-weight: 800;
+  padding: 2px 7px; border-radius: 20px; letter-spacing: 1.5px;
+  vertical-align: super; margin-left: 6px; font-family: 'DM Sans', sans-serif;
+}
+.ak-powered { font-size: .68rem; color: var(--dim); letter-spacing: 2px; text-transform: uppercase; }
+.ak-powered b { color: var(--gold); -webkit-text-fill-color: var(--gold); font-weight: 700; }
 
 /* HERO */
-.hero{text-align:center;padding:5rem 0 3.5rem;position:relative;}
-.hero::before{content:'';position:absolute;top:-40%;left:50%;transform:translateX(-50%);width:700px;height:700px;background:radial-gradient(circle,rgba(240,180,41,.07) 0%,transparent 65%);pointer-events:none;}
-.hero-chip{display:inline-block;border:1px solid var(--gold-dim);color:var(--gold);font-size:.65rem;letter-spacing:3px;padding:4px 16px;border-radius:20px;margin-bottom:1.5rem;text-transform:uppercase;}
-.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(3.5rem,9vw,8rem);line-height:.95;letter-spacing:5px;margin:0 0 1rem;background:linear-gradient(180deg,#fff 20%,#888 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.hero h1 em{font-style:normal;background:linear-gradient(135deg,#F0B429,#ffe87a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.hero-sub{font-size:1.05rem;color:var(--dim);max-width:480px;margin:0 auto 2.5rem;line-height:1.75;}
+.hero { text-align: center; padding: 5rem 0 3.5rem; position: relative; background: transparent !important; }
+.hero::before {
+  content: ''; position: absolute; top: -40%; left: 50%; transform: translateX(-50%);
+  width: 700px; height: 700px;
+  background: radial-gradient(circle, rgba(240,180,41,.09) 0%, transparent 65%);
+  pointer-events: none;
+}
+.hero-chip {
+  display: inline-block; border: 1px solid var(--gold-dim); color: var(--gold);
+  -webkit-text-fill-color: var(--gold);
+  font-size: .65rem; letter-spacing: 3px; padding: 5px 18px;
+  border-radius: 20px; margin-bottom: 1.8rem; text-transform: uppercase;
+  background: rgba(240,180,41,.05);
+}
+.hero h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(4rem, 9vw, 9rem); line-height: .93; letter-spacing: 5px; margin: 0 0 1.2rem;
+  color: #ffffff; -webkit-text-fill-color: #ffffff;
+}
+.hero h1 em {
+  font-style: normal; color: var(--gold); -webkit-text-fill-color: var(--gold);
+  display: inline-block;
+}
+.hero-sub {
+  font-size: 1.05rem; color: #777; -webkit-text-fill-color: #777;
+  max-width: 480px; margin: 0 auto 2.5rem; line-height: 1.75;
+}
 
 /* STATS */
-.stats{display:flex;justify-content:center;gap:4rem;padding:1.8rem 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:3rem;}
-.stat .n{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:var(--gold);letter-spacing:2px;display:block;}
-.stat .l{font-size:.65rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;}
+.stats {
+  display: flex; justify-content: center; gap: 4rem;
+  padding: 1.8rem 0; border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border); margin-bottom: 3rem;
+  background: transparent !important;
+}
+.stat .n { font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; color: var(--gold); -webkit-text-fill-color: var(--gold); letter-spacing: 2px; display: block; }
+.stat .l { font-size: .65rem; color: #666; -webkit-text-fill-color: #666; letter-spacing: 2px; text-transform: uppercase; }
 
 /* PLAN CARDS */
 .plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-bottom:3rem;}
@@ -111,14 +164,20 @@ html,body,[class*="css"]{ font-family:'DM Sans',sans-serif; background:var(--bla
 .ak-footer b{color:var(--gold);}
 
 /* STREAMLIT OVERRIDES */
-.stButton>button{background:var(--gold)!important;color:#000!important;font-weight:700!important;border:none!important;border-radius:8px!important;font-family:'DM Sans',sans-serif!important;letter-spacing:1px!important;transition:opacity .2s!important;}
-.stButton>button:hover{opacity:.8!important;}
-div[data-testid="stTabs"] [data-baseweb="tab-list"]{background:var(--s1)!important;border:1px solid var(--border)!important;border-radius:10px!important;padding:3px!important;gap:3px!important;}
-div[data-testid="stTabs"] [data-baseweb="tab"]{color:var(--dim)!important;font-family:'DM Sans',sans-serif!important;font-weight:500!important;}
-div[data-testid="stTabs"] [aria-selected="true"]{background:var(--gold)!important;color:#000!important;border-radius:8px!important;}
-div[data-testid="stTabs"] [data-baseweb="tab-highlight"],div[data-testid="stTabs"] [data-baseweb="tab-border"]{display:none!important;}
-.stSelectbox>div>div,.stNumberInput>div>div>input,.stTextInput>div>div>input{background:var(--s2)!important;border:1px solid var(--border)!important;color:var(--text)!important;border-radius:8px!important;}
-label[data-testid="stWidgetLabel"]{color:var(--dim)!important;font-size:.78rem!important;letter-spacing:1px!important;}
+.stButton > button { background: var(--gold) !important; color: #000 !important; font-weight: 700 !important; border: none !important; border-radius: 8px !important; font-family: 'DM Sans', sans-serif !important; letter-spacing: 1px !important; transition: opacity .2s !important; }
+.stButton > button:hover { opacity: .8 !important; }
+.stButton > button p { color: #000 !important; -webkit-text-fill-color: #000 !important; }
+div[data-testid="stTabs"] [data-baseweb="tab-list"] { background: var(--s1) !important; border: 1px solid var(--border) !important; border-radius: 10px !important; padding: 3px !important; gap: 3px !important; }
+div[data-testid="stTabs"] [data-baseweb="tab"] { color: var(--dim) !important; font-family: 'DM Sans', sans-serif !important; font-weight: 500 !important; }
+div[data-testid="stTabs"] [aria-selected="true"] { background: var(--gold) !important; color: #000 !important; border-radius: 8px !important; }
+div[data-testid="stTabs"] [data-baseweb="tab-highlight"], div[data-testid="stTabs"] [data-baseweb="tab-border"] { display: none !important; }
+.stSelectbox > div > div, .stNumberInput > div > div > input, .stTextInput > div > div > input { background: var(--s2) !important; border: 1px solid var(--border) !important; color: var(--text) !important; border-radius: 8px !important; }
+label[data-testid="stWidgetLabel"] { color: var(--dim) !important; font-size: .78rem !important; letter-spacing: 1px !important; }
+/* Kill any white/light backgrounds injected by Streamlit */
+div[data-testid="stVerticalBlock"], div[data-testid="stHorizontalBlock"],
+div[data-testid="column"], div[data-testid="stMarkdownContainer"],
+div.element-container, div.stMarkdown { background: transparent !important; }
+p, span, div { color: var(--text); }
 </style>
 """, unsafe_allow_html=True)
 
@@ -140,14 +199,38 @@ PLANS = [
 ]
 
 def nav():
+    logged_in = st.session_state.user is not None
+    name = st.session_state.user.get("name","") if logged_in else ""
+
     st.markdown("""
     <div class="ak-nav">
-      <div>
-        <span class="ak-logo">AK<b>FUNDED</b></span>
+      <div style="display:flex;align-items:center;">
+        <span class="ak-logo"><span class="ak-part">AK</span><span class="funded-part">FUNDED</span></span>
         <span class="ak-beta">BETA</span>
       </div>
       <div class="ak-powered">Powered by <b>Akash Injeti</b></div>
     </div>""", unsafe_allow_html=True)
+
+    # Nav buttons row right below navbar line
+    if logged_in:
+        c1,c2,c3,c4,c5 = st.columns([3,1,1,1,1])
+        with c2:
+            if st.button("DASHBOARD", key="nav_dash"): goto("dashboard")
+        with c3:
+            if st.button("LEADERBOARD", key="nav_lb"): goto("leaderboard")
+        with c4:
+            if st.button("BUY PLAN", key="nav_buy"): goto("plans")
+        with c5:
+            if st.button("LOGOUT", key="nav_logout"):
+                supabase.auth.sign_out()
+                st.session_state.user = None
+                goto("home")
+    else:
+        c1,c2,c3 = st.columns([4,1,1])
+        with c2:
+            if st.button("LEADERBOARD", key="nav_lb2"): goto("leaderboard")
+        with c3:
+            if st.button("LOGIN", key="nav_login"): goto("auth")
 
 def footer():
     st.markdown("""
@@ -170,31 +253,7 @@ def goto(page):
     st.session_state.page = page
     st.rerun()
 
-# ─── TOP NAV BUTTONS ────────────────────────────────────────────
-def top_nav_buttons():
-    if st.session_state.user:
-        c1,c2,c3,c4,c5 = st.columns([3,1,1,1,1])
-        with c2:
-            if st.button("DASHBOARD", key="nav_dash"): goto("dashboard")
-        with c3:
-            if st.button("LEADERBOARD", key="nav_lb"): goto("leaderboard")
-        with c4:
-            if st.button("BUY PLAN", key="nav_buy"): goto("plans")
-        with c5:
-            if st.button("LOGOUT", key="nav_logout"):
-                supabase.auth.sign_out()
-                st.session_state.user = None
-                goto("home")
-    else:
-        c1,c2,c3 = st.columns([4,1,1])
-        with c2:
-            if st.button("LEADERBOARD", key="nav_lb2"): goto("leaderboard")
-        with c3:
-            if st.button("LOGIN", key="nav_login"): goto("auth")
-
-top_nav_buttons()
-
-# ══════════════════════════════════════════════════════════════
+# ─── ROUTER ─────────────────────────────────────────────────────
 # PAGE: HOME
 # ══════════════════════════════════════════════════════════════
 if st.session_state.page == "home":
@@ -213,8 +272,8 @@ if st.session_state.page == "home":
       <div class="stat"><span class="n">4.9★</span><span class="l">Trader Rating</span></div>
     </div>
 
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:3px;margin-bottom:.3rem;">CHALLENGE PLANS</div>
-    <div style="color:var(--dim);font-size:.85rem;margin-bottom:1.5rem;">One-time fee. Prove your skills. Unlock your funded badge.</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:3px;margin-bottom:.3rem;color:#E8E8E8;">CHALLENGE PLANS</div>
+    <div style="color:#666;font-size:.85rem;margin-bottom:1.5rem;">One-time fee. Prove your skills. Unlock your funded badge.</div>
 
     <div class="plans-grid">
       <div class="plan-card">
