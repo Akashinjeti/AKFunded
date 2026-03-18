@@ -365,6 +365,19 @@ def db_update_profile(uid, name, country, bio=""):
         total
     )
 
+def compute_stats(trades):
+    if not trades: return 0,0,0,0,0
+    pnls  = [t.get("pnl",0) for t in trades]
+    wins  = [p for p in pnls if p > 0]
+    total = len(pnls)
+    return (
+        round(len(wins)/total*100, 1) if total else 0,
+        round(sum(pnls)/total, 2)     if total else 0,
+        max(pnls) if pnls else 0,
+        min(pnls) if pnls else 0,
+        total
+    )
+
 def goto(page):
     st.session_state.page = page
     st.rerun()
