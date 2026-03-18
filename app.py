@@ -380,43 +380,86 @@ elif st.session_state.page == "auth":
     _,col,_ = st.columns([1,1.1,1])
     with col:
         st.markdown("""
-        <div style="background:var(--s1);border:1px solid var(--border);border-radius:18px;padding:2.5rem 2rem;">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:3px;">JOIN AKFUNDED</div>
-          <div style="color:var(--dim);font-size:.85rem;margin-bottom:1.8rem;">Create your trader profile to begin</div>
+        <div style="background:var(--s1);border:1px solid var(--border);border-radius:18px;padding:2.5rem 2rem 1rem;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:3px;color:#E8E8E8;">JOIN AKFUNDED</div>
+          <div style="color:#666;font-size:.85rem;margin-bottom:1.8rem;">Sign in or create your trader profile</div>
         </div>""", unsafe_allow_html=True)
+
         t1,t2 = st.tabs(["  SIGN IN  ","  SIGN UP  "])
+
         with t1:
             email = st.text_input("Email", placeholder="you@email.com", key="si_e")
             pwd   = st.text_input("Password", type="password", placeholder="••••••••", key="si_p")
             if st.button("SIGN IN →", use_container_width=True, key="si_btn"):
-                try:
-                    res = supabase.auth.sign_in_with_password({"email":email,"password":pwd})
-                    uid = res.user.id
-                    prof = db_get_profile(uid)
-                    st.session_state.user = {
-                        "id": uid, "email": res.user.email,
-                        "name": prof.get("name", email.split("@")[0]) if prof else email.split("@")[0]
-                    }
-                    goto("dashboard")
-                except Exception as e:
-                    st.error(f"❌ {e}")
+                if not email or not pwd:
+                    st.warning("Please enter your email and password.")
+                else:
+                    try:
+                        res = supabase.auth.sign_in_with_password({"email": email, "password": pwd})
+                        uid = res.user.id
+
+                        # Auto-create profile if missing (handles old accounts)
+                        prof = db_get_profile(uid)
+                        if not prof:
+                            db_save_profile(uid, email.split("@")[0], email, "India")
+                            prof = db_get_profile(uid)
+
+                        st.session_state.user = {
+                            "id":    uid,
+                            "email": res.user.email,
+                            "name":  prof.get("name", email.split("@")[0]) if prof else email.split("@")[0]
+                        }
+                        st.success("✅ Welcome back!")
+                        time.sleep(0.5)
+                        goto("dashboard")
+                    except Exception as e:
+                        err = str(e)
+                        if "Email not confirmed" in err:
+                            st.error("📧 Please verify your email first — check your inbox.")
+                        elif "Invalid login credentials" in err:
+                            st.error("❌ Wrong email or password. Try again.")
+                        else:
+                            st.error(f"❌ {err}")
+
         with t2:
             name    = st.text_input("Full Name", placeholder="Akash Injeti", key="su_n")
             email2  = st.text_input("Email", placeholder="you@email.com", key="su_e")
-            pwd2    = st.text_input("Password", type="password", placeholder="Min 6 chars", key="su_p")
+            pwd2    = st.text_input("Password", type="password", placeholder="Min 6 characters", key="su_p")
             country = st.selectbox("Country", ["🇮🇳 India","🇺🇸 USA","🇬🇧 UK","🇦🇪 UAE","🇸🇬 Singapore","Other"])
+
             if st.button("CREATE ACCOUNT →", use_container_width=True, key="su_btn"):
-                try:
-                    res = supabase.auth.sign_up({"email":email2,"password":pwd2})
-                    uid = res.user.id
-                    c_str = country.split(" ",1)[-1]
-                    db_save_profile(uid, name, email2, c_str)
-                    st.session_state.user = {"id":uid,"email":email2,"name":name}
-                    st.success("✅ Account created! Check email to verify, then buy a plan.")
-                    time.sleep(1)
-                    goto("plans")
-                except Exception as e:
-                    st.error(f"❌ {e}")
+                if not name or not email2 or not pwd2:
+                    st.warning("Please fill in all fields.")
+                elif len(pwd2) < 6:
+                    st.warning("Password must be at least 6 characters.")
+                else:
+                    try:
+                        res = supabase.auth.sign_up({"email": email2, "password": pwd2})
+                        uid = res.user.id
+                        c_str = country.split(" ",1)[-1]
+                        db_save_profile(uid, name, email2, c_str)
+                        st.session_state.user = {"id": uid, "email": email2, "name": name}
+                        # Try to sign in immediately (works if email confirm is disabled)
+                        try:
+                            res2 = supabase.auth.sign_in_with_password({"email": email2, "password": pwd2})
+                            st.success("✅ Account created! Taking you to plans...")
+                            time.sleep(1)
+                            goto("plans")
+                        except:
+                            st.success("✅ Account created! Check your email to verify, then sign in.")
+                    except Exception as e:
+                        err = str(e)
+                        if "already registered" in err or "already exists" in err:
+                            st.error("❌ Email already registered. Please sign in instead.")
+                        else:
+                            st.error(f"❌ {err}")
+
+        # Quick fix tip
+        st.markdown("""
+        <div style="margin-top:1rem;padding:.8rem 1rem;background:rgba(240,180,41,.05);border:1px solid var(--gold-dim);border-radius:8px;font-size:.75rem;color:#888;">
+          💡 <b style="color:var(--gold);">Tip:</b> If login fails, go to <b>Supabase → Authentication → Settings</b>
+          and disable <b>"Email confirmations"</b> for easier testing.
+        </div>""", unsafe_allow_html=True)
     footer()
 
 # ══════════════════════════════════════════════════════════════
@@ -488,52 +531,54 @@ elif st.session_state.page == "dashboard":
     account   = db_get_account(challenge["id"]) if challenge else None
 
     if not challenge or not account:
-        st.markdown("""<div style="text-align:center;padding:5rem 2rem;">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:#444;">NO ACTIVE CHALLENGE</div>
-          <div style="color:#555;margin:.5rem 0 2rem;">Buy a challenge plan to begin trading</div>
+        st.markdown(f"""
+        <div style="text-align:center;padding:5rem 2rem;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:3rem;letter-spacing:4px;color:#E8E8E8;">WELCOME, {name.upper()} 👋</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:3px;color:#444;margin:.5rem 0;">NO ACTIVE CHALLENGE</div>
+          <div style="color:#555;margin-bottom:2.5rem;">Buy a challenge plan to start trading with simulated capital</div>
         </div>""", unsafe_allow_html=True)
         _,c,_ = st.columns([2,1,2])
         with c:
-            if st.button("BUY A CHALLENGE →", use_container_width=True): goto("plans")
+            if st.button("🚀 BUY A CHALLENGE", use_container_width=True): goto("plans")
         footer(); st.stop()
 
-    balance  = account["balance"]
-    initial  = account["initial_capital"]
+    balance  = float(account.get("balance", 0))
+    initial  = float(account.get("initial_capital", 1))
     pnl      = balance - initial
-    pnl_pct  = (pnl/initial)*100
-    days     = account["days_traded"]
+    pnl_pct  = (pnl / initial) * 100
+    days     = int(account.get("days_traded", 0))
     r        = RULES.get(challenge["plan"], RULES["pro"])
+    all_trades = db_get_trades(uid, challenge["id"], limit=500)
+    wr,ap,bt,wt,tt = compute_stats(all_trades)
 
-    # Header
+    pc="g" if pnl>=0 else "r"; ps="+" if pnl>=0 else ""
+    tc="g" if pnl_pct>=r["target"] else "o"
+    wrc="g" if wr>=50 else "r"; apc="g" if ap>=0 else "r"; aps="+" if ap>=0 else ""
+
     st.markdown(f"""
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
       <div>
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:3px;">TRADING DASHBOARD</div>
-        <div style="color:#666;font-size:.85rem;">Welcome back, {name}</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:3px;color:#E8E8E8;">TRADING DASHBOARD</div>
+        <div style="color:#666;font-size:.85rem;">Welcome back, <b style="color:#E8E8E8;">{name}</b></div>
       </div>
-      <div style="background:linear-gradient(135deg,#F0B429,#c88a00);color:#000;font-weight:800;font-size:.72rem;padding:7px 18px;border-radius:20px;letter-spacing:1.5px;">
-        ⚡ {challenge['plan'].upper()} CHALLENGE
+      <div style="display:flex;gap:.8rem;align-items:center;">
+        <div style="background:linear-gradient(135deg,#F0B429,#c88a00);color:#000;font-weight:800;font-size:.72rem;padding:7px 18px;border-radius:20px;letter-spacing:1.5px;">
+          ⚡ {challenge['plan'].upper()} CHALLENGE
+        </div>
+        <div style="background:var(--s1);border:1px solid var(--border);color:#666;font-size:.7rem;padding:7px 14px;border-radius:20px;letter-spacing:1px;">
+          Day {days} of {r['min_days']}
+        </div>
       </div>
     </div>""", unsafe_allow_html=True)
 
-    # 4 metric cards
-    pc = "g" if pnl>=0 else "r"
-    ps = "+" if pnl>=0 else ""
-    tc = "g" if pnl_pct>=r["target"] else "o"
     st.markdown(f"""
     <div class="metric-row">
-      <div class="m-card"><div class="m-label">Account Balance</div><div class="m-val o">₹{balance:,.0f}</div><div class="m-sub">Initial: ₹{initial:,.0f}</div></div>
-      <div class="m-card"><div class="m-label">Total P&L</div><div class="m-val {pc}">{ps}₹{pnl:,.0f}</div><div class="m-sub">{ps}{pnl_pct:.2f}%</div></div>
-      <div class="m-card"><div class="m-label">Days Traded</div><div class="m-val w">{days}<span style="font-size:1rem;color:#555;"> / {r['min_days']}</span></div><div class="m-sub">Min required</div></div>
+      <div class="m-card"><div class="m-label">Account Balance</div><div class="m-val o">₹{balance:,.0f}</div><div class="m-sub">Started: ₹{initial:,.0f}</div></div>
+      <div class="m-card"><div class="m-label">Total P&L</div><div class="m-val {pc}">{ps}₹{pnl:,.0f}</div><div class="m-sub">{ps}{pnl_pct:.2f}% return</div></div>
       <div class="m-card"><div class="m-label">Profit Target</div><div class="m-val {tc}">+{r['target']}%</div><div class="m-sub">{ps}{pnl_pct:.2f}% achieved</div></div>
+      <div class="m-card"><div class="m-label">Days Traded</div><div class="m-val w">{days} <span style="font-size:1rem;color:#444;">/ {r['min_days']}</span></div><div class="m-sub">Min {r['min_days']} days required</div></div>
     </div>""", unsafe_allow_html=True)
 
-    # Trade stats row
-    all_trades = db_get_trades(uid, challenge["id"], limit=500)
-    wr,ap,bt,wt,tt = compute_stats(all_trades)
-    wrc = "g" if wr>=50 else "r"
-    apc = "g" if ap>=0 else "r"
-    aps = "+" if ap>=0 else ""
     st.markdown(f"""
     <div class="stats-row">
       <div class="stat-box"><div class="sv w">{tt}</div><div class="sl">Total Trades</div></div>
@@ -543,97 +588,83 @@ elif st.session_state.page == "dashboard":
       <div class="stat-box"><div class="sv r">₹{wt:,.0f}</div><div class="sl">Worst Trade</div></div>
     </div>""", unsafe_allow_html=True)
 
-    # Rules progress
-    profit_prog = min((pnl_pct/r["target"])*100,100) if r["target"] else 0
-    dl_limit    = initial*r["daily_loss"]/100
-    tl_limit    = initial*r["total_loss"]/100
-    dl_used     = min(abs(account.get("daily_loss",0))/dl_limit*100,100) if dl_limit else 0
-    tl_used     = min(abs(account.get("total_loss",0))/tl_limit*100,100) if tl_limit else 0
-    def pbar(pct,col): return f'<div class="prog"><div class="prog-fill" style="width:{pct}%;background:{col};"></div></div>'
+    profit_prog = min((pnl_pct/r["target"])*100, 100) if r["target"] else 0
+    dl_limit = initial*r["daily_loss"]/100
+    tl_limit = initial*r["total_loss"]/100
+    dl_used  = min(abs(account.get("daily_loss",0))/dl_limit*100, 100) if dl_limit else 0
+    tl_used  = min(abs(account.get("total_loss",0))/tl_limit*100, 100) if tl_limit else 0
+    def pbar(pct,col): return f'<div class="prog"><div class="prog-fill" style="width:{pct:.1f}%;background:{col};"></div></div>'
+    dl_cls = "bad" if dl_used>75 else "ok"
+    tl_cls = "bad" if tl_used>75 else "ok"
+
     st.markdown(f"""
     <div class="rules-box">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;color:#555;margin-bottom:1rem;">CHALLENGE RULES</div>
-      <div class="r-row"><span class="r-name">🎯 Profit Target (+{r['target']}%)</span><span class="r-val {'ok' if profit_prog>=100 else 'ok'}">{pnl_pct:.2f}% / +{r['target']}%</span></div>
-      {pbar(profit_prog,'var(--green)' if profit_prog>=100 else 'var(--gold)')}
-      <div class="r-row"><span class="r-name">🔴 Max Daily Loss (-{r['daily_loss']}%)</span><span class="r-val {'bad' if dl_used>80 else 'ok'}">{dl_used:.1f}% used</span></div>
-      {pbar(dl_used,'var(--red)' if dl_used>80 else 'var(--gold)')}
-      <div class="r-row"><span class="r-name">🚫 Max Total Loss (-{r['total_loss']}%)</span><span class="r-val {'bad' if tl_used>80 else 'ok'}">{tl_used:.1f}% used</span></div>
-      {pbar(tl_used,'var(--red)' if tl_used>80 else 'var(--gold)')}
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;color:#555;margin-bottom:1.2rem;">CHALLENGE RULES TRACKER</div>
+      <div class="r-row"><span class="r-name">🎯 Profit Target +{r['target']}%</span><span class="r-val ok">{pnl_pct:.2f}% / +{r['target']}% {'✅' if profit_prog>=100 else ''}</span></div>
+      {pbar(profit_prog, 'var(--green)' if profit_prog>=100 else 'var(--gold)')}
+      <div class="r-row"><span class="r-name">📉 Max Daily Loss -{r['daily_loss']}%</span><span class="r-val {dl_cls}">{dl_used:.1f}% of limit used</span></div>
+      {pbar(dl_used, 'var(--red)' if dl_used>75 else 'var(--gold)')}
+      <div class="r-row"><span class="r-name">🚫 Max Total Loss -{r['total_loss']}%</span><span class="r-val {tl_cls}">{tl_used:.1f}% of limit used</span></div>
+      {pbar(tl_used, 'var(--red)' if tl_used>75 else 'var(--gold)')}
     </div>""", unsafe_allow_html=True)
 
-    # Chart + Trade form
-    col_chart, col_trade = st.columns([2,1])
+    col_chart, col_trade = st.columns([2, 1], gap="medium")
     with col_chart:
-        st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1rem;letter-spacing:2px;color:#555;margin-bottom:.5rem;">LIVE CHART — TRADINGVIEW</div>', unsafe_allow_html=True)
-        mkt = st.selectbox("Market", list(SYMBOLS.keys()), key="mkt")
+        st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1rem;letter-spacing:2px;color:#555;margin-bottom:.5rem;">📊 LIVE CHART — TRADINGVIEW</div>', unsafe_allow_html=True)
+        mkt      = st.selectbox("Market", list(SYMBOLS.keys()), key="mkt")
         sym_list = SYMBOLS[mkt]
         sym_pick = st.selectbox("Symbol", sym_list, key="csym")
         tv_sym   = TV_PREFIX[mkt] + sym_pick
         st.components.v1.html(f"""
-        <div style="height:400px;width:100%;">
+        <div style="height:400px;width:100%;border-radius:12px;overflow:hidden;">
           <div id="tvc" style="height:100%;width:100%;"></div>
           <script src="https://s3.tradingview.com/tv.js"></script>
-          <script>new TradingView.widget({{width:"100%",height:400,symbol:"{tv_sym}",
-            interval:"15",timezone:"Asia/Kolkata",theme:"dark",style:"1",locale:"en",
-            toolbar_bg:"#111",enable_publishing:false,container_id:"tvc",
-            backgroundColor:"#070707",gridColor:"rgba(34,34,34,0.6)"}});</script>
+          <script>new TradingView.widget({{width:"100%",height:400,symbol:"{tv_sym}",interval:"15",timezone:"Asia/Kolkata",theme:"dark",style:"1",locale:"en",toolbar_bg:"#111",enable_publishing:false,container_id:"tvc",backgroundColor:"#070707",gridColor:"rgba(34,34,34,0.6)"}});</script>
         </div>""", height=410)
 
     with col_trade:
-        st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1rem;letter-spacing:2px;color:#555;margin-bottom:.5rem;">PLACE TRADE</div>', unsafe_allow_html=True)
+        st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1rem;letter-spacing:2px;color:#555;margin-bottom:.5rem;">⚡ PLACE TRADE</div>', unsafe_allow_html=True)
         t_sym   = st.selectbox("Symbol", sym_list, key="tsym")
-        t_type  = st.selectbox("Type", ["BUY","SELL"], key="ttype")
-        t_entry = st.number_input("Entry Price", min_value=0.01, value=100.0, step=0.5, key="tentry")
-        t_qty   = st.number_input("Quantity", min_value=1, value=10, step=1, key="tqty")
-        t_exit  = st.number_input("Exit Price", min_value=0.01, value=105.0, step=0.5, key="texit")
-
-        est = (t_exit-t_entry)*t_qty if t_type=="BUY" else (t_entry-t_exit)*t_qty
-        ec  = "var(--green)" if est>=0 else "var(--red)"
-        es  = "+" if est>=0 else ""
+        t_dir   = st.selectbox("Direction", ["BUY 📈","SELL 📉"], key="ttype")
+        t_entry = st.number_input("Entry Price (₹)", min_value=0.01, value=100.0, step=0.5, key="tentry")
+        t_qty   = st.number_input("Quantity / Lots", min_value=1, value=10, step=1, key="tqty")
+        t_exit  = st.number_input("Exit Price (₹)", min_value=0.01, value=105.0, step=0.5, key="texit")
+        ttype   = "BUY" if "BUY" in t_dir else "SELL"
+        est     = (t_exit-t_entry)*t_qty if ttype=="BUY" else (t_entry-t_exit)*t_qty
+        ec      = "var(--green)" if est>=0 else "var(--red)"
+        es      = "+" if est>=0 else ""
+        roi     = (est/(t_entry*t_qty))*100 if (t_entry*t_qty)>0 else 0
         st.markdown(f"""
-        <div style="background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:1rem;margin:.8rem 0;text-align:center;">
-          <div style="font-size:.62rem;color:#555;letter-spacing:2px;margin-bottom:4px;">ESTIMATED P&L</div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:{ec};letter-spacing:2px;">{es}₹{est:,.0f}</div>
+        <div style="background:var(--s2);border:1px solid {ec};border-radius:10px;padding:1rem;margin:.8rem 0;text-align:center;">
+          <div style="font-size:.6rem;color:#555;letter-spacing:2px;margin-bottom:2px;">ESTIMATED P&L</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:2.4rem;color:{ec};letter-spacing:2px;line-height:1;">{es}₹{est:,.0f}</div>
+          <div style="font-size:.72rem;color:{ec};margin-top:2px;">{es}{roi:.2f}% ROI</div>
         </div>""", unsafe_allow_html=True)
-
         if st.button("⚡ EXECUTE TRADE", use_container_width=True, key="exec"):
-            ch_id = challenge["id"]
-            supabase.table("trades").insert({
-                "user_id":uid,"challenge_id":ch_id,"symbol":t_sym,
-                "type":t_type,"entry_price":t_entry,"exit_price":t_exit,
-                "quantity":t_qty,"pnl":est,"closed_at":datetime.utcnow().isoformat()
-            }).execute()
-            new_bal = balance + est
-            new_tl  = min(0, new_bal-initial)
-            new_days= days+1
-            supabase.table("accounts").update({
-                "balance":new_bal,"total_loss":new_tl,
-                "days_traded":new_days,"updated_at":datetime.utcnow().isoformat()
-            }).eq("challenge_id",ch_id).execute()
-
-            new_pct = ((new_bal-initial)/initial)*100
-            if new_pct >= r["target"] and new_days >= r["min_days"]:
+            ch_id=challenge["id"]; new_bal=balance+est; new_tl=min(0.0,new_bal-initial); new_days=days+1
+            supabase.table("trades").insert({"user_id":uid,"challenge_id":ch_id,"symbol":t_sym,"type":ttype,"entry_price":t_entry,"exit_price":t_exit,"quantity":t_qty,"pnl":est,"closed_at":datetime.utcnow().isoformat()}).execute()
+            supabase.table("accounts").update({"balance":new_bal,"total_loss":new_tl,"days_traded":new_days,"updated_at":datetime.utcnow().isoformat()}).eq("challenge_id",ch_id).execute()
+            new_pct=((new_bal-initial)/initial)*100
+            if new_pct>=r["target"] and new_days>=r["min_days"]:
                 supabase.table("challenges").update({"status":"passed"}).eq("id",ch_id).execute()
-                st.balloons()
-                st.success("🏆 YOU PASSED! Funded badge unlocked! 🎉")
-            elif new_pct <= -r["total_loss"]:
+                st.balloons(); st.success("🏆 CHALLENGE PASSED! Funded badge unlocked! 🎉")
+            elif new_pct<=-r["total_loss"]:
                 supabase.table("challenges").update({"status":"failed"}).eq("id",ch_id).execute()
-                st.error("❌ Challenge FAILED. Max total loss hit. Buy a new plan to retry.")
+                st.error("❌ Challenge FAILED — max total loss hit.")
             else:
                 st.success(f"✅ Trade done! P&L: {es}₹{est:,.0f}") if est>=0 else st.warning(f"⚠️ Trade done! P&L: ₹{est:,.0f}")
             time.sleep(1); st.rerun()
 
-    # Trade history table
     st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1rem;letter-spacing:2px;color:#555;margin-bottom:.6rem;">TRADE HISTORY</div>', unsafe_allow_html=True)
-    trades = db_get_trades(uid, challenge["id"])
+    st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1rem;letter-spacing:2px;color:#555;margin-bottom:.6rem;">📋 RECENT TRADES</div>', unsafe_allow_html=True)
+    trades = db_get_trades(uid, challenge["id"], limit=20)
     if trades:
         st.markdown('<div style="background:var(--s1);border:1px solid var(--border);border-radius:12px;overflow:hidden;">', unsafe_allow_html=True)
         st.markdown('<div class="t-header"><span>SYMBOL</span><span>TYPE</span><span>ENTRY</span><span>EXIT</span><span>QTY</span><span>P&L</span></div>', unsafe_allow_html=True)
         for t in trades:
             p=t.get("pnl",0); pc3="var(--green)" if p>=0 else "var(--red)"; ps3="+" if p>=0 else ""
-            tag='<span class="tag-b">BUY</span>' if t["type"]=="BUY" else '<span class="tag-s">SELL</span>'
-            st.markdown(f'<div class="t-row"><span style="font-weight:600;">{t["symbol"]}</span>{tag}<span>₹{t["entry_price"]:,.1f}</span><span>₹{t["exit_price"]:,.1f}</span><span>{t["quantity"]}</span><span style="color:{pc3};font-family:\'JetBrains Mono\',monospace;font-weight:700;">{ps3}₹{p:,.0f}</span></div>', unsafe_allow_html=True)
+            tag='<span class="tag-b">BUY</span>' if t.get("type")=="BUY" else '<span class="tag-s">SELL</span>'
+            st.markdown(f'<div class="t-row"><span style="font-weight:600;">{t.get("symbol","")}</span>{tag}<span>₹{t.get("entry_price",0):,.1f}</span><span>₹{t.get("exit_price",0):,.1f}</span><span>{t.get("quantity",0)}</span><span style="color:{pc3};font-family:\'JetBrains Mono\',monospace;font-weight:700;">{ps3}₹{p:,.0f}</span></div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
     else:
         st.markdown('<div style="text-align:center;padding:2.5rem;color:#444;background:var(--s1);border:1px solid var(--border);border-radius:12px;">No trades yet — place your first trade above! 📈</div>', unsafe_allow_html=True)
@@ -811,7 +842,7 @@ elif st.session_state.page == "leaderboard":
     data = db_get_leaderboard()
     if not data:
         data=[
-            {"name":"Akshay I.","country":"India","profit_pct":18.4,"status":"passed","plan":"elite"},
+            {"name":"Rahul S.","country":"India","profit_pct":18.4,"status":"passed","plan":"elite"},
             {"name":"Priya M.","country":"India","profit_pct":15.2,"status":"passed","plan":"pro"},
             {"name":"Kiran T.","country":"India","profit_pct":12.7,"status":"active","plan":"pro"},
             {"name":"Arun K.","country":"India","profit_pct":11.1,"status":"passed","plan":"starter"},
