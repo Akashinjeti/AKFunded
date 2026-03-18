@@ -26,6 +26,20 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
 :root{--gold:#F0B429;--gold-dim:#7a5c0a;--black:#070707;--s1:#111;--s2:#181818;--border:#222;--border2:#2a2a2a;--text:#E8E8E8;--dim:#666;--green:#00C896;--red:#FF4560;}
+
+/* ── LIGHT MODE OVERRIDE ── */
+body.light-mode, body.light-mode [class*="css"],
+body.light-mode .stApp, body.light-mode .main,
+body.light-mode div[data-testid="stAppViewContainer"],
+body.light-mode .appview-container {
+  background-color:#F5F5F0!important; background:#F5F5F0!important;
+}
+body.light-mode * { color:#111!important; }
+body.light-mode .ak-nav { border-color:#ddd!important; background:#fff!important; }
+body.light-mode .m-card, body.light-mode .stat-box, body.light-mode .rules-box,
+body.light-mode .journal-entry, body.light-mode .ch-card, body.light-mode .lb-item,
+body.light-mode .plan-card { background:#fff!important; border-color:#e0e0e0!important; }
+body.light-mode .stButton>button { background:var(--gold)!important; color:#000!important; }
 html,body{background-color:#070707!important;}
 [class*="css"],.main,.stApp,.stApp>div,section.main,div[data-testid="stAppViewContainer"],
 div[data-testid="stHeader"],div[data-testid="stToolbar"],div[data-testid="stDecoration"],
@@ -139,6 +153,36 @@ iframe{background-color:#070707!important;background:#070707!important;}
 .ch-status.failed{background:rgba(255,69,96,.12);color:var(--red);}
 .ch-status.active{background:rgba(240,180,41,.12);color:var(--gold);}
 
+/* NOTIFICATIONS */
+.notif-item{display:flex;align-items:flex-start;gap:1rem;background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:1rem 1.2rem;margin-bottom:.6rem;transition:border-color .2s;}
+.notif-item.unread{border-left:3px solid var(--gold);}
+.notif-icon{font-size:1.4rem;flex-shrink:0;}
+.notif-body{flex:1;}
+.notif-title{font-weight:600;font-size:.88rem;color:var(--text);margin-bottom:2px;}
+.notif-msg{font-size:.78rem;color:var(--dim);line-height:1.5;}
+.notif-time{font-size:.65rem;color:#444;letter-spacing:1px;margin-top:4px;}
+.notif-badge{background:var(--gold);color:#000;font-size:.55rem;font-weight:800;padding:2px 6px;border-radius:20px;margin-left:6px;vertical-align:middle;}
+
+/* PROFILE */
+.profile-hero{background:linear-gradient(135deg,#130f00,var(--s1));border:1px solid var(--gold-dim);border-radius:18px;padding:2rem;margin-bottom:1.5rem;display:flex;gap:2rem;align-items:center;}
+.profile-avatar{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#c88a00);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:#000;flex-shrink:0;}
+.profile-name{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:3px;color:#E8E8E8;line-height:1;}
+.profile-email{font-size:.8rem;color:var(--dim);margin-top:4px;}
+.profile-country{font-size:.75rem;color:var(--gold);margin-top:6px;letter-spacing:1px;}
+.funded-badge{display:inline-block;background:linear-gradient(135deg,var(--gold),#c88a00);color:#000;font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:2px;padding:4px 16px;border-radius:20px;margin-top:8px;}
+
+/* ADMIN */
+.admin-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr auto;align-items:center;gap:1rem;padding:.8rem 1rem;border-bottom:1px solid var(--border2);font-size:.82rem;}
+.admin-row.header{color:var(--dim);font-size:.65rem;letter-spacing:1.5px;text-transform:uppercase;border-bottom:1px solid var(--border);}
+.admin-status{padding:3px 10px;border-radius:20px;font-size:.62rem;font-weight:700;letter-spacing:1px;text-align:center;}
+.admin-status.active{background:rgba(240,180,41,.12);color:var(--gold);}
+.admin-status.passed{background:rgba(0,200,150,.12);color:var(--green);}
+.admin-status.failed{background:rgba(255,69,96,.12);color:var(--red);}
+
+/* TOGGLE THEME BTN */
+.theme-btn{background:transparent;border:1px solid var(--border);color:var(--dim);font-size:.75rem;padding:4px 12px;border-radius:20px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;}
+.theme-btn:hover{border-color:var(--gold);color:var(--gold);}
+
 /* FOOTER */
 .ak-footer{text-align:center;padding:2rem 0 1rem;border-top:1px solid var(--border);margin-top:4rem;color:var(--dim);font-size:.72rem;letter-spacing:1px;}
 .ak-footer b{color:var(--gold);-webkit-text-fill-color:var(--gold);}
@@ -183,9 +227,13 @@ TV_PREFIX = {
 }
 
 # ─── SESSION STATE ──────────────────────────────────────────────
-for k,v in [("user",None),("page","home")]:
+for k,v in [("user",None),("page","home"),("theme","dark"),("notifications",[])]:
     if k not in st.session_state:
         st.session_state[k] = v
+
+# ─── THEME INJECT ───────────────────────────────────────────────
+if st.session_state.theme == "light":
+    st.markdown('<script>document.body.classList.add("light-mode")</script>', unsafe_allow_html=True)
 
 # ─── PYTHON DATA HELPERS (no RLS needed) ───────────────────────
 def db_get_profile(uid):
@@ -255,7 +303,56 @@ def db_get_leaderboard():
         return sorted(result, key=lambda x: x["profit_pct"], reverse=True)[:20]
     except: return []
 
-def compute_stats(trades):
+def db_get_all_users():
+    """Admin only — get all profiles"""
+    try:
+        return supabase.table("profiles").select("*").execute().data or []
+    except: return []
+
+def db_get_all_accounts():
+    """Admin only — get all accounts with challenge info"""
+    try:
+        challenges = supabase.table("challenges").select("*").execute().data or []
+        result = []
+        for ch in challenges:
+            acc = db_get_account(ch["id"])
+            prof = db_get_profile(ch["user_id"])
+            if not acc or not prof: continue
+            cap = acc.get("initial_capital", 1)
+            bal = acc.get("balance", cap)
+            result.append({
+                "name":        prof.get("name","?"),
+                "email":       prof.get("email","?"),
+                "plan":        ch.get("plan","?"),
+                "status":      ch.get("status","active"),
+                "capital":     cap,
+                "balance":     bal,
+                "pnl_pct":     round((bal-cap)/cap*100,2) if cap else 0,
+                "days_traded": acc.get("days_traded",0),
+                "started_at":  ch.get("started_at","")[:10],
+                "challenge_id":ch.get("id",""),
+                "user_id":     ch.get("user_id",""),
+            })
+        return sorted(result, key=lambda x: x["started_at"], reverse=True)
+    except: return []
+
+def push_notification(uid, icon, title, msg):
+    """Add a notification to session state"""
+    notifs = st.session_state.get("notifications", [])
+    notifs.insert(0, {
+        "uid": uid, "icon": icon, "title": title,
+        "msg": msg, "time": datetime.utcnow().strftime("%H:%M"),
+        "unread": True
+    })
+    st.session_state.notifications = notifs[:20]  # keep last 20
+
+def db_update_profile(uid, name, country, bio=""):
+    try:
+        supabase.table("profiles").update({
+            "name": name, "country": country, "bio": bio
+        }).eq("id", uid).execute()
+        return True
+    except: return False
     if not trades: return 0,0,0,0,0
     pnls = [t.get("pnl",0) for t in trades]
     wins = [p for p in pnls if p > 0]
@@ -275,6 +372,10 @@ def goto(page):
 # ─── UI COMPONENTS ─────────────────────────────────────────────
 def nav():
     logged_in = st.session_state.user is not None
+    unread    = sum(1 for n in st.session_state.notifications if n.get("unread"))
+    bell      = f"🔔 {unread}" if unread > 0 else "🔔"
+    moon      = "☀️ Light" if st.session_state.theme == "dark" else "🌙 Dark"
+
     st.markdown("""
     <div class="ak-nav">
       <div style="display:flex;align-items:center;">
@@ -285,28 +386,44 @@ def nav():
     </div>""", unsafe_allow_html=True)
 
     if logged_in:
-        c1,c2,c3,c4,c5,c6,c7 = st.columns([2,.9,.9,.9,.9,.9,.9])
-        with c2:
+        is_admin = st.session_state.user.get("email","") == st.secrets.get("ADMIN_EMAIL","admin@akfunded.com")
+        cols = st.columns([1.5,.8,.8,.8,.8,.8,.8,.6,.6,.7]) if is_admin else st.columns([2,.8,.8,.8,.8,.8,.6,.6,.7])
+        idx = 0
+        def nav_col():
+            nonlocal idx; idx+=1; return cols[idx]
+
+        with cols[0]: st.write("")
+        with nav_col():
             if st.button("DASHBOARD",   key="nd"): goto("dashboard")
-        with c3:
+        with nav_col():
             if st.button("PORTFOLIO",   key="np"): goto("portfolio")
-        with c4:
+        with nav_col():
             if st.button("JOURNAL",     key="nj"): goto("journal")
-        with c5:
+        with nav_col():
             if st.button("HISTORY",     key="nh"): goto("history")
-        with c6:
+        with nav_col():
             if st.button("LEADERBOARD", key="nl"): goto("leaderboard")
-        with c7:
-            if st.button("LOGOUT",      key="nx"):
-                supabase.auth.sign_out()
-                st.session_state.user = None
-                goto("home")
+        if is_admin:
+            with nav_col():
+                if st.button("⚙️ ADMIN", key="na"): goto("admin")
+        with nav_col():
+            if st.button(bell,          key="nb"): goto("notifications")
+        with nav_col():
+            if st.button(moon,          key="nth"):
+                st.session_state.theme = "light" if st.session_state.theme=="dark" else "dark"
+                st.rerun()
+        with nav_col():
+            if st.button("👤",          key="npr"): goto("profile")
     else:
-        c1,c2,c3 = st.columns([4,1,1])
+        c1,c2,c3,c4 = st.columns([3,1,1,1])
         with c2:
             if st.button("LEADERBOARD", key="nl2"): goto("leaderboard")
         with c3:
-            if st.button("LOGIN",       key="nl3"): goto("auth")
+            if st.button(moon, key="nth2"):
+                st.session_state.theme = "light" if st.session_state.theme=="dark" else "dark"
+                st.rerun()
+        with c4:
+            if st.button("LOGIN", key="nl3"): goto("auth")
 
 def footer():
     st.markdown("""
@@ -647,11 +764,14 @@ elif st.session_state.page == "dashboard":
             new_pct=((new_bal-initial)/initial)*100
             if new_pct>=r["target"] and new_days>=r["min_days"]:
                 supabase.table("challenges").update({"status":"passed"}).eq("id",ch_id).execute()
+                push_notification(uid,"🏆","CHALLENGE PASSED!",f"You hit +{r['target']}% profit target on your {challenge['plan'].upper()} challenge. Funded badge unlocked!")
                 st.balloons(); st.success("🏆 CHALLENGE PASSED! Funded badge unlocked! 🎉")
             elif new_pct<=-r["total_loss"]:
                 supabase.table("challenges").update({"status":"failed"}).eq("id",ch_id).execute()
+                push_notification(uid,"❌","Challenge Failed",f"Max total loss of -{r['total_loss']}% hit on your {challenge['plan'].upper()} challenge.")
                 st.error("❌ Challenge FAILED — max total loss hit.")
             else:
+                push_notification(uid,"⚡","Trade Executed",f"{ttype} {t_sym} — P&L: {es}₹{est:,.0f}")
                 st.success(f"✅ Trade done! P&L: {es}₹{est:,.0f}") if est>=0 else st.warning(f"⚠️ Trade done! P&L: ₹{est:,.0f}")
             time.sleep(1); st.rerun()
 
@@ -862,4 +982,215 @@ elif st.session_state.page == "leaderboard":
           <div class="lb-pnl">+{profit:.2f}%</div>
           <div class="lb-badge {bc}">{bt}</div>
         </div>""", unsafe_allow_html=True)
+    footer()
+
+# ══════════════════════════════════════════════════════════════
+# PAGE: PROFILE
+# ══════════════════════════════════════════════════════════════
+elif st.session_state.page == "profile":
+    if not st.session_state.user: goto("auth")
+    nav()
+    uid   = st.session_state.user["id"]
+    email = st.session_state.user.get("email","")
+
+    # Load full profile
+    prof          = db_get_profile(uid) or {}
+    name          = prof.get("name", email.split("@")[0])
+    country       = prof.get("country","India")
+    bio           = prof.get("bio","")
+    all_challenges= db_get_all_challenges(uid)
+    all_trades    = db_get_trades(uid, limit=500)
+    wr,ap,bt,wt,tt= compute_stats(all_trades)
+    passed        = sum(1 for c in all_challenges if c.get("status")=="passed")
+    failed        = sum(1 for c in all_challenges if c.get("status")=="failed")
+    funded_badge  = passed > 0
+    initials      = "".join([w[0].upper() for w in name.split()[:2]])
+
+    sec("👤 MY PROFILE","Your trader identity and career stats")
+
+    # Hero card
+    badge_html = '<div class="funded-badge">⚡ FUNDED TRADER</div>' if funded_badge else ""
+    st.markdown(f"""
+    <div class="profile-hero">
+      <div class="profile-avatar">{initials}</div>
+      <div>
+        <div class="profile-name">{name.upper()}</div>
+        <div class="profile-email">{email}</div>
+        <div class="profile-country">🌍 {country}</div>
+        {badge_html}
+      </div>
+      <div style="margin-left:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;text-align:center;">
+        <div><div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:var(--gold);">{tt}</div><div style="font-size:.62rem;color:#555;letter-spacing:1.5px;text-transform:uppercase;">Trades</div></div>
+        <div><div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:{'var(--green)' if wr>=50 else 'var(--red)'};">{wr:.0f}%</div><div style="font-size:.62rem;color:#555;letter-spacing:1.5px;text-transform:uppercase;">Win Rate</div></div>
+        <div><div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:var(--green);">{passed}</div><div style="font-size:.62rem;color:#555;letter-spacing:1.5px;text-transform:uppercase;">Passed</div></div>
+        <div><div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:var(--red);">{failed}</div><div style="font-size:.62rem;color:#555;letter-spacing:1.5px;text-transform:uppercase;">Failed</div></div>
+      </div>
+    </div>""", unsafe_allow_html=True)
+
+    # Edit profile form
+    st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.1rem;letter-spacing:2px;color:#555;margin-bottom:.8rem;">EDIT PROFILE</div>', unsafe_allow_html=True)
+    with st.form("edit_profile"):
+        c1, c2 = st.columns(2)
+        with c1:
+            new_name    = st.text_input("Full Name", value=name, key="pf_name")
+            new_country = st.text_input("Country", value=country, key="pf_country")
+        with c2:
+            new_bio = st.text_area("Bio / Tagline", value=bio, placeholder="e.g. Nifty scalper. Risk manager first.", height=100, key="pf_bio")
+        submitted = st.form_submit_button("💾 SAVE PROFILE", use_container_width=True)
+        if submitted:
+            if db_update_profile(uid, new_name, new_country, new_bio):
+                st.session_state.user["name"] = new_name
+                push_notification(uid,"✅","Profile Updated","Your profile has been saved successfully.")
+                st.success("✅ Profile saved!")
+                time.sleep(1); st.rerun()
+            else:
+                st.error("❌ Save failed — make sure the 'bio' column exists in your profiles table.")
+
+    # Security section
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.1rem;letter-spacing:2px;color:#555;margin-bottom:.8rem;">ACCOUNT</div>', unsafe_allow_html=True)
+    col_a, col_b = st.columns(2)
+    with col_a:
+        st.markdown(f"""
+        <div class="m-card">
+          <div class="m-label">Email</div>
+          <div style="font-size:.9rem;color:#E8E8E8;margin-top:4px;">{email}</div>
+          <div class="m-sub">Supabase Auth account</div>
+        </div>""", unsafe_allow_html=True)
+    with col_b:
+        st.markdown(f"""
+        <div class="m-card">
+          <div class="m-label">Member Since</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--gold);">
+            {all_challenges[-1].get('started_at','')[:7] if all_challenges else 'NEW'}
+          </div>
+          <div class="m-sub">First challenge date</div>
+        </div>""", unsafe_allow_html=True)
+
+    if st.button("🚪 LOGOUT", key="profile_logout"):
+        supabase.auth.sign_out()
+        st.session_state.user = None
+        st.session_state.notifications = []
+        goto("home")
+
+    footer()
+
+# ══════════════════════════════════════════════════════════════
+# PAGE: NOTIFICATIONS
+# ══════════════════════════════════════════════════════════════
+elif st.session_state.page == "notifications":
+    if not st.session_state.user: goto("auth")
+    nav()
+    uid = st.session_state.user["id"]
+
+    sec("🔔 NOTIFICATIONS","Trade alerts, challenge updates and system messages")
+
+    notifs = [n for n in st.session_state.notifications if n.get("uid") == uid]
+
+    col_a, col_b = st.columns([4,1])
+    with col_b:
+        if st.button("✅ Mark All Read", key="mark_read"):
+            for n in st.session_state.notifications:
+                n["unread"] = False
+            st.rerun()
+
+    if not notifs:
+        st.markdown("""
+        <div style="text-align:center;padding:4rem;color:#444;background:var(--s1);border:1px solid var(--border);border-radius:12px;">
+          <div style="font-size:2rem;margin-bottom:.5rem;">🔔</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:2px;color:#555;">NO NOTIFICATIONS YET</div>
+          <div style="font-size:.82rem;color:#444;margin-top:.5rem;">Notifications appear when you trade, pass or fail a challenge</div>
+        </div>""", unsafe_allow_html=True)
+    else:
+        for n in notifs:
+            unread_class = "unread" if n.get("unread") else ""
+            st.markdown(f"""
+            <div class="notif-item {unread_class}">
+              <div class="notif-icon">{n.get('icon','📢')}</div>
+              <div class="notif-body">
+                <div class="notif-title">{n.get('title','Notification')}
+                  {'<span class="notif-badge">NEW</span>' if n.get('unread') else ''}
+                </div>
+                <div class="notif-msg">{n.get('msg','')}</div>
+                <div class="notif-time">{n.get('time','')}</div>
+              </div>
+            </div>""", unsafe_allow_html=True)
+
+    footer()
+
+# ══════════════════════════════════════════════════════════════
+# PAGE: ADMIN PANEL
+# ══════════════════════════════════════════════════════════════
+elif st.session_state.page == "admin":
+    if not st.session_state.user: goto("auth")
+    # Check admin
+    is_admin = st.session_state.user.get("email","") == st.secrets.get("ADMIN_EMAIL","admin@akfunded.com")
+    if not is_admin:
+        st.error("❌ Access denied. Admin only.")
+        st.stop()
+    nav()
+
+    sec("⚙️ ADMIN PANEL","Full platform overview — all traders and challenges")
+
+    all_data = db_get_all_accounts()
+
+    # Summary stats
+    total_traders  = len(set(r["user_id"] for r in all_data))
+    total_ch       = len(all_data)
+    total_passed   = sum(1 for r in all_data if r["status"]=="passed")
+    total_active   = sum(1 for r in all_data if r["status"]=="active")
+    total_failed   = sum(1 for r in all_data if r["status"]=="failed")
+    total_capital  = sum(r["capital"] for r in all_data)
+
+    st.markdown(f"""
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:1rem;margin-bottom:1.5rem;">
+      <div class="stat-box"><div class="sv w">{total_traders}</div><div class="sl">Traders</div></div>
+      <div class="stat-box"><div class="sv w">{total_ch}</div><div class="sl">Challenges</div></div>
+      <div class="stat-box"><div class="sv o">{total_active}</div><div class="sl">Active</div></div>
+      <div class="stat-box"><div class="sv g">{total_passed}</div><div class="sl">Passed</div></div>
+      <div class="stat-box"><div class="sv r">{total_failed}</div><div class="sl">Failed</div></div>
+      <div class="stat-box"><div class="sv o">₹{total_capital//1000}K</div><div class="sl">Total Capital</div></div>
+    </div>""", unsafe_allow_html=True)
+
+    # Search/filter
+    search = st.text_input("🔍 Search by name or email", placeholder="Type to filter...", key="admin_search")
+    status_filter = st.selectbox("Filter by status", ["All","active","passed","failed"], key="admin_status")
+
+    filtered = all_data
+    if search:
+        filtered = [r for r in filtered if search.lower() in r["name"].lower() or search.lower() in r["email"].lower()]
+    if status_filter != "All":
+        filtered = [r for r in filtered if r["status"] == status_filter]
+
+    st.markdown(f'<div style="color:#555;font-size:.78rem;margin-bottom:.8rem;">{len(filtered)} results</div>', unsafe_allow_html=True)
+
+    # Table
+    st.markdown("""
+    <div style="background:var(--s1);border:1px solid var(--border);border-radius:12px;overflow:hidden;">
+      <div class="admin-row header">
+        <span>TRADER</span><span>PLAN</span><span>BALANCE</span><span>P&L %</span><span>DAYS</span><span>STATUS</span>
+      </div>""", unsafe_allow_html=True)
+
+    for r in filtered[:50]:
+        pc = "var(--green)" if r["pnl_pct"] >= 0 else "var(--red)"
+        ps = "+" if r["pnl_pct"] >= 0 else ""
+        cap_str = f"₹{r['capital']//100000}L" if r['capital']>=100000 else f"₹{r['capital']//1000}K"
+        st.markdown(f"""
+        <div class="admin-row">
+          <div>
+            <div style="font-weight:600;color:#E8E8E8;">{r['name']}</div>
+            <div style="font-size:.7rem;color:#555;">{r['email']}</div>
+          </div>
+          <div style="color:var(--gold);font-weight:600;">{r['plan'].upper()} <span style="color:#555;font-size:.72rem;">({cap_str})</span></div>
+          <div style="font-family:'JetBrains Mono',monospace;">₹{r['balance']:,.0f}</div>
+          <div style="color:{pc};font-family:'JetBrains Mono',monospace;font-weight:700;">{ps}{r['pnl_pct']:.2f}%</div>
+          <div style="color:#E8E8E8;">{r['days_traded']}</div>
+          <div class="admin-status {r['status']}">{r['status'].upper()}</div>
+        </div>""", unsafe_allow_html=True)
+
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    if len(filtered) > 50:
+        st.markdown(f'<div style="color:#555;font-size:.75rem;margin-top:.5rem;text-align:center;">Showing first 50 of {len(filtered)} results</div>', unsafe_allow_html=True)
+
     footer()
