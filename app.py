@@ -1,7 +1,9 @@
 import streamlit as st
 from supabase import create_client
-import time
+import time, random, string, smtplib
 from datetime import datetime
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 # ─── PAGE CONFIG ───────────────────────────────────────────────
 st.set_page_config(
@@ -183,6 +185,98 @@ iframe{background-color:#070707!important;background:#070707!important;}
 .theme-btn{background:transparent;border:1px solid var(--border);color:var(--dim);font-size:.75rem;padding:4px 12px;border-radius:20px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;}
 .theme-btn:hover{border-color:var(--gold);color:var(--gold);}
 
+/* ── WEEK 4 FEATURES ── */
+
+/* LANDING HERO V2 */
+.hero-v2{position:relative;text-align:center;padding:6rem 2rem 4rem;overflow:hidden;}
+.hero-v2::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;
+  background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(240,180,41,.12),transparent);
+  pointer-events:none;}
+.hero-v2 .eyebrow{display:inline-flex;align-items:center;gap:.5rem;border:1px solid var(--gold-dim);
+  color:var(--gold);font-size:.65rem;letter-spacing:3px;padding:5px 16px;border-radius:20px;
+  margin-bottom:2rem;text-transform:uppercase;background:rgba(240,180,41,.05);}
+.hero-v2 h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(4rem,10vw,10rem);
+  line-height:.9;letter-spacing:6px;margin:0 0 1.5rem;color:#fff;-webkit-text-fill-color:#fff;}
+.hero-v2 h1 em{color:var(--gold);-webkit-text-fill-color:var(--gold);font-style:normal;}
+.hero-v2 .sub{font-size:1.15rem;color:#666;max-width:520px;margin:0 auto 3rem;line-height:1.8;}
+.hero-cta{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-bottom:4rem;}
+.cta-primary{background:var(--gold);color:#000;font-family:'Bebas Neue',sans-serif;
+  font-size:1.1rem;letter-spacing:3px;padding:14px 40px;border-radius:10px;
+  border:none;cursor:pointer;transition:all .2s;}
+.cta-primary:hover{opacity:.85;transform:translateY(-2px);}
+.cta-secondary{background:transparent;color:var(--text);font-family:'Bebas Neue',sans-serif;
+  font-size:1.1rem;letter-spacing:3px;padding:14px 40px;border-radius:10px;
+  border:1px solid var(--border);cursor:pointer;transition:all .2s;}
+.cta-secondary:hover{border-color:var(--gold-dim);}
+
+/* HOW IT WORKS */
+.steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;margin:3rem 0;}
+.step-card{background:var(--s1);border:1px solid var(--border);border-radius:16px;
+  padding:1.8rem 1.5rem;text-align:center;position:relative;}
+.step-num{font-family:'Bebas Neue',sans-serif;font-size:3rem;color:var(--gold);
+  -webkit-text-fill-color:var(--gold);line-height:1;margin-bottom:.5rem;}
+.step-title{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:2px;
+  color:#E8E8E8;margin-bottom:.5rem;}
+.step-desc{font-size:.82rem;color:#555;line-height:1.6;}
+
+/* TESTIMONIALS */
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin:2rem 0;}
+.testi-card{background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:1.5rem;}
+.testi-quote{font-size:.9rem;color:#E8E8E8;line-height:1.7;margin-bottom:1rem;font-style:italic;}
+.testi-name{font-weight:700;font-size:.82rem;color:var(--gold);}
+.testi-meta{font-size:.72rem;color:#555;}
+
+/* CERTIFICATE */
+.cert-container{background:linear-gradient(135deg,#0a0800,#111,#0a0800);
+  border:2px solid var(--gold-dim);border-radius:20px;padding:3rem;
+  text-align:center;position:relative;overflow:hidden;max-width:700px;margin:0 auto;}
+.cert-container::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;
+  background:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(240,180,41,.02) 40px,rgba(240,180,41,.02) 41px);
+  pointer-events:none;}
+.cert-title{font-family:'Bebas Neue',sans-serif;font-size:3rem;letter-spacing:6px;
+  background:linear-gradient(135deg,#F0B429,#fff5a0,#F0B429);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.5rem;}
+.cert-sub{font-size:.75rem;color:#555;letter-spacing:3px;text-transform:uppercase;margin-bottom:2rem;}
+.cert-name{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:#E8E8E8;letter-spacing:3px;margin:1rem 0;}
+.cert-detail{font-size:.85rem;color:#666;margin:.3rem 0;}
+.cert-badge{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:3px;
+  background:var(--gold);color:#000;padding:8px 24px;border-radius:30px;
+  display:inline-block;margin:1.5rem 0;}
+.cert-seal{font-size:4rem;margin:1rem 0;}
+.cert-footer{font-size:.7rem;color:#333;letter-spacing:2px;text-transform:uppercase;margin-top:1.5rem;
+  border-top:1px solid #222;padding-top:1rem;}
+
+/* AI CHAT */
+.chat-container{background:var(--s1);border:1px solid var(--border);border-radius:16px;
+  overflow:hidden;margin-bottom:1rem;}
+.chat-header{padding:1rem 1.4rem;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:.8rem;}
+.chat-ai-dot{width:8px;height:8px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+.chat-messages{padding:1.2rem;max-height:380px;overflow-y:auto;}
+.chat-msg{margin-bottom:1rem;display:flex;gap:.8rem;align-items:flex-start;}
+.chat-msg.user{flex-direction:row-reverse;}
+.chat-bubble{padding:.7rem 1rem;border-radius:12px;font-size:.85rem;line-height:1.6;max-width:75%;}
+.chat-bubble.ai{background:var(--s2);border:1px solid var(--border);color:var(--text);}
+.chat-bubble.user{background:var(--gold);color:#000;font-weight:500;}
+.chat-avatar{width:28px;height:28px;border-radius:50%;font-size:.75rem;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.chat-avatar.ai{background:var(--s2);border:1px solid var(--border);}
+.chat-avatar.user{background:var(--gold);color:#000;font-weight:700;}
+
+/* RISK CALCULATOR */
+.risk-card{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:1.5rem;}
+.risk-result{background:var(--s2);border-radius:10px;padding:1.2rem;text-align:center;margin-top:1rem;}
+.risk-val{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;letter-spacing:2px;}
+
+/* REFERRAL */
+.ref-code-box{background:var(--s2);border:1px solid var(--gold-dim);border-radius:10px;
+  padding:1rem 1.4rem;display:flex;align-items:center;justify-content:space-between;
+  margin:1rem 0;}
+.ref-code{font-family:'JetBrains Mono',monospace;font-size:1.4rem;color:var(--gold);
+  font-weight:700;letter-spacing:4px;}
+.ref-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:1rem 0;}
+
 /* FOOTER */
 .ak-footer{text-align:center;padding:2rem 0 1rem;border-top:1px solid var(--border);margin-top:4rem;color:var(--dim);font-size:.72rem;letter-spacing:1px;}
 .ak-footer b{color:var(--gold);-webkit-text-fill-color:var(--gold);}
@@ -227,7 +321,7 @@ TV_PREFIX = {
 }
 
 # ─── SESSION STATE ──────────────────────────────────────────────
-for k,v in [("user",None),("page","home"),("theme","dark"),("notifications",[])]:
+for k,v in [("user",None),("page","home"),("theme","dark"),("notifications",[]),("chat_history",[])]:
     if k not in st.session_state:
         st.session_state[k] = v
 
@@ -353,6 +447,110 @@ def db_update_profile(uid, name, country, bio=""):
         }).eq("id", uid).execute()
         return True
     except: return False
+
+# ── WEEK 4 HELPERS ──────────────────────────────────────────────
+
+def generate_referral_code(name):
+    """Generate a unique referral code from name"""
+    prefix = name[:3].upper().replace(" ","")
+    suffix = ''.join(random.choices(string.digits, k=4))
+    return f"{prefix}{suffix}"
+
+def db_get_referral(uid):
+    try:
+        r = supabase.table("referrals").select("*").eq("user_id", uid).execute()
+        return r.data[0] if r.data else None
+    except: return None
+
+def db_create_referral(uid, code):
+    try:
+        supabase.table("referrals").insert({
+            "user_id": uid, "code": code,
+            "uses": 0, "created_at": datetime.utcnow().isoformat()
+        }).execute()
+        return True
+    except: return False
+
+def db_get_referral_by_code(code):
+    try:
+        r = supabase.table("referrals").select("*").eq("code", code).execute()
+        return r.data[0] if r.data else None
+    except: return None
+
+def send_email_notification(to_email, subject, body_html):
+    """Send real email via Gmail SMTP"""
+    try:
+        smtp_email = st.secrets.get("SMTP_EMAIL","")
+        smtp_pass  = st.secrets.get("SMTP_PASSWORD","")
+        if not smtp_email or not smtp_pass:
+            return False
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = subject
+        msg["From"]    = f"AKFunded ⚡ <{smtp_email}>"
+        msg["To"]      = to_email
+        msg.attach(MIMEText(body_html, "html"))
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as s:
+            s.login(smtp_email, smtp_pass)
+            s.sendmail(smtp_email, to_email, msg.as_string())
+        return True
+    except: return False
+
+def call_ai(messages, system_prompt):
+    """Call Groq API - LLaMA 3.3 70B for AI trading assistant"""
+    try:
+        import requests
+        headers = {
+            "Authorization": f"Bearer {st.secrets.get('GROQ_API_KEY','')}",
+            "Content-Type": "application/json"
+        }
+        body = {
+            "model": "llama-3.3-70b-versatile",
+            "max_tokens": 1000,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                *messages
+            ]
+        }
+        r = requests.post(
+            "https://api.groq.com/openai/v1/chat/completions",
+            json=body, headers=headers, timeout=30
+        )
+        data = r.json()
+        return data["choices"][0]["message"]["content"] if data.get("choices") else "Sorry, I couldn't process that."
+    except Exception as e:
+        return f"AI unavailable right now. ({e})"
+
+def render_certificate(name, plan, capital, pnl_pct, days, date_str):
+    cap_str = f"₹{capital//100000}L" if capital>=100000 else f"₹{capital//1000}K"
+    return f"""
+    <div class="cert-container">
+      <div class="cert-seal">🏆</div>
+      <div class="cert-title">CERTIFICATE OF ACHIEVEMENT</div>
+      <div class="cert-sub">AKFunded Prop Trading Challenge</div>
+      <div style="font-size:.82rem;color:#555;margin-bottom:.5rem;">This certifies that</div>
+      <div class="cert-name">{name.upper()}</div>
+      <div style="font-size:.85rem;color:#666;margin-bottom:1.5rem;">
+        has successfully completed the
+      </div>
+      <div class="cert-badge">⚡ {plan.upper()} CHALLENGE — {cap_str}</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin:1.5rem 0;">
+        <div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--green);">+{pnl_pct:.2f}%</div>
+          <div style="font-size:.65rem;color:#444;letter-spacing:2px;text-transform:uppercase;">Profit Achieved</div>
+        </div>
+        <div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--gold);">{days}</div>
+          <div style="font-size:.65rem;color:#444;letter-spacing:2px;text-transform:uppercase;">Days Traded</div>
+        </div>
+        <div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:#E8E8E8;">{date_str}</div>
+          <div style="font-size:.65rem;color:#444;letter-spacing:2px;text-transform:uppercase;">Date Passed</div>
+        </div>
+      </div>
+      <div class="cert-footer">
+        AKFUNDED &nbsp;·&nbsp; Powered by Akash Injeti &nbsp;·&nbsp; akfunded.streamlit.app
+      </div>
+    </div>"""
     if not trades: return 0,0,0,0,0
     pnls = [t.get("pnl",0) for t in trades]
     wins = [p for p in pnls if p > 0]
@@ -435,6 +633,7 @@ def nav():
             if st.button("HISTORY",     key="nh"): goto("history")
         with c5:
             if st.button("LEADERBOARD", key="nl"): goto("leaderboard")
+
     else:
         c1,c2,c3 = st.columns([5,1,1])
         with c2:
@@ -456,53 +655,128 @@ def sec(title, sub=""):
     """, unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════
-# HOME
+# HOME — PREMIUM LANDING
 # ══════════════════════════════════════════════════════════════
 if st.session_state.page == "home":
     nav()
+
+    # ── HERO ──
     st.markdown("""
-    <div class="hero">
-      <div class="hero-chip">⚡ India's Prop Trading Simulator</div>
-      <h1>PROVE YOUR <em>EDGE.</em><br>GET FUNDED.</h1>
-      <p class="hero-sub">Trade simulated capital. Pass the challenge. Earn your funded badge. Built for serious Indian traders.</p>
-    </div>
-    <div class="hstats">
+    <div class="hero-v2">
+      <div class="eyebrow">⚡ India's #1 Prop Trading Simulator</div>
+      <h1>PROVE YOUR<br><em>EDGE.</em></h1>
+      <p class="sub">Trade simulated capital. Beat the rules. Earn your funded badge.<br>Join 340+ traders already on the platform.</p>
+    </div>""", unsafe_allow_html=True)
+
+    c1,c2,c3 = st.columns([2,1,2])
+    with c2:
+        if st.button("🚀 START FOR FREE", use_container_width=True): goto("auth")
+
+    # ── LIVE STATS ──
+    st.markdown("""
+    <div class="hstats" style="margin-top:2rem;">
       <div class="hstat"><span class="n">₹50L+</span><span class="l">Capital Simulated</span></div>
       <div class="hstat"><span class="n">340+</span><span class="l">Active Traders</span></div>
       <div class="hstat"><span class="n">87</span><span class="l">Funded Badges</span></div>
+      <div class="hstat"><span class="n">96%</span><span class="l">Uptime</span></div>
       <div class="hstat"><span class="n">4.9★</span><span class="l">Trader Rating</span></div>
+    </div>""", unsafe_allow_html=True)
+
+    # ── HOW IT WORKS ──
+    st.markdown("""
+    <div style="text-align:center;margin:3rem 0 1rem;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:2.5rem;letter-spacing:4px;color:#E8E8E8;">HOW IT WORKS</div>
+      <div style="color:#555;font-size:.88rem;">Four steps to becoming a funded trader</div>
     </div>
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:3px;margin-bottom:.3rem;color:#E8E8E8;">CHALLENGE PLANS</div>
-    <div style="color:#666;font-size:.85rem;margin-bottom:1.5rem;">One-time fee. Prove your skills. Unlock your funded badge.</div>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <div class="step-title">BUY A PLAN</div>
+        <div class="step-desc">Choose Starter ₹50K, Pro ₹1L or Elite ₹5L. One-time fee from ₹199.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <div class="step-title">TRADE</div>
+        <div class="step-desc">Use TradingView charts to simulate real trades across NSE, Crypto & Forex.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <div class="step-title">PASS THE RULES</div>
+        <div class="step-desc">Hit the profit target. Stay within daily & total loss limits. Trade minimum days.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">04</div>
+        <div class="step-title">GET FUNDED</div>
+        <div class="step-desc">Earn your funded badge, certificate & appear on the leaderboard.</div>
+      </div>
+    </div>""", unsafe_allow_html=True)
+
+    # ── PLANS ──
+    st.markdown("""
+    <div style="text-align:center;margin:3rem 0 1rem;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:2.5rem;letter-spacing:4px;color:#E8E8E8;">CHALLENGE PLANS</div>
+      <div style="color:#555;font-size:.88rem;">One-time fee. Prove your skills. Unlock your funded badge.</div>
+    </div>
     <div class="plans-grid">
       <div class="plan-card">
         <div class="plan-name">STARTER</div><div class="plan-capital">₹50K</div>
         <ul class="plan-rules">
-          <li><span>Profit Target</span><b>+8%</b></li><li><span>Max Daily Loss</span><b>-4%</b></li>
-          <li><span>Max Total Loss</span><b>-8%</b></li><li><span>Min Days</span><b>5</b></li>
+          <li><span>Profit Target</span><b>+8%</b></li>
+          <li><span>Max Daily Loss</span><b>-4%</b></li>
+          <li><span>Max Total Loss</span><b>-8%</b></li>
+          <li><span>Min Days</span><b>5</b></li>
         </ul>
         <div class="plan-price">₹199 <small>/ one-time</small></div>
       </div>
       <div class="plan-card hot">
         <div class="plan-name">PRO</div><div class="plan-capital">₹1L</div>
         <ul class="plan-rules">
-          <li><span>Profit Target</span><b>+10%</b></li><li><span>Max Daily Loss</span><b>-5%</b></li>
-          <li><span>Max Total Loss</span><b>-10%</b></li><li><span>Min Days</span><b>5</b></li>
+          <li><span>Profit Target</span><b>+10%</b></li>
+          <li><span>Max Daily Loss</span><b>-5%</b></li>
+          <li><span>Max Total Loss</span><b>-10%</b></li>
+          <li><span>Min Days</span><b>5</b></li>
         </ul>
         <div class="plan-price">₹399 <small>/ one-time</small></div>
       </div>
       <div class="plan-card">
         <div class="plan-name">ELITE</div><div class="plan-capital">₹5L</div>
         <ul class="plan-rules">
-          <li><span>Profit Target</span><b>+10%</b></li><li><span>Max Daily Loss</span><b>-5%</b></li>
-          <li><span>Max Total Loss</span><b>-10%</b></li><li><span>Min Days</span><b>7</b></li>
+          <li><span>Profit Target</span><b>+10%</b></li>
+          <li><span>Max Daily Loss</span><b>-5%</b></li>
+          <li><span>Max Total Loss</span><b>-10%</b></li>
+          <li><span>Min Days</span><b>7</b></li>
         </ul>
         <div class="plan-price">₹799 <small>/ one-time</small></div>
       </div>
     </div>""", unsafe_allow_html=True)
-    _,c,_ = st.columns([2,1,2])
-    with c:
-        if st.button("🚀 START TRADING", use_container_width=True): goto("auth")
+
+    c1,c2,c3 = st.columns([2,1,2])
+    with c2:
+        if st.button("⚡ GET STARTED NOW", use_container_width=True, key="cta2"): goto("auth")
+
+    # ── TESTIMONIALS ──
+    st.markdown("""
+    <div style="text-align:center;margin:3rem 0 1rem;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:2.5rem;letter-spacing:4px;color:#E8E8E8;">WHAT TRADERS SAY</div>
+    </div>
+    <div class="testi-grid">
+      <div class="testi-card">
+        <div class="testi-quote">"Passed the PRO challenge in 8 days. The rules engine is exactly like real prop firms. Best simulator I've used."</div>
+        <div class="testi-name">Rahul S.</div>
+        <div class="testi-meta">🥇 Elite Funded Trader &nbsp;·&nbsp; +18.4% profit</div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-quote">"The TradingView integration is 🔥. I can trade Nifty, crypto and forex all in one place. The journal helped me improve my strategy."</div>
+        <div class="testi-name">Priya M.</div>
+        <div class="testi-meta">🥈 Pro Funded Trader &nbsp;·&nbsp; +15.2% profit</div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-quote">"Started with ₹199 Starter plan, learned discipline, now on my Elite challenge. The AI assistant gives solid trading tips."</div>
+        <div class="testi-name">Kiran T.</div>
+        <div class="testi-meta">Active Trader &nbsp;·&nbsp; 3 challenges completed</div>
+      </div>
+    </div>""", unsafe_allow_html=True)
+
     footer()
 
 # ══════════════════════════════════════════════════════════════
@@ -799,6 +1073,20 @@ elif st.session_state.page == "dashboard":
         st.markdown('</div>', unsafe_allow_html=True)
     else:
         st.markdown('<div style="text-align:center;padding:2.5rem;color:#444;background:var(--s1);border:1px solid var(--border);border-radius:12px;">No trades yet — place your first trade above! 📈</div>', unsafe_allow_html=True)
+
+    # ── QUICK TOOLS ──
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1rem;letter-spacing:2px;color:#555;margin-bottom:.8rem;">⚡ QUICK TOOLS</div>', unsafe_allow_html=True)
+    tc1,tc2,tc3,tc4 = st.columns(4)
+    with tc1:
+        if st.button("🤖 AI Coach",       use_container_width=True, key="qt_ai"):   goto("ai_chat")
+    with tc2:
+        if st.button("🧮 Risk Calc",      use_container_width=True, key="qt_rc"):   goto("risk_calc")
+    with tc3:
+        if st.button("🏆 Certificate",    use_container_width=True, key="qt_cert"): goto("certificate")
+    with tc4:
+        if st.button("🎁 Refer & Earn",   use_container_width=True, key="qt_ref"):  goto("referral")
+
     footer()
 
 # ══════════════════════════════════════════════════════════════
@@ -1203,5 +1491,378 @@ elif st.session_state.page == "admin":
 
     if len(filtered) > 50:
         st.markdown(f'<div style="color:#555;font-size:.75rem;margin-top:.5rem;text-align:center;">Showing first 50 of {len(filtered)} results</div>', unsafe_allow_html=True)
+
+    footer()
+
+# ══════════════════════════════════════════════════════════════
+# PAGE: AI TRADING ASSISTANT
+# ══════════════════════════════════════════════════════════════
+elif st.session_state.page == "ai_chat":
+    if not st.session_state.user: goto("auth")
+    nav()
+    uid  = st.session_state.user["id"]
+    name = st.session_state.user.get("name","Trader")
+
+    # Load context
+    challenge = db_get_active_challenge(uid)
+    account   = db_get_account(challenge["id"]) if challenge else None
+    trades    = db_get_trades(uid, challenge["id"] if challenge else None, limit=10)
+
+    balance  = account.get("balance",0) if account else 0
+    initial  = account.get("initial_capital",1) if account else 1
+    pnl_pct  = ((balance-initial)/initial*100) if initial else 0
+    plan     = challenge.get("plan","") if challenge else ""
+
+    SYSTEM = f"""You are an expert AI trading coach for AKFunded, India's premier prop trading simulator.
+The trader you're helping is {name}, currently on the {plan.upper()} challenge.
+Their current P&L: {pnl_pct:.1f}%. Balance: ₹{balance:,.0f}.
+Recent trades: {[t.get('symbol','') + ' ' + t.get('type','') + ' P&L ₹' + str(t.get('pnl',0)) for t in trades[:5]]}.
+
+You give concise, practical trading advice. Focus on:
+- Risk management and position sizing
+- Reading the challenge rules wisely
+- Emotional discipline and trade psychology
+- Technical analysis tips for Indian markets (Nifty, BankNifty)
+- When to trade and when to stay out
+Keep replies under 150 words. Be direct and encouraging."""
+
+    sec("🤖 AI TRADING ASSISTANT", f"Your personal trading coach — powered by Groq & LLaMA 3.3 70B")
+
+    # Chat UI
+    st.markdown("""
+    <div class="chat-container">
+      <div class="chat-header">
+        <div class="chat-ai-dot"></div>
+        <div>
+          <div style="font-weight:600;font-size:.88rem;color:#E8E8E8;">AK Trading Coach</div>
+          <div style="font-size:.7rem;color:var(--green);">Online — Powered by LLaMA 3.3 70B via Groq</div>
+        </div>
+      </div>
+    </div>""", unsafe_allow_html=True)
+
+    # Display chat history
+    chat = st.session_state.chat_history
+    if not chat:
+        st.markdown(f"""
+        <div class="chat-messages">
+          <div class="chat-msg">
+            <div class="chat-avatar ai">🤖</div>
+            <div class="chat-bubble ai">Hey {name}! 👋 I'm your AKFunded trading coach. I can see your current challenge data. Ask me anything — risk management, trade setups, how to handle drawdowns, or tips to pass your challenge faster!</div>
+          </div>
+        </div>""", unsafe_allow_html=True)
+    else:
+        msgs_html = ""
+        for m in chat[-10:]:
+            role  = m["role"]
+            txt   = m["content"]
+            cls   = "user" if role=="user" else "ai"
+            av    = name[0].upper() if role=="user" else "🤖"
+            msgs_html += f'<div class="chat-msg {cls}"><div class="chat-avatar {cls}">{av}</div><div class="chat-bubble {cls}">{txt}</div></div>'
+        st.markdown(f'<div class="chat-messages">{msgs_html}</div>', unsafe_allow_html=True)
+
+    # Quick prompts
+    st.markdown('<div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.8rem;">', unsafe_allow_html=True)
+    quick = ["How do I manage risk?","Should I trade today?","How to pass faster?","I'm in drawdown, help!","Best Nifty setup?"]
+    qcols = st.columns(len(quick))
+    for i,q in enumerate(quick):
+        with qcols[i]:
+            if st.button(q, key=f"qp_{i}", use_container_width=True):
+                st.session_state.chat_history.append({"role":"user","content":q})
+                with st.spinner("Thinking..."):
+                    resp = call_ai(st.session_state.chat_history, SYSTEM)
+                st.session_state.chat_history.append({"role":"assistant","content":resp})
+                st.rerun()
+
+    # Input
+    user_input = st.text_input("Ask your trading coach...", placeholder="e.g. I lost 3% today, what should I do?", key="chat_input", label_visibility="collapsed")
+    c1,c2 = st.columns([5,1])
+    with c2:
+        send = st.button("SEND ➤", use_container_width=True, key="chat_send")
+    if send and user_input.strip():
+        st.session_state.chat_history.append({"role":"user","content":user_input})
+        with st.spinner("Coach is typing..."):
+            resp = call_ai(st.session_state.chat_history, SYSTEM)
+        st.session_state.chat_history.append({"role":"assistant","content":resp})
+        st.rerun()
+
+    if st.button("🗑️ Clear Chat", key="clear_chat"):
+        st.session_state.chat_history = []
+        st.rerun()
+
+    footer()
+
+# ══════════════════════════════════════════════════════════════
+# PAGE: RISK CALCULATOR
+# ══════════════════════════════════════════════════════════════
+elif st.session_state.page == "risk_calc":
+    if not st.session_state.user: goto("auth")
+    nav()
+    uid      = st.session_state.user["id"]
+    challenge= db_get_active_challenge(uid)
+    account  = db_get_account(challenge["id"]) if challenge else None
+    balance  = float(account.get("balance",100000)) if account else 100000.0
+
+    sec("🧮 RISK CALCULATOR","Calculate position size, risk and reward before placing any trade")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1rem;letter-spacing:2px;color:#555;margin-bottom:.8rem;">POSITION SIZE CALCULATOR</div>', unsafe_allow_html=True)
+        with st.container():
+            acc_size   = st.number_input("Account Balance (₹)", value=balance, min_value=1000.0, step=1000.0, key="rc_bal")
+            risk_pct   = st.slider("Risk per trade (%)", 0.1, 5.0, 1.0, 0.1, key="rc_risk")
+            entry_p    = st.number_input("Entry Price (₹)", value=100.0, min_value=0.01, step=0.5, key="rc_entry")
+            stop_loss  = st.number_input("Stop Loss Price (₹)", value=97.0, min_value=0.01, step=0.5, key="rc_sl")
+            target_p   = st.number_input("Target Price (₹)", value=106.0, min_value=0.01, step=0.5, key="rc_tp")
+
+            risk_amt   = acc_size * risk_pct / 100
+            sl_dist    = abs(entry_p - stop_loss)
+            tp_dist    = abs(target_p - entry_p)
+            qty        = int(risk_amt / sl_dist) if sl_dist > 0 else 0
+            reward_amt = qty * tp_dist
+            rr_ratio   = tp_dist / sl_dist if sl_dist > 0 else 0
+            margin     = qty * entry_p
+
+            rc = "var(--green)" if rr_ratio >= 2 else ("var(--gold)" if rr_ratio >= 1 else "var(--red)")
+            st.markdown(f"""
+            <div class="risk-card" style="margin-top:1rem;">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                <div class="risk-result">
+                  <div style="font-size:.62rem;color:#555;letter-spacing:2px;margin-bottom:4px;">POSITION SIZE</div>
+                  <div class="risk-val" style="color:var(--gold);">{qty:,}</div>
+                  <div style="font-size:.7rem;color:#555;">shares / lots</div>
+                </div>
+                <div class="risk-result">
+                  <div style="font-size:.62rem;color:#555;letter-spacing:2px;margin-bottom:4px;">RISK AMOUNT</div>
+                  <div class="risk-val" style="color:var(--red);">₹{risk_amt:,.0f}</div>
+                  <div style="font-size:.7rem;color:#555;">{risk_pct}% of account</div>
+                </div>
+                <div class="risk-result">
+                  <div style="font-size:.62rem;color:#555;letter-spacing:2px;margin-bottom:4px;">REWARD</div>
+                  <div class="risk-val" style="color:var(--green);">₹{reward_amt:,.0f}</div>
+                  <div style="font-size:.7rem;color:#555;">if target hit</div>
+                </div>
+                <div class="risk-result">
+                  <div style="font-size:.62rem;color:#555;letter-spacing:2px;margin-bottom:4px;">R:R RATIO</div>
+                  <div class="risk-val" style="color:{rc};">1:{rr_ratio:.1f}</div>
+                  <div style="font-size:.7rem;color:#555;">{'✅ Good' if rr_ratio>=2 else '⚠️ Low' if rr_ratio>=1 else '❌ Poor'}</div>
+                </div>
+              </div>
+              <div style="margin-top:1rem;padding:.8rem;background:var(--s2);border-radius:8px;font-size:.78rem;color:#666;">
+                💰 Capital required: <b style="color:#E8E8E8;">₹{margin:,.0f}</b> &nbsp;·&nbsp;
+                SL distance: <b style="color:var(--red);">₹{sl_dist:.2f}</b> &nbsp;·&nbsp;
+                TP distance: <b style="color:var(--green);">₹{tp_dist:.2f}</b>
+              </div>
+            </div>""", unsafe_allow_html=True)
+
+    with col2:
+        st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1rem;letter-spacing:2px;color:#555;margin-bottom:.8rem;">CHALLENGE RISK LIMITS</div>', unsafe_allow_html=True)
+        if challenge and account:
+            r        = RULES.get(challenge["plan"], RULES["pro"])
+            init     = float(account.get("initial_capital", 1))
+            daily_lim= init * r["daily_loss"] / 100
+            total_lim= init * r["total_loss"] / 100
+            daily_rem= daily_lim - abs(account.get("daily_loss",0))
+            total_rem= total_lim - abs(account.get("total_loss",0))
+            trades_needed = max(0, r["min_days"] - account.get("days_traded",0))
+
+            st.markdown(f"""
+            <div class="risk-card">
+              <div style="margin-bottom:1rem;">
+                <div style="font-size:.65rem;color:#555;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Max Daily Loss Remaining</div>
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:{'var(--green)' if daily_rem>daily_lim*0.5 else 'var(--red)'};">₹{daily_rem:,.0f}</div>
+                <div style="font-size:.72rem;color:#555;">of ₹{daily_lim:,.0f} daily limit</div>
+              </div>
+              <div style="margin-bottom:1rem;">
+                <div style="font-size:.65rem;color:#555;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Max Total Loss Remaining</div>
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:{'var(--green)' if total_rem>total_lim*0.5 else 'var(--red)'};">₹{total_rem:,.0f}</div>
+                <div style="font-size:.72rem;color:#555;">of ₹{total_lim:,.0f} total limit</div>
+              </div>
+              <div>
+                <div style="font-size:.65rem;color:#555;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">More Trading Days Needed</div>
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:var(--gold);">{trades_needed}</div>
+                <div style="font-size:.72rem;color:#555;">days before you can pass</div>
+              </div>
+            </div>""", unsafe_allow_html=True)
+
+            # Safe trade size
+            safe_risk = min(daily_rem * 0.25, total_rem * 0.1)
+            st.markdown(f"""
+            <div style="background:rgba(0,200,150,.07);border:1px solid rgba(0,200,150,.2);border-radius:10px;padding:1rem;margin-top:1rem;">
+              <div style="font-size:.7rem;color:var(--green);letter-spacing:2px;margin-bottom:4px;">💡 SAFE RISK PER TRADE TODAY</div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:var(--green);">₹{safe_risk:,.0f}</div>
+              <div style="font-size:.72rem;color:#555;">Max recommended to protect daily & total limits</div>
+            </div>""", unsafe_allow_html=True)
+        else:
+            st.markdown('<div style="color:#444;padding:2rem;text-align:center;background:var(--s1);border:1px solid var(--border);border-radius:12px;">Buy a challenge to see your risk limits here</div>', unsafe_allow_html=True)
+
+    footer()
+
+# ══════════════════════════════════════════════════════════════
+# PAGE: CERTIFICATE
+# ══════════════════════════════════════════════════════════════
+elif st.session_state.page == "certificate":
+    if not st.session_state.user: goto("auth")
+    nav()
+    uid  = st.session_state.user["id"]
+    name = st.session_state.user.get("name","Trader")
+    sec("🏆 MY CERTIFICATE","Your funded trader achievement certificate")
+
+    # Get passed challenges
+    all_ch = db_get_all_challenges(uid)
+    passed_ch = [c for c in all_ch if c.get("status") == "passed"]
+
+    if not passed_ch:
+        st.markdown("""
+        <div style="text-align:center;padding:4rem;background:var(--s1);border:1px solid var(--border);border-radius:16px;">
+          <div style="font-size:3rem;margin-bottom:1rem;">🎯</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:3px;color:#444;">NO CERTIFICATE YET</div>
+          <div style="color:#555;margin-top:.5rem;">Pass a challenge to earn your funded trader certificate</div>
+        </div>""", unsafe_allow_html=True)
+        _,c,_ = st.columns([2,1,2])
+        with c:
+            if st.button("BUY A CHALLENGE →", use_container_width=True): goto("plans")
+    else:
+        if len(passed_ch) > 1:
+            ch_options = [f"{c['plan'].upper()} — {c.get('started_at','')[:10]}" for c in passed_ch]
+            selected   = st.selectbox("Select Challenge", ch_options, key="cert_sel")
+            ch = passed_ch[ch_options.index(selected)]
+        else:
+            ch = passed_ch[0]
+
+        acc = db_get_account(ch["id"]) or {}
+        cap = ch.get("capital", 0)
+        bal = acc.get("balance", cap)
+        pnl_pct = (bal - cap) / cap * 100 if cap else 0
+        days = acc.get("days_traded", 0)
+        date_str = ch.get("started_at","")[:10]
+
+        cert_html = render_certificate(name, ch["plan"], cap, pnl_pct, days, date_str)
+        st.markdown(cert_html, unsafe_allow_html=True)
+
+        st.markdown("<br>", unsafe_allow_html=True)
+        col1, col2 = st.columns(2)
+        with col1:
+            # Email certificate
+            if st.button("📧 EMAIL MY CERTIFICATE", use_container_width=True, key="email_cert"):
+                email = st.session_state.user.get("email","")
+                cap_str = f"₹{cap//100000}L" if cap>=100000 else f"₹{cap//1000}K"
+                html_body = f"""
+                <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#070707;color:#E8E8E8;padding:2rem;border-radius:12px;">
+                  <h1 style="font-size:2rem;letter-spacing:4px;color:#F0B429;text-align:center;">AKFUNDED ⚡</h1>
+                  <h2 style="text-align:center;color:#E8E8E8;">🏆 Congratulations, {name}!</h2>
+                  <p style="text-align:center;color:#666;">You have successfully passed the <b style="color:#F0B429;">{ch['plan'].upper()} Challenge ({cap_str})</b></p>
+                  <div style="background:#111;border:1px solid #222;border-radius:12px;padding:1.5rem;margin:1.5rem 0;text-align:center;">
+                    <div style="font-size:2rem;color:#00C896;font-weight:700;">+{pnl_pct:.2f}%</div>
+                    <div style="color:#666;font-size:.85rem;">Profit Achieved in {days} trading days</div>
+                  </div>
+                  <p style="text-align:center;color:#666;">You are now a <b style="color:#F0B429;">FUNDED TRADER</b> on AKFunded.</p>
+                  <p style="text-align:center;font-size:.78rem;color:#333;">Powered by Akash Injeti &nbsp;·&nbsp; akfunded.streamlit.app</p>
+                </div>"""
+                ok = send_email_notification(email, "🏆 Your AKFunded Certificate!", html_body)
+                if ok:
+                    st.success(f"✅ Certificate emailed to {email}")
+                else:
+                    st.info("📧 Email not configured — add SMTP_EMAIL & SMTP_PASSWORD to secrets to enable.")
+        with col2:
+            if st.button("📋 COPY SHARE TEXT", use_container_width=True, key="share_cert"):
+                cap_str = f"₹{cap//100000}L" if cap>=100000 else f"₹{cap//1000}K"
+                share = f"🏆 I just passed the AKFunded {ch['plan'].upper()} Challenge ({cap_str}) with +{pnl_pct:.1f}% profit in {days} days! 📈 #AKFunded #PropTrading #Funded"
+                st.code(share)
+
+    footer()
+
+# ══════════════════════════════════════════════════════════════
+# PAGE: REFERRAL SYSTEM
+# ══════════════════════════════════════════════════════════════
+elif st.session_state.page == "referral":
+    if not st.session_state.user: goto("auth")
+    nav()
+    uid   = st.session_state.user["id"]
+    name  = st.session_state.user.get("name","Trader")
+    email = st.session_state.user.get("email","")
+    sec("🎁 REFER & EARN","Invite traders, earn rewards when they buy a challenge")
+
+    # Get or create referral code
+    ref = db_get_referral(uid)
+    if not ref:
+        code = generate_referral_code(name)
+        db_create_referral(uid, code)
+        ref  = db_get_referral(uid) or {"code": code, "uses": 0}
+
+    code = ref.get("code","")
+    uses = ref.get("uses", 0)
+    earnings = uses * 50  # ₹50 reward per referral
+
+    st.markdown(f"""
+    <div style="background:linear-gradient(135deg,#130f00,var(--s1));border:1px solid var(--gold-dim);border-radius:18px;padding:2rem;margin-bottom:1.5rem;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;color:#555;margin-bottom:.5rem;">YOUR REFERRAL CODE</div>
+      <div class="ref-code-box">
+        <div class="ref-code">{code}</div>
+        <div style="font-size:.72rem;color:#555;">Share this code</div>
+      </div>
+      <div class="ref-stats">
+        <div class="stat-box"><div class="sv o">{uses}</div><div class="sl">Referrals</div></div>
+        <div class="stat-box"><div class="sv g">₹{earnings}</div><div class="sl">Earned</div></div>
+        <div class="stat-box"><div class="sv w">₹50</div><div class="sl">Per Referral</div></div>
+      </div>
+    </div>""", unsafe_allow_html=True)
+
+    # Share options
+    st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1rem;letter-spacing:2px;color:#555;margin-bottom:.8rem;">SHARE YOUR LINK</div>', unsafe_allow_html=True)
+
+    share_url  = f"https://akfunded.streamlit.app/?ref={code}"
+    share_text = f"🚀 Join AKFunded — India's Prop Trading Simulator! Use my code {code} and prove your trading edge. Start from just ₹199. {share_url}"
+
+    st.code(share_url, language=None)
+
+    c1,c2,c3 = st.columns(3)
+    with c1:
+        if st.button("📋 COPY LINK", use_container_width=True, key="copy_link"):
+            st.code(share_url)
+            st.success("✅ Copy the link above!")
+    with c2:
+        wa_link = f"https://wa.me/?text={share_text.replace(' ','%20')}"
+        st.markdown(f'<a href="{wa_link}" target="_blank"><button style="width:100%;background:var(--gold);color:#000;font-weight:700;border:none;border-radius:8px;padding:0.55rem;font-family:DM Sans,sans-serif;cursor:pointer;letter-spacing:1px;">💬 WHATSAPP</button></a>', unsafe_allow_html=True)
+    with c3:
+        if st.button("📧 EMAIL INVITE", use_container_width=True, key="email_invite"):
+            html_invite = f"""
+            <div style="font-family:Arial,sans-serif;max-width:600px;background:#070707;color:#E8E8E8;padding:2rem;border-radius:12px;">
+              <h1 style="color:#F0B429;letter-spacing:4px;">AKFUNDED ⚡</h1>
+              <h2>Hey! {name} invites you to trade 🚀</h2>
+              <p style="color:#666;">Join AKFunded — India's premier prop trading simulator. Trade simulated capital, pass the challenge, earn your funded badge.</p>
+              <div style="background:#111;border-radius:8px;padding:1rem;text-align:center;margin:1rem 0;">
+                <div style="font-size:1.5rem;font-weight:700;color:#F0B429;letter-spacing:4px;">{code}</div>
+                <div style="color:#555;font-size:.82rem;">Use this referral code</div>
+              </div>
+              <p style="color:#666;">Start from just ₹199. <a href="{share_url}" style="color:#F0B429;">Click here to join</a></p>
+            </div>"""
+            ok = send_email_notification(email, f"{name} invited you to AKFunded! 🚀", html_invite)
+            if ok:
+                st.success("✅ Invite sent!")
+            else:
+                st.info("📧 Configure SMTP_EMAIL & SMTP_PASSWORD in secrets to send emails.")
+
+    # How referral works
+    st.markdown("""
+    <br>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;color:#555;margin-bottom:.8rem;">HOW IT WORKS</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
+      <div class="stat-box" style="text-align:left;padding:1.2rem;">
+        <div style="font-size:1.5rem;margin-bottom:.5rem;">🔗</div>
+        <div style="font-weight:600;margin-bottom:.3rem;color:#E8E8E8;">Share Your Code</div>
+        <div style="font-size:.78rem;color:#555;">Send your unique referral code to friends who trade</div>
+      </div>
+      <div class="stat-box" style="text-align:left;padding:1.2rem;">
+        <div style="font-size:1.5rem;margin-bottom:.5rem;">💳</div>
+        <div style="font-weight:600;margin-bottom:.3rem;color:#E8E8E8;">They Buy a Plan</div>
+        <div style="font-size:.78rem;color:#555;">When they purchase any challenge using your code</div>
+      </div>
+      <div class="stat-box" style="text-align:left;padding:1.2rem;">
+        <div style="font-size:1.5rem;margin-bottom:.5rem;">💰</div>
+        <div style="font-weight:600;margin-bottom:.3rem;color:#E8E8E8;">You Earn ₹50</div>
+        <div style="font-size:.78rem;color:#555;">₹50 reward credited per successful referral</div>
+      </div>
+    </div>""", unsafe_allow_html=True)
 
     footer()
