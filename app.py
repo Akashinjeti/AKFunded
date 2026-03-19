@@ -385,9 +385,6 @@ def goto(page):
 # ─── UI COMPONENTS ─────────────────────────────────────────────
 def nav():
     logged_in = st.session_state.user is not None
-    unread    = sum(1 for n in st.session_state.notifications if n.get("unread"))
-    bell      = f"🔔 {unread}" if unread > 0 else "🔔"
-    moon      = "☀️ Light" if st.session_state.theme == "dark" else "🌙 Dark"
 
     st.markdown("""
     <div class="ak-nav">
@@ -400,42 +397,49 @@ def nav():
 
     if logged_in:
         is_admin = st.session_state.user.get("email","") == st.secrets.get("ADMIN_EMAIL","admin@akfunded.com")
-        cols = st.columns([1.5,.8,.8,.8,.8,.8,.8,.6,.6,.7]) if is_admin else st.columns([2,.8,.8,.8,.8,.8,.6,.6,.7])
-        idx = 0
-        def nav_col():
-            nonlocal idx; idx+=1; return cols[idx]
 
-        with cols[0]: st.write("")
-        with nav_col():
-            if st.button("DASHBOARD",   key="nd"): goto("dashboard")
-        with nav_col():
-            if st.button("PORTFOLIO",   key="np"): goto("portfolio")
-        with nav_col():
-            if st.button("JOURNAL",     key="nj"): goto("journal")
-        with nav_col():
-            if st.button("HISTORY",     key="nh"): goto("history")
-        with nav_col():
-            if st.button("LEADERBOARD", key="nl"): goto("leaderboard")
+        # CSS to prevent button text wrapping
+        st.markdown("""
+        <style>
+        .stButton>button {
+            white-space: nowrap !important;
+            font-size: 0.72rem !important;
+            padding: 0.4rem 0.6rem !important;
+            letter-spacing: 0.5px !important;
+        }
+        </style>""", unsafe_allow_html=True)
+
         if is_admin:
-            with nav_col():
+            c0,c1,c2,c3,c4,c5,c6,c7,c8 = st.columns([1.2,.9,.9,.9,.9,1.2,.7,.7,.5])
+            with c6:
+                if st.button("🔔" + (f" {sum(1 for n in st.session_state.notifications if n.get('unread'))}" if any(n.get('unread') for n in st.session_state.notifications) else ""), key="nb"): goto("notifications")
+            with c7:
                 if st.button("⚙️ ADMIN", key="na"): goto("admin")
-        with nav_col():
-            if st.button(bell,          key="nb"): goto("notifications")
-        with nav_col():
-            if st.button(moon,          key="nth"):
-                st.session_state.theme = "light" if st.session_state.theme=="dark" else "dark"
-                st.rerun()
-        with nav_col():
-            if st.button("👤",          key="npr"): goto("profile")
+            with c8:
+                if st.button("👤", key="npr"): goto("profile")
+        else:
+            c0,c1,c2,c3,c4,c5,c6,c7 = st.columns([1.5,.9,.9,.9,.9,1.2,.7,.5])
+            with c6:
+                unread = sum(1 for n in st.session_state.notifications if n.get("unread"))
+                if st.button("🔔" + (f" {unread}" if unread else ""), key="nb"): goto("notifications")
+            with c7:
+                if st.button("👤", key="npr"): goto("profile")
+
+        with c1:
+            if st.button("DASHBOARD",   key="nd"): goto("dashboard")
+        with c2:
+            if st.button("PORTFOLIO",   key="np"): goto("portfolio")
+        with c3:
+            if st.button("JOURNAL",     key="nj"): goto("journal")
+        with c4:
+            if st.button("HISTORY",     key="nh"): goto("history")
+        with c5:
+            if st.button("LEADERBOARD", key="nl"): goto("leaderboard")
     else:
-        c1,c2,c3,c4 = st.columns([3,1,1,1])
+        c1,c2,c3 = st.columns([5,1,1])
         with c2:
             if st.button("LEADERBOARD", key="nl2"): goto("leaderboard")
         with c3:
-            if st.button(moon, key="nth2"):
-                st.session_state.theme = "light" if st.session_state.theme=="dark" else "dark"
-                st.rerun()
-        with c4:
             if st.button("LOGIN", key="nl3"): goto("auth")
 
 def footer():
@@ -584,12 +588,6 @@ elif st.session_state.page == "auth":
                         else:
                             st.error(f"❌ {err}")
 
-        # Quick fix tip
-        st.markdown("""
-        <div style="margin-top:1rem;padding:.8rem 1rem;background:rgba(240,180,41,.05);border:1px solid var(--gold-dim);border-radius:8px;font-size:.75rem;color:#888;">
-          💡 <b style="color:var(--gold);">Tip:</b> If login fails, go to <b>Supabase → Authentication → Settings</b>
-          and disable <b>"Email confirmations"</b> for easier testing.
-        </div>""", unsafe_allow_html=True)
     footer()
 
 # ══════════════════════════════════════════════════════════════
