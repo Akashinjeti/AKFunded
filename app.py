@@ -298,16 +298,60 @@ div.element-container,div.stMarkdown{background:transparent!important;}
 """, unsafe_allow_html=True)
 
 # ─── CONSTANTS ─────────────────────────────────────────────────
-RULES = {
-    "starter": {"target":8,  "daily_loss":4, "total_loss":8,  "min_days":5},
-    "pro":     {"target":10, "daily_loss":5, "total_loss":10, "min_days":5},
-    "elite":   {"target":10, "daily_loss":5, "total_loss":10, "min_days":7},
+LOGO_URL = "https://i.imgur.com/placeholder.png"  # replace with your hosted logo URL
+
+# One-Phase rules
+RULES_1P = {
+    "10k":  {"target":8,  "daily_loss":4, "total_loss":8,  "min_days":5,  "profit_split":80},
+    "25k":  {"target":8,  "daily_loss":4, "total_loss":8,  "min_days":5,  "profit_split":80},
+    "50k":  {"target":8,  "daily_loss":4, "total_loss":8,  "min_days":5,  "profit_split":80},
+    "100k": {"target":8,  "daily_loss":4, "total_loss":8,  "min_days":5,  "profit_split":80},
+    "200k": {"target":8,  "daily_loss":4, "total_loss":8,  "min_days":5,  "profit_split":80},
 }
-PLANS = [
-    {"name":"STARTER","capital":50000, "price":199,"slug":"starter"},
-    {"name":"PRO",    "capital":100000,"price":399,"slug":"pro"},
-    {"name":"ELITE",  "capital":500000,"price":799,"slug":"elite"},
+# Two-Phase rules (Phase 1 / Phase 2)
+RULES_2P = {
+    "10k":  {"target1":8,  "target2":5, "daily_loss":5, "total_loss":10, "min_days":4, "profit_split":90},
+    "25k":  {"target1":8,  "target2":5, "daily_loss":5, "total_loss":10, "min_days":4, "profit_split":90},
+    "50k":  {"target1":8,  "target2":5, "daily_loss":5, "total_loss":10, "min_days":4, "profit_split":90},
+    "100k": {"target1":8,  "target2":5, "daily_loss":5, "total_loss":10, "min_days":4, "profit_split":90},
+    "200k": {"target1":8,  "target2":5, "daily_loss":5, "total_loss":10, "min_days":4, "profit_split":90},
+}
+
+# Legacy rules for dashboard compatibility
+RULES = {
+    "starter":  {"target":8,  "daily_loss":4, "total_loss":8,  "min_days":5},
+    "pro":      {"target":8,  "daily_loss":4, "total_loss":8,  "min_days":5},
+    "elite":    {"target":8,  "daily_loss":4, "total_loss":8,  "min_days":5},
+    "1phase_10k":  {"target":8, "daily_loss":4,"total_loss":8, "min_days":5},
+    "1phase_25k":  {"target":8, "daily_loss":4,"total_loss":8, "min_days":5},
+    "1phase_50k":  {"target":8, "daily_loss":4,"total_loss":8, "min_days":5},
+    "1phase_100k": {"target":8, "daily_loss":4,"total_loss":8, "min_days":5},
+    "1phase_200k": {"target":8, "daily_loss":4,"total_loss":8, "min_days":5},
+    "2phase_10k":  {"target":8, "daily_loss":5,"total_loss":10,"min_days":4},
+    "2phase_25k":  {"target":8, "daily_loss":5,"total_loss":10,"min_days":4},
+    "2phase_50k":  {"target":8, "daily_loss":5,"total_loss":10,"min_days":4},
+    "2phase_100k": {"target":8, "daily_loss":5,"total_loss":10,"min_days":4},
+    "2phase_200k": {"target":8, "daily_loss":5,"total_loss":10,"min_days":4},
+}
+
+# One-Phase plans (USD pricing matching IF)
+PLANS_1P = [
+    {"name":"$10,000",  "capital":10000,  "price":119, "slug":"1phase_10k",  "split":80},
+    {"name":"$25,000",  "capital":25000,  "price":219, "slug":"1phase_25k",  "split":80},
+    {"name":"$50,000",  "capital":50000,  "price":299, "slug":"1phase_50k",  "split":80},
+    {"name":"$100,000", "capital":100000, "price":459, "slug":"1phase_100k", "split":80},
+    {"name":"$200,000", "capital":200000, "price":799, "slug":"1phase_200k", "split":80},
 ]
+# Two-Phase plans (cheaper entry, higher split)
+PLANS_2P = [
+    {"name":"$10,000",  "capital":10000,  "price":49,  "slug":"2phase_10k",  "split":90},
+    {"name":"$25,000",  "capital":25000,  "price":99,  "slug":"2phase_25k",  "split":90},
+    {"name":"$50,000",  "capital":50000,  "price":149, "slug":"2phase_50k",  "split":90},
+    {"name":"$100,000", "capital":100000, "price":249, "slug":"2phase_100k", "split":90},
+    {"name":"$200,000", "capital":200000, "price":449, "slug":"2phase_200k", "split":90},
+]
+# Legacy for other pages
+PLANS = PLANS_1P
 SYMBOLS = {
     "🇮🇳 NSE Indices": ["NIFTY","BANKNIFTY","FINNIFTY","MIDCPNIFTY"],
     "🇮🇳 NSE Stocks":  ["RELIANCE","TCS","INFY","HDFCBANK","TATAMOTORS","WIPRO","SBIN","ICICIBANK","BAJFINANCE","ADANIENT"],
@@ -586,7 +630,10 @@ def nav():
 
     st.markdown("""
     <div class="ak-nav">
-      <div style="display:flex;align-items:center;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <img src="https://raw.githubusercontent.com/Akashinjeti/akfunded/main/logo.png"
+             onerror="this.style.display='none'"
+             style="height:38px;width:38px;object-fit:contain;border-radius:6px;" />
         <span class="ak-logo"><span class="ak-part">AK</span><span class="funded-part">FUNDED</span></span>
         <span class="ak-beta">BETA</span>
       </div>
@@ -644,8 +691,15 @@ def nav():
 def footer():
     st.markdown("""
     <div class="ak-footer">
-      <b>AKFUNDED</b> &nbsp;·&nbsp; Built & Designed by <b>Akash Injeti</b>
-      &nbsp;·&nbsp; Simulate. Prove. Get Funded. &nbsp;·&nbsp; ⚡
+      <div style="display:flex;align-items:center;justify-content:center;gap:.8rem;margin-bottom:.8rem;">
+        <img src="https://raw.githubusercontent.com/Akashinjeti/akfunded/main/logo.png"
+             onerror="this.style.display='none'"
+             style="height:28px;width:28px;object-fit:contain;border-radius:4px;opacity:.7;" />
+        <b>AKFUNDED</b>
+      </div>
+      Built & Designed by <b>Akash Injeti</b>
+      &nbsp;·&nbsp; Simulate. Prove. Get Funded.
+      &nbsp;·&nbsp; <span style="color:#444;">Risk Disclosure: AKFunded is a simulated trading platform. All accounts are demo accounts.</span>
     </div>""", unsafe_allow_html=True)
 
 def sec(title, sub=""):
@@ -655,7 +709,7 @@ def sec(title, sub=""):
     """, unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════
-# HOME — PREMIUM LANDING
+# HOME — PREMIUM PROP FIRM LANDING
 # ══════════════════════════════════════════════════════════════
 if st.session_state.page == "home":
     nav()
@@ -663,122 +717,179 @@ if st.session_state.page == "home":
     # ── HERO ──
     st.markdown("""
     <div class="hero-v2">
-      <div class="eyebrow">⚡ India's #1 Prop Trading Simulator</div>
-      <h1>PROVE YOUR<br><em>EDGE.</em></h1>
-      <p class="sub">Trade simulated capital. Beat the rules. Earn your funded badge.<br>Join 340+ traders already on the platform.</p>
+      <div style="display:flex;justify-content:center;margin-bottom:1.5rem;">
+        <img src="https://raw.githubusercontent.com/Akashinjeti/akfunded/main/logo.png"
+             onerror="this.style.display='none'"
+             style="height:70px;width:70px;object-fit:contain;border-radius:12px;" />
+      </div>
+      <div class="eyebrow">⚡ The World's Premier Prop Trading Firm</div>
+      <h1>TRADE OUR<br><em>CAPITAL.</em></h1>
+      <p class="sub">Pass the challenge. Get funded up to $200,000.<br>Keep up to 90% of your profits. Join 3,500+ funded traders worldwide.</p>
     </div>""", unsafe_allow_html=True)
 
     c1,c2,c3 = st.columns([2,1,2])
     with c2:
-        if st.button("🚀 START FOR FREE", use_container_width=True): goto("auth")
+        if st.button("🚀 START CHALLENGE", use_container_width=True): goto("plans")
 
     # ── LIVE STATS ──
     st.markdown("""
     <div class="hstats" style="margin-top:2rem;">
-      <div class="hstat"><span class="n">₹50L+</span><span class="l">Capital Simulated</span></div>
-      <div class="hstat"><span class="n">340+</span><span class="l">Active Traders</span></div>
-      <div class="hstat"><span class="n">87</span><span class="l">Funded Badges</span></div>
-      <div class="hstat"><span class="n">96%</span><span class="l">Uptime</span></div>
-      <div class="hstat"><span class="n">4.9★</span><span class="l">Trader Rating</span></div>
+      <div class="hstat"><span class="n">$2M+</span><span class="l">Total Payouts</span></div>
+      <div class="hstat"><span class="n">3,500+</span><span class="l">Funded Traders</span></div>
+      <div class="hstat"><span class="n">180+</span><span class="l">Countries</span></div>
+      <div class="hstat"><span class="n">90%</span><span class="l">Profit Split</span></div>
+      <div class="hstat"><span class="n">24hr</span><span class="l">Payouts</span></div>
     </div>""", unsafe_allow_html=True)
+
+    # ── CHALLENGE TYPES ──
+    st.markdown("""
+    <div style="text-align:center;margin:3rem 0 1.5rem;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:2.5rem;letter-spacing:4px;color:#E8E8E8;">CHOOSE YOUR PROGRAM</div>
+      <div style="color:#555;font-size:.88rem;">Two paths to getting funded — pick what suits your style</div>
+    </div>""", unsafe_allow_html=True)
+
+    col1, col2 = st.columns(2, gap="large")
+    with col1:
+        st.markdown("""
+        <div style="background:var(--s1);border:2px solid var(--border);border-radius:18px;padding:2rem;height:100%;">
+          <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;">
+            <div style="background:rgba(240,180,41,.1);border:1px solid var(--gold-dim);border-radius:10px;padding:.6rem 1rem;">
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--gold);letter-spacing:2px;">ONE-PHASE</div>
+            </div>
+            <div style="font-size:.75rem;color:#555;letter-spacing:1px;">Faster path to funding</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+            <div style="background:var(--s2);border-radius:10px;padding:.8rem 1rem;">
+              <div style="font-size:.62rem;color:#555;letter-spacing:1.5px;text-transform:uppercase;">Profit Target</div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--green);">8%</div>
+            </div>
+            <div style="background:var(--s2);border-radius:10px;padding:.8rem 1rem;">
+              <div style="font-size:.62rem;color:#555;letter-spacing:1.5px;text-transform:uppercase;">Max Drawdown</div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--red);">8%</div>
+            </div>
+            <div style="background:var(--s2);border-radius:10px;padding:.8rem 1rem;">
+              <div style="font-size:.62rem;color:#555;letter-spacing:1.5px;text-transform:uppercase;">Daily Loss</div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--red);">4%</div>
+            </div>
+            <div style="background:var(--s2);border-radius:10px;padding:.8rem 1rem;">
+              <div style="font-size:.62rem;color:#555;letter-spacing:1.5px;text-transform:uppercase;">Profit Split</div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--gold);">80%</div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:.5rem;margin-bottom:1.5rem;">
+            <div style="font-size:.82rem;color:#666;">✅ 1 phase only — faster funding</div>
+            <div style="font-size:.82rem;color:#666;">✅ $10K – $200K account sizes</div>
+            <div style="font-size:.82rem;color:#666;">✅ Forex, Indices, Crypto, Commodities</div>
+            <div style="font-size:.82rem;color:#666;">✅ MT5 / cTrader compatible</div>
+            <div style="font-size:.82rem;color:#666;">✅ No time limit</div>
+          </div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;color:#555;letter-spacing:2px;margin-bottom:.3rem;">STARTING FROM</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:#E8E8E8;letter-spacing:2px;">$119</div>
+        </div>""", unsafe_allow_html=True)
+        if st.button("GET ONE-PHASE →", use_container_width=True, key="h_1p"):
+            st.session_state["selected_phase"] = "one"
+            goto("plans")
+
+    with col2:
+        st.markdown("""
+        <div style="background:linear-gradient(160deg,#0d0b1a,var(--s1));border:2px solid #6C5CE7;border-radius:18px;padding:2rem;height:100%;position:relative;overflow:hidden;">
+          <div style="position:absolute;top:1rem;right:1rem;background:#6C5CE7;color:#fff;font-size:.6rem;font-weight:800;padding:3px 10px;border-radius:20px;letter-spacing:1.5px;">BEST VALUE</div>
+          <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;">
+            <div style="background:rgba(108,92,231,.15);border:1px solid #6C5CE7;border-radius:10px;padding:.6rem 1rem;">
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:#6C5CE7;letter-spacing:2px;">TWO-PHASE</div>
+            </div>
+            <div style="font-size:.75rem;color:#555;letter-spacing:1px;">Higher split, lower cost</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+            <div style="background:var(--s2);border-radius:10px;padding:.8rem 1rem;">
+              <div style="font-size:.62rem;color:#555;letter-spacing:1.5px;text-transform:uppercase;">Phase 1 Target</div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--green);">8%</div>
+            </div>
+            <div style="background:var(--s2);border-radius:10px;padding:.8rem 1rem;">
+              <div style="font-size:.62rem;color:#555;letter-spacing:1.5px;text-transform:uppercase;">Phase 2 Target</div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--green);">5%</div>
+            </div>
+            <div style="background:var(--s2);border-radius:10px;padding:.8rem 1rem;">
+              <div style="font-size:.62rem;color:#555;letter-spacing:1.5px;text-transform:uppercase;">Max Drawdown</div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--red);">10%</div>
+            </div>
+            <div style="background:var(--s2);border-radius:10px;padding:.8rem 1rem;">
+              <div style="font-size:.62rem;color:#555;letter-spacing:1.5px;text-transform:uppercase;">Profit Split</div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:#6C5CE7;">90%</div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:.5rem;margin-bottom:1.5rem;">
+            <div style="font-size:.82rem;color:#666;">✅ 90% profit split (highest tier)</div>
+            <div style="font-size:.82rem;color:#666;">✅ Cheaper entry fees</div>
+            <div style="font-size:.82rem;color:#666;">✅ $10K – $200K account sizes</div>
+            <div style="font-size:.82rem;color:#666;">✅ Scale up to $2,000,000</div>
+            <div style="font-size:.82rem;color:#666;">✅ 24-hour payouts</div>
+          </div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;color:#555;letter-spacing:2px;margin-bottom:.3rem;">STARTING FROM</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:#E8E8E8;letter-spacing:2px;">$49</div>
+        </div>""", unsafe_allow_html=True)
+        if st.button("GET TWO-PHASE →", use_container_width=True, key="h_2p"):
+            st.session_state["selected_phase"] = "two"
+            goto("plans")
 
     # ── HOW IT WORKS ──
     st.markdown("""
     <div style="text-align:center;margin:3rem 0 1rem;">
       <div style="font-family:'Bebas Neue',sans-serif;font-size:2.5rem;letter-spacing:4px;color:#E8E8E8;">HOW IT WORKS</div>
-      <div style="color:#555;font-size:.88rem;">Four steps to becoming a funded trader</div>
+      <div style="color:#555;font-size:.88rem;">From signup to funded in as little as 1 day</div>
     </div>
     <div class="steps-grid">
       <div class="step-card">
         <div class="step-num">01</div>
-        <div class="step-title">BUY A PLAN</div>
-        <div class="step-desc">Choose Starter ₹50K, Pro ₹1L or Elite ₹5L. One-time fee from ₹199.</div>
+        <div class="step-title">CHOOSE A PLAN</div>
+        <div class="step-desc">Pick One-Phase or Two-Phase. Select your account size from $10K to $200K. Pay once, no subscriptions.</div>
       </div>
       <div class="step-card">
         <div class="step-num">02</div>
-        <div class="step-title">TRADE</div>
-        <div class="step-desc">Use TradingView charts to simulate real trades across NSE, Crypto & Forex.</div>
+        <div class="step-title">PASS THE CHALLENGE</div>
+        <div class="step-desc">Hit the profit target while respecting drawdown limits. Trade any instrument — Forex, Crypto, Indices, Commodities.</div>
       </div>
       <div class="step-card">
         <div class="step-num">03</div>
-        <div class="step-title">PASS THE RULES</div>
-        <div class="step-desc">Hit the profit target. Stay within daily & total loss limits. Trade minimum days.</div>
+        <div class="step-title">GET FUNDED</div>
+        <div class="step-desc">Pass verification and receive your funded account. Real capital, real rules, real payouts within 24 hours.</div>
       </div>
       <div class="step-card">
         <div class="step-num">04</div>
-        <div class="step-title">GET FUNDED</div>
-        <div class="step-desc">Earn your funded badge, certificate & appear on the leaderboard.</div>
+        <div class="step-title">SCALE UP</div>
+        <div class="step-desc">Keep up to 90% of profits. Scale your account up to $2,000,000 as you consistently perform.</div>
       </div>
     </div>""", unsafe_allow_html=True)
 
-    # ── PLANS ──
+    # ── TESTIMONIALS ──
     st.markdown("""
     <div style="text-align:center;margin:3rem 0 1rem;">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:2.5rem;letter-spacing:4px;color:#E8E8E8;">CHALLENGE PLANS</div>
-      <div style="color:#555;font-size:.88rem;">One-time fee. Prove your skills. Unlock your funded badge.</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:2.5rem;letter-spacing:4px;color:#E8E8E8;">FUNDED TRADERS</div>
+      <div style="color:#555;font-size:.88rem;">Real traders. Real payouts. Real results.</div>
     </div>
-    <div class="plans-grid">
-      <div class="plan-card">
-        <div class="plan-name">STARTER</div><div class="plan-capital">₹50K</div>
-        <ul class="plan-rules">
-          <li><span>Profit Target</span><b>+8%</b></li>
-          <li><span>Max Daily Loss</span><b>-4%</b></li>
-          <li><span>Max Total Loss</span><b>-8%</b></li>
-          <li><span>Min Days</span><b>5</b></li>
-        </ul>
-        <div class="plan-price">₹199 <small>/ one-time</small></div>
+    <div class="testi-grid">
+      <div class="testi-card">
+        <div class="testi-quote">"Passed the $100K One-Phase challenge in 6 days. Withdrawal processed within 24 hours. AKFunded is the real deal."</div>
+        <div class="testi-name">Rahul S. 🇮🇳</div>
+        <div class="testi-meta">$100K Funded · +$8,200 payout · One-Phase</div>
       </div>
-      <div class="plan-card hot">
-        <div class="plan-name">PRO</div><div class="plan-capital">₹1L</div>
-        <ul class="plan-rules">
-          <li><span>Profit Target</span><b>+10%</b></li>
-          <li><span>Max Daily Loss</span><b>-5%</b></li>
-          <li><span>Max Total Loss</span><b>-10%</b></li>
-          <li><span>Min Days</span><b>5</b></li>
-        </ul>
-        <div class="plan-price">₹399 <small>/ one-time</small></div>
+      <div class="testi-card">
+        <div class="testi-quote">"The Two-Phase program gave me 90% profit split. Best value in the prop firm space. Already on my second account."</div>
+        <div class="testi-name">Priya M. 🇮🇳</div>
+        <div class="testi-meta">$50K Funded · +$4,500 payout · Two-Phase</div>
       </div>
-      <div class="plan-card">
-        <div class="plan-name">ELITE</div><div class="plan-capital">₹5L</div>
-        <ul class="plan-rules">
-          <li><span>Profit Target</span><b>+10%</b></li>
-          <li><span>Max Daily Loss</span><b>-5%</b></li>
-          <li><span>Max Total Loss</span><b>-10%</b></li>
-          <li><span>Min Days</span><b>7</b></li>
-        </ul>
-        <div class="plan-price">₹799 <small>/ one-time</small></div>
+      <div class="testi-card">
+        <div class="testi-quote">"Transparent rules, fast payouts, and real support. AKFunded treats traders like professionals, not just customers."</div>
+        <div class="testi-name">Kiran T. 🇮🇳</div>
+        <div class="testi-meta">$25K Funded · 3 challenges completed</div>
       </div>
     </div>""", unsafe_allow_html=True)
 
     c1,c2,c3 = st.columns([2,1,2])
     with c2:
-        if st.button("⚡ GET STARTED NOW", use_container_width=True, key="cta2"): goto("auth")
-
-    # ── TESTIMONIALS ──
-    st.markdown("""
-    <div style="text-align:center;margin:3rem 0 1rem;">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:2.5rem;letter-spacing:4px;color:#E8E8E8;">WHAT TRADERS SAY</div>
-    </div>
-    <div class="testi-grid">
-      <div class="testi-card">
-        <div class="testi-quote">"Passed the PRO challenge in 8 days. The rules engine is exactly like real prop firms. Best simulator I've used."</div>
-        <div class="testi-name">Rahul S.</div>
-        <div class="testi-meta">🥇 Elite Funded Trader &nbsp;·&nbsp; +18.4% profit</div>
-      </div>
-      <div class="testi-card">
-        <div class="testi-quote">"The TradingView integration is 🔥. I can trade Nifty, crypto and forex all in one place. The journal helped me improve my strategy."</div>
-        <div class="testi-name">Priya M.</div>
-        <div class="testi-meta">🥈 Pro Funded Trader &nbsp;·&nbsp; +15.2% profit</div>
-      </div>
-      <div class="testi-card">
-        <div class="testi-quote">"Started with ₹199 Starter plan, learned discipline, now on my Elite challenge. The AI assistant gives solid trading tips."</div>
-        <div class="testi-name">Kiran T.</div>
-        <div class="testi-meta">Active Trader &nbsp;·&nbsp; 3 challenges completed</div>
-      </div>
-    </div>""", unsafe_allow_html=True)
+        if st.button("⚡ START NOW", use_container_width=True, key="cta2"): goto("plans")
 
     footer()
-
 # ══════════════════════════════════════════════════════════════
 # AUTH
 # ══════════════════════════════════════════════════════════════
@@ -871,53 +982,153 @@ elif st.session_state.page == "plans":
     if not st.session_state.user: goto("auth")
     nav()
     name = st.session_state.user.get("name","Trader")
-    sec(f"WELCOME, {name.upper()} 👋", "Select a challenge to start trading with simulated capital")
 
-    cols = st.columns(3)
-    for i,plan in enumerate(PLANS):
-        with cols[i]:
-            r = RULES[plan["slug"]]
-            cap_str = f"₹{plan['capital']//100000}L" if plan['capital']>=100000 else f"₹{plan['capital']//1000}K"
-            hot = plan["slug"] == "pro"
-            border = "var(--gold)" if hot else "var(--border)"
-            bg = "background:linear-gradient(160deg,#130f00,var(--s1));" if hot else ""
+    st.markdown(f"""
+    <div style="text-align:center;margin-bottom:2rem;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:3px;color:#E8E8E8;">
+        CHOOSE YOUR CHALLENGE, {name.upper()} 👋
+      </div>
+      <div style="color:#666;font-size:.88rem;margin-top:.3rem;">
+        One-time fee · No subscription · Trade your way to funding
+      </div>
+    </div>""", unsafe_allow_html=True)
+
+    # Phase selector
+    default_tab = 1 if st.session_state.get("selected_phase") == "two" else 0
+    tab1, tab2 = st.tabs(["  ⚡ ONE-PHASE CHALLENGE  ", "  🔥 TWO-PHASE CHALLENGE  "])
+
+    def render_plan_card(plan, phase):
+        r   = RULES.get(plan["slug"], RULES["1phase_10k"])
+        hot = plan["capital"] == 100000
+        border  = "var(--gold)" if hot else "var(--border)"
+        bg      = "background:linear-gradient(160deg,#130f00,var(--s1));" if hot else ""
+        badge   = '<div style="position:absolute;top:1rem;right:1rem;background:var(--gold);color:#000;font-size:.55rem;font-weight:800;padding:3px 10px;border-radius:20px;letter-spacing:1.5px;">POPULAR</div>' if hot else ""
+        split_c = "#6C5CE7" if phase == 2 else "var(--gold)"
+
+        if phase == 1:
+            rules_html = f"""
+            <li><span>Profit Target</span><b style="color:var(--green);">+{r['target']}%</b></li>
+            <li><span>Max Daily Loss</span><b style="color:var(--red);">-{r['daily_loss']}%</b></li>
+            <li><span>Max Drawdown</span><b style="color:var(--red);">-{r['total_loss']}%</b></li>
+            <li><span>Min Trading Days</span><b>{r['min_days']} days</b></li>
+            <li><span>Profit Split</span><b style="color:{split_c};">80%</b></li>
+            <li><span>Leverage</span><b>1:100</b></li>"""
+        else:
+            rules_html = f"""
+            <li><span>Phase 1 Target</span><b style="color:var(--green);">+8%</b></li>
+            <li><span>Phase 2 Target</span><b style="color:var(--green);">+5%</b></li>
+            <li><span>Max Daily Loss</span><b style="color:var(--red);">-{r['daily_loss']}%</b></li>
+            <li><span>Max Drawdown</span><b style="color:var(--red);">-{r['total_loss']}%</b></li>
+            <li><span>Profit Split</span><b style="color:{split_c};">90%</b></li>
+            <li><span>Leverage</span><b>1:100</b></li>"""
+
+        st.markdown(f"""
+        <div style="background:var(--s1);{bg}border:2px solid {border};border-radius:18px;
+                    padding:1.8rem;position:relative;overflow:hidden;">
+          {badge}
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:3px;
+                      color:#555;margin-bottom:.3rem;">ACCOUNT SIZE</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:2.8rem;color:var(--gold);
+                      letter-spacing:2px;line-height:1;margin-bottom:1.2rem;">{plan['name']}</div>
+          <ul class="plan-rules" style="margin-bottom:1.2rem;">
+            {rules_html}
+          </ul>
+          <div style="border-top:1px solid var(--border);padding-top:1rem;">
+            <div style="font-size:.65rem;color:#555;letter-spacing:1.5px;text-transform:uppercase;">One-time fee</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:#E8E8E8;letter-spacing:2px;">
+              ${plan['price']}
+            </div>
+          </div>
+        </div>""", unsafe_allow_html=True)
+
+        if st.button(f"START ${plan['price']} CHALLENGE", key=f"buy_{plan['slug']}", use_container_width=True):
+            rz = st.secrets.get("RAZORPAY_KEY_ID","rzp_test_placeholder")
+            # Convert USD to INR approx for Razorpay (1 USD ≈ 84 INR)
+            inr_amount = plan['price'] * 84 * 100
             st.markdown(f"""
-            <div style="background:var(--s1);{bg}border:2px solid {border};border-radius:18px;padding:2rem;text-align:center;">
-              <div class="plan-name">{plan['name']}</div>
-              <div class="plan-capital">{cap_str}</div>
-              <ul class="plan-rules" style="text-align:left;">
-                <li><span>Profit Target</span><b>+{r['target']}%</b></li>
-                <li><span>Max Daily Loss</span><b>-{r['daily_loss']}%</b></li>
-                <li><span>Max Total Loss</span><b>-{r['total_loss']}%</b></li>
-                <li><span>Min Days</span><b>{r['min_days']}</b></li>
-              </ul>
-              <div class="plan-price">₹{plan['price']}</div>
-            </div>""", unsafe_allow_html=True)
-            if st.button(f"BUY {plan['name']}", key=f"buy_{plan['slug']}", use_container_width=True):
-                rz = st.secrets.get("RAZORPAY_KEY_ID","rzp_test_placeholder")
-                st.markdown(f"""
-                <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-                <script>
-                  var rzp=new Razorpay({{key:"{rz}",amount:{plan['price']*100},currency:"INR",
-                  name:"AKFunded",description:"{plan['name']} Challenge",
-                  prefill:{{email:"{st.session_state.user.get('email','')}"}},
-                  theme:{{color:"#F0B429"}},
-                  handler:function(r){{alert("✅ Payment successful!");}} }});rzp.open();
-                </script>""", unsafe_allow_html=True)
-                uid = st.session_state.user["id"]
-                ch = supabase.table("challenges").insert({
-                    "user_id":uid,"plan":plan["slug"],
-                    "capital":plan["capital"],"status":"active"
-                }).execute()
-                ch_id = ch.data[0]["id"]
-                supabase.table("accounts").insert({
-                    "user_id":uid,"challenge_id":ch_id,
-                    "balance":plan["capital"],"initial_capital":plan["capital"],
-                    "daily_loss":0,"total_loss":0,"days_traded":0
-                }).execute()
-                st.success(f"✅ {plan['name']} activated! {cap_str} ready to trade.")
-                time.sleep(1)
-                goto("dashboard")
+            <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+            <script>
+              var rzp=new Razorpay({{
+                key:"{rz}", amount:{inr_amount}, currency:"INR",
+                name:"AKFunded", description:"{plan['name']} {['One','Two'][phase-1]}-Phase Challenge",
+                prefill:{{email:"{st.session_state.user.get('email','')}"}},
+                theme:{{color:"#F0B429"}},
+                handler:function(r){{alert("✅ Payment successful! Challenge activated.");}}
+              }});rzp.open();
+            </script>""", unsafe_allow_html=True)
+            uid  = st.session_state.user["id"]
+            ch   = supabase.table("challenges").insert({
+                "user_id":uid, "plan":plan["slug"],
+                "capital":plan["capital"], "status":"active"
+            }).execute()
+            ch_id = ch.data[0]["id"]
+            supabase.table("accounts").insert({
+                "user_id":uid, "challenge_id":ch_id,
+                "balance":plan["capital"], "initial_capital":plan["capital"],
+                "daily_loss":0, "total_loss":0, "days_traded":0
+            }).execute()
+            st.success(f"✅ {plan['name']} {['One','Two'][phase-1]}-Phase Challenge activated!")
+            st.session_state.pop("selected_phase", None)
+            time.sleep(1)
+            goto("dashboard")
+
+    with tab1:
+        st.markdown("""
+        <div style="background:rgba(240,180,41,.05);border:1px solid var(--gold-dim);border-radius:12px;
+                    padding:1rem 1.5rem;margin:.5rem 0 1.5rem;display:flex;gap:2rem;flex-wrap:wrap;">
+          <span style="font-size:.82rem;color:#888;">✅ Single phase &nbsp;·&nbsp; ✅ Faster funding &nbsp;·&nbsp;
+          ✅ 80% profit split &nbsp;·&nbsp; ✅ No time limit &nbsp;·&nbsp; ✅ 24hr payouts</span>
+        </div>""", unsafe_allow_html=True)
+        cols = st.columns(5)
+        for i, plan in enumerate(PLANS_1P):
+            with cols[i]:
+                render_plan_card(plan, 1)
+
+    with tab2:
+        st.markdown("""
+        <div style="background:rgba(108,92,231,.05);border:1px solid #6C5CE7;border-radius:12px;
+                    padding:1rem 1.5rem;margin:.5rem 0 1.5rem;display:flex;gap:2rem;flex-wrap:wrap;">
+          <span style="font-size:.82rem;color:#888;">✅ 90% profit split &nbsp;·&nbsp; ✅ Lower fees &nbsp;·&nbsp;
+          ✅ Two verification phases &nbsp;·&nbsp; ✅ Scale to $2M &nbsp;·&nbsp; ✅ 24hr payouts</span>
+        </div>""", unsafe_allow_html=True)
+        cols = st.columns(5)
+        for i, plan in enumerate(PLANS_2P):
+            with cols[i]:
+                render_plan_card(plan, 2)
+
+    # Compare table
+    st.markdown("""
+    <br>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:3px;color:#555;margin-bottom:1rem;">
+      COMPARE PROGRAMS
+    </div>
+    <div style="background:var(--s1);border:1px solid var(--border);border-radius:14px;overflow:hidden;">
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr;padding:.8rem 1.2rem;
+                  background:var(--s2);font-size:.65rem;color:#555;letter-spacing:1.5px;text-transform:uppercase;">
+        <span>FEATURE</span><span style="text-align:center;">ONE-PHASE</span><span style="text-align:center;">TWO-PHASE</span>
+      </div>""", unsafe_allow_html=True)
+
+    rows = [
+        ("Entry Fee", "$119 – $799", "$49 – $449"),
+        ("Profit Target", "8%", "8% + 5%"),
+        ("Max Drawdown", "8%", "10%"),
+        ("Profit Split", "80%", "90%"),
+        ("Phases", "1", "2"),
+        ("Time Limit", "None", "None"),
+        ("Payout Speed", "24 hours", "24 hours"),
+        ("Scale Up To", "$2,000,000", "$2,000,000"),
+        ("Platforms", "MT5, cTrader", "MT5, cTrader"),
+    ]
+    for feat, v1, v2 in rows:
+        st.markdown(f"""
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr;padding:.7rem 1.2rem;
+                    border-top:1px solid var(--border2);font-size:.82rem;">
+          <span style="color:#888;">{feat}</span>
+          <span style="text-align:center;color:#E8E8E8;font-weight:500;">{v1}</span>
+          <span style="text-align:center;color:#6C5CE7;font-weight:500;">{v2}</span>
+        </div>""", unsafe_allow_html=True)
+
+    st.markdown("</div>", unsafe_allow_html=True)
     footer()
 
 # ══════════════════════════════════════════════════════════════
@@ -1371,6 +1582,26 @@ elif st.session_state.page == "profile":
         st.session_state.user = None
         st.session_state.notifications = []
         goto("home")
+
+    # ── TEST EMAIL ──
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1rem;letter-spacing:2px;color:#555;margin-bottom:.8rem;">📧 EMAIL TEST</div>', unsafe_allow_html=True)
+    st.markdown(f'<div style="color:#555;font-size:.8rem;margin-bottom:.5rem;">Send a test email to <b style="color:#E8E8E8;">{email}</b> to verify SMTP is configured correctly.</div>', unsafe_allow_html=True)
+    if st.button("📧 SEND TEST EMAIL", key="test_email"):
+        ok = send_email_notification(
+            email,
+            "✅ AKFunded Email Test",
+            f"""<div style="font-family:Arial,sans-serif;background:#070707;color:#E8E8E8;padding:2rem;border-radius:12px;max-width:500px;">
+              <h2 style="color:#F0B429;letter-spacing:3px;">AKFUNDED ⚡</h2>
+              <h3>Email is working! ✅</h3>
+              <p style="color:#666;">Hey {name}, your SMTP is configured correctly.<br>You'll receive challenge certificates and notifications here.</p>
+              <p style="font-size:.75rem;color:#333;">Powered by Akash Injeti · akfunded.streamlit.app</p>
+            </div>"""
+        )
+        if ok:
+            st.success(f"✅ Test email sent to {email}! Check your inbox.")
+        else:
+            st.error("❌ Failed — double check SMTP_EMAIL and SMTP_PASSWORD in secrets.")
 
     footer()
 
