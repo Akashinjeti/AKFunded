@@ -1,6 +1,6 @@
 import streamlit as st
 from supabase import create_client
-import time, random, string, smtplib, base64
+import time, random, string, smtplib, base64, io
 from datetime import datetime, timedelta
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -973,17 +973,14 @@ def check_and_breach(uid, challenge, account, email, name):
         return True, breach_reason
     return False, ""
 
-# ─── CERTIFICATE ───────────────────────────────────────────────
+# ─── CERTIFICATE: on-screen (flex/grid OK for browser) ─────────
 def build_certificate_html(name, plan, capital, pnl_pct, days, date_str, challenge_id):
     cap_str = f"${capital // 1000}K"
     r = RULES.get(plan, {})
     phase_type = r.get("phase", "1step")
-    if phase_type == "instant":
-        phase_label = "INSTANT FUNDED"
-    elif phase_type == "1step":
-        phase_label = "ONE-STEP CHALLENGE"
-    else:
-        phase_label = "TWO-STEP CHALLENGE"
+    if phase_type == "instant":   phase_label = "INSTANT FUNDED"
+    elif phase_type == "1step":   phase_label = "ONE-STEP CHALLENGE"
+    else:                         phase_label = "TWO-STEP CHALLENGE"
 
     accent      = "#00B87A"
     accent_glow = "rgba(0,184,122,0.3)"
@@ -993,15 +990,13 @@ def build_certificate_html(name, plan, capital, pnl_pct, days, date_str, challen
     mid_bord    = "rgba(0,184,122,0.18)"
 
     return (
-        '<div style="'
-        'width:1123px;height:794px;max-width:100%;margin:0 auto;'
+        '<div style="width:1123px;height:794px;max-width:100%;margin:0 auto;'
         'background:linear-gradient(160deg,#070d07 0%,#060a06 60%,#050905 100%);'
         'position:relative;overflow:hidden;box-sizing:border-box;'
         f'border:1px solid {accent_bord};font-family:Rajdhani,sans-serif;'
         'display:flex;flex-direction:column;">'
 
-        '<div style="position:absolute;inset:0;'
-        'background:'
+        '<div style="position:absolute;inset:0;background:'
         'repeating-linear-gradient(0deg,transparent,transparent 40px,rgba(0,184,122,0.013) 40px,rgba(0,184,122,0.013) 41px),'
         'repeating-linear-gradient(90deg,transparent,transparent 40px,rgba(0,184,122,0.013) 40px,rgba(0,184,122,0.013) 41px);'
         'pointer-events:none;z-index:0;"></div>'
@@ -1016,9 +1011,7 @@ def build_certificate_html(name, plan, capital, pnl_pct, days, date_str, challen
         f'<div style="position:absolute;bottom:0;left:0;width:72px;height:72px;border-bottom:2px solid {accent};border-left:2px solid {accent};z-index:1;"></div>'
         f'<div style="position:absolute;bottom:0;right:0;width:72px;height:72px;border-bottom:2px solid {accent};border-right:2px solid {accent};z-index:1;"></div>'
 
-        '<div style="position:relative;z-index:2;flex:1;'
-        'display:flex;flex-direction:column;align-items:center;'
-        'justify-content:center;padding:36px 90px 12px;">'
+        '<div style="position:relative;z-index:2;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:36px 90px 12px;">'
 
         f'<div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;">'
         f'<img src="{LOGO_URL}" onerror="this.style.display=\'none\'" style="height:44px;width:44px;object-fit:contain;opacity:0.9;" />'
@@ -1034,7 +1027,6 @@ def build_certificate_html(name, plan, capital, pnl_pct, days, date_str, challen
         '</div>'
 
         '<div style="font-size:0.52rem;color:#3a6a4a;letter-spacing:4px;text-transform:uppercase;margin-bottom:6px;font-weight:600;">OFFICIAL CERTIFICATE</div>'
-
         f'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:3.6rem;letter-spacing:10px;color:{accent};line-height:1;margin-bottom:1px;text-shadow:0 0 40px {accent_glow};">CERTIFICATE</div>'
         '<div style="font-size:0.8rem;letter-spacing:8px;color:#2a5a3a;margin-bottom:10px;font-weight:700;text-transform:uppercase;">OF RECOGNITION</div>'
 
@@ -1059,50 +1051,480 @@ def build_certificate_html(name, plan, capital, pnl_pct, days, date_str, challen
         '</div>'
 
         f'<div style="display:grid;grid-template-columns:repeat(3,1fr);width:100%;border:1px solid {accent_bord};background:{accent_bd2};">'
-
         f'<div style="padding:12px 16px;border-right:1px solid {accent_bord};text-align:center;">'
         f'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.8rem;letter-spacing:2px;color:{accent};line-height:1;margin-bottom:3px;">+{pnl_pct:.2f}%</div>'
         '<div style="font-size:0.48rem;color:#3a6a4a;letter-spacing:2.5px;text-transform:uppercase;">Profit Achieved</div>'
         '</div>'
-
         f'<div style="padding:12px 16px;border-right:1px solid {accent_bord};text-align:center;">'
         f'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.8rem;letter-spacing:2px;color:#D4A843;line-height:1;margin-bottom:3px;">{days}</div>'
         '<div style="font-size:0.48rem;color:#3a6a4a;letter-spacing:2.5px;text-transform:uppercase;">Trading Days</div>'
         '</div>'
-
         f'<div style="padding:12px 16px;text-align:center;">'
         f'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.45rem;letter-spacing:2px;color:#D8D8D8;line-height:1;margin-bottom:3px;">{date_str}</div>'
         '<div style="font-size:0.48rem;color:#3a6a4a;letter-spacing:2.5px;text-transform:uppercase;">Date Issued</div>'
         '</div>'
-
         '</div>'
         '</div>'
 
         f'<div style="position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:16px 90px 26px;border-top:1px solid {accent_bord};">'
-
         '<div style="text-align:center;">'
         f'<div style="font-family:\'Alex Brush\',cursive;font-size:2.4rem;color:{accent};line-height:1.1;letter-spacing:1px;">Akash Injeti</div>'
         f'<div style="width:130px;height:1px;background:{accent_bord};margin:5px auto;"></div>'
         '<div style="font-size:0.5rem;color:#3a6a4a;letter-spacing:1.5px;text-transform:uppercase;">Akash Injeti</div>'
         '<div style="font-size:0.48rem;color:#2a5a3a;letter-spacing:1px;text-transform:uppercase;">Founder, AKFunded</div>'
         '</div>'
-
         f'<div style="text-align:center;">'
         f'<div style="width:54px;height:54px;border:2px solid {accent_bord};border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto;background:{accent_bd2};">'
         f'<div style="font-size:0.36rem;color:{accent};font-weight:700;text-align:center;line-height:1.9;letter-spacing:0.4px;">AK<br>FUNDED<br>&#10003;</div>'
         '</div>'
         '<div style="font-size:0.44rem;color:#2a5a3a;letter-spacing:1.5px;margin-top:4px;text-transform:uppercase;">Verified</div>'
         '</div>'
-
         '<div style="text-align:right;">'
         '<div style="font-size:0.48rem;color:#2a4a2a;letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;">akfunded.streamlit.app</div>'
         '<div style="font-size:0.48rem;color:#2a4a2a;letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;">@akfunded</div>'
         '<div style="font-size:0.48rem;color:#2a4a2a;letter-spacing:2px;text-transform:uppercase;">Simulated Prop Trading</div>'
         '</div>'
-
         '</div>'
         '</div>'
     )
+
+
+# ─── CERTIFICATE: EMAIL-SAFE (table-based, Gmail-compatible) ───
+def build_certificate_email_html(name, plan, capital, pnl_pct, days, date_str):
+    cap_str = f"${capital // 1000}K"
+    r = RULES.get(plan, {})
+    phase_type = r.get("phase", "1step")
+    if phase_type == "instant":   phase_label = "INSTANT FUNDED"
+    elif phase_type == "1step":   phase_label = "ONE-STEP CHALLENGE"
+    else:                         phase_label = "TWO-STEP CHALLENGE"
+
+    return f"""<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>AKFunded Certificate of Recognition</title></head>
+<body style="margin:0;padding:0;background:#050505;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#050505;">
+<tr><td align="center" style="padding:24px 10px;">
+
+<table width="660" cellpadding="0" cellspacing="0" border="0"
+  style="background:#060d06;border:2px solid #1a3a1a;max-width:660px;width:100%;">
+
+  <tr><td colspan="3" height="3" style="background:#00B87A;font-size:1px;line-height:1px;">&nbsp;</td></tr>
+
+  <tr>
+    <td align="center" style="padding:28px 30px 8px;">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr><td align="center">
+          <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:22px;font-weight:bold;
+            letter-spacing:6px;color:#00D4FF;">AKFUNDED</p>
+          <p style="margin:4px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:9px;
+            color:#3a6a5a;letter-spacing:3px;text-transform:uppercase;">PROP TRADING PLATFORM</p>
+        </td></tr>
+      </table>
+    </td>
+  </tr>
+
+  <tr>
+    <td style="padding:4px 40px 10px;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td style="border-top:1px solid #1a3a1a;">&nbsp;</td>
+          <td width="12" align="center" valign="middle">
+            <table cellpadding="0" cellspacing="0" border="0"><tr><td width="8" height="8"
+              style="background:#00B87A;border-radius:4px;">&nbsp;</td></tr></table>
+          </td>
+          <td style="border-top:1px solid #1a3a1a;">&nbsp;</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <tr>
+    <td align="center" style="padding:0 30px 4px;">
+      <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:9px;font-weight:bold;
+        letter-spacing:4px;color:#3a6a4a;text-transform:uppercase;">OFFICIAL CERTIFICATE</p>
+    </td>
+  </tr>
+
+  <tr>
+    <td align="center" style="padding:2px 30px 2px;">
+      <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:52px;font-weight:bold;
+        letter-spacing:8px;color:#00B87A;line-height:1.1;">CERTIFICATE</p>
+    </td>
+  </tr>
+
+  <tr>
+    <td align="center" style="padding:0 30px 8px;">
+      <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;
+        letter-spacing:7px;color:#2a5a3a;text-transform:uppercase;">OF RECOGNITION</p>
+    </td>
+  </tr>
+
+  <tr>
+    <td align="center" style="padding:0 40px 6px;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td style="border-top:1px solid #1a3a1a;">&nbsp;</td>
+          <td width="220" align="center" style="padding:0 8px;">
+            <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:8px;
+              color:#3a6a4a;letter-spacing:2px;white-space:nowrap;">
+              This certificate is proudly presented to</p>
+          </td>
+          <td style="border-top:1px solid #1a3a1a;">&nbsp;</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <tr>
+    <td align="center" style="padding:4px 30px 0;">
+      <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:34px;font-weight:bold;
+        letter-spacing:5px;color:#EFEFEF;">{name.upper()}</p>
+    </td>
+  </tr>
+
+  <tr>
+    <td align="center" style="padding:6px 30px 10px;">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr><td width="300" height="1" style="background:#00B87A;font-size:1px;line-height:1px;">&nbsp;</td></tr>
+      </table>
+    </td>
+  </tr>
+
+  <tr>
+    <td align="center" style="padding:0 60px 10px;">
+      <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:11px;
+        color:#4a7a5a;line-height:1.8;text-align:center;">
+        This trader demonstrated exceptional discipline and risk management<br>
+        in the AKFunded prop trading evaluation.
+      </p>
+    </td>
+  </tr>
+
+  <tr>
+    <td align="center" style="padding:0 30px 16px;">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td style="background:#0a1f0a;border:1px solid #1a7a5a;padding:8px 28px;">
+            <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:bold;
+              color:#00B87A;letter-spacing:3px;text-transform:uppercase;">
+              {phase_label} &nbsp;&middot;&nbsp; {cap_str} ACCOUNT
+            </p>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <tr>
+    <td style="padding:0 30px 18px;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td width="32%" align="center" valign="top"
+            style="background:#0f200f;border:1px solid #1a3a1a;padding:16px 8px;">
+            <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:28px;font-weight:bold;
+              color:#00B87A;letter-spacing:2px;">+{pnl_pct:.2f}%</p>
+            <p style="margin:8px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:8px;
+              color:#3a6a4a;letter-spacing:2px;text-transform:uppercase;">PROFIT ACHIEVED</p>
+          </td>
+          <td width="2%" style="background:#060d06;">&nbsp;</td>
+          <td width="32%" align="center" valign="top"
+            style="background:#0f200f;border:1px solid #1a3a1a;padding:16px 8px;">
+            <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:28px;font-weight:bold;
+              color:#D4A843;letter-spacing:2px;">{days}</p>
+            <p style="margin:8px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:8px;
+              color:#3a6a4a;letter-spacing:2px;text-transform:uppercase;">TRADING DAYS</p>
+          </td>
+          <td width="2%" style="background:#060d06;">&nbsp;</td>
+          <td width="32%" align="center" valign="top"
+            style="background:#0f200f;border:1px solid #1a3a1a;padding:16px 8px;">
+            <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:18px;font-weight:bold;
+              color:#D8D8D8;letter-spacing:2px;">{date_str}</p>
+            <p style="margin:8px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:8px;
+              color:#3a6a4a;letter-spacing:2px;text-transform:uppercase;">DATE ISSUED</p>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <tr>
+    <td height="1" style="background:#1a3a1a;font-size:1px;line-height:1px;">&nbsp;</td>
+  </tr>
+
+  <tr>
+    <td style="padding:18px 30px 26px;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr valign="middle">
+          <td width="38%" align="left" valign="middle">
+            <p style="margin:0;font-family:Georgia,serif;font-style:italic;font-size:22px;
+              color:#00B87A;">Akash Injeti</p>
+            <table cellpadding="0" cellspacing="0" border="0">
+              <tr><td width="140" height="1"
+                style="background:#1a3a1a;font-size:1px;line-height:1px;padding-top:6px;">&nbsp;</td></tr>
+            </table>
+            <p style="margin:6px 0 2px;font-family:Arial,Helvetica,sans-serif;font-size:7px;
+              color:#3a6a4a;letter-spacing:1.5px;text-transform:uppercase;">AKASH INJETI</p>
+            <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:7px;
+              color:#2a5a3a;letter-spacing:1px;text-transform:uppercase;">FOUNDER, AKFUNDED</p>
+          </td>
+
+          <td width="24%" align="center" valign="middle">
+            <table cellpadding="0" cellspacing="0" border="0" align="center">
+              <tr><td align="center" width="60" height="60"
+                style="background:#0f200f;border:2px solid #1a3a1a;border-radius:30px;">
+                <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:7px;
+                  font-weight:bold;color:#00B87A;line-height:2;text-align:center;">
+                  AK<br>FUNDED<br>&#10003;</p>
+              </td></tr>
+              <tr><td align="center" style="padding-top:6px;">
+                <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:6px;
+                  color:#2a5a3a;letter-spacing:1.5px;text-transform:uppercase;">VERIFIED</p>
+              </td></tr>
+            </table>
+          </td>
+
+          <td width="38%" align="right" valign="middle">
+            <p style="margin:0 0 5px;font-family:Arial,Helvetica,sans-serif;font-size:8px;
+              color:#2a5a3a;letter-spacing:1.5px;">akfunded.streamlit.app</p>
+            <p style="margin:0 0 5px;font-family:Arial,Helvetica,sans-serif;font-size:8px;
+              color:#2a5a3a;letter-spacing:1.5px;">@akfunded</p>
+            <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:8px;
+              color:#2a5a3a;letter-spacing:1.5px;">Simulated Prop Trading</p>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <tr><td height="3" style="background:#00B87A;font-size:1px;line-height:1px;">&nbsp;</td></tr>
+
+</table>
+
+<table width="660" cellpadding="0" cellspacing="0" border="0" style="max-width:660px;">
+  <tr><td align="center" style="padding:14px 0;">
+    <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:9px;
+      color:#2a2a2a;letter-spacing:1.5px;">
+      AKFunded &middot; Simulated Prop Trading &middot; @akfunded
+    </p>
+  </td></tr>
+</table>
+
+</td></tr></table>
+</body></html>"""
+
+
+# ─── CERTIFICATE: PDF (reportlab) ──────────────────────────────
+def build_certificate_pdf(name, plan, capital, pnl_pct, days, date_str):
+    try:
+        from reportlab.lib.pagesizes import landscape, A4
+        from reportlab.pdfgen import canvas as rlcanvas
+        from reportlab.lib.colors import HexColor, Color
+
+        buf = io.BytesIO()
+        W, H = landscape(A4)
+        c = rlcanvas.Canvas(buf, pagesize=(W, H))
+
+        # Background
+        c.setFillColor(HexColor('#060d06'))
+        c.rect(0, 0, W, H, fill=1, stroke=0)
+
+        # Subtle grid lines
+        c.setStrokeColor(HexColor('#0c1f0c'))
+        c.setLineWidth(0.4)
+        for x in range(0, int(W) + 40, 40):
+            c.line(x, 0, x, H)
+        for y in range(0, int(H) + 40, 40):
+            c.line(0, y, W, y)
+
+        # Radial glow centre
+        c.setFillColor(Color(0, 0.45, 0.3, alpha=0.04))
+        c.circle(W / 2, H / 2, 260, fill=1, stroke=0)
+
+        # Corner brackets
+        accent = HexColor('#00B87A')
+        bsz = 52
+        c.setStrokeColor(accent)
+        c.setLineWidth(2)
+        # TL
+        c.line(18, H - 18, 18 + bsz, H - 18); c.line(18, H - 18, 18, H - 18 - bsz)
+        # TR
+        c.line(W - 18, H - 18, W - 18 - bsz, H - 18); c.line(W - 18, H - 18, W - 18, H - 18 - bsz)
+        # BL
+        c.line(18, 18, 18 + bsz, 18); c.line(18, 18, 18, 18 + bsz)
+        # BR
+        c.line(W - 18, 18, W - 18 - bsz, 18); c.line(W - 18, 18, W - 18, 18 + bsz)
+
+        # Outer border
+        c.setStrokeColor(HexColor('#1a3a1a'))
+        c.setLineWidth(0.8)
+        c.rect(10, 10, W - 20, H - 20, fill=0, stroke=1)
+
+        # Top green bar
+        c.setFillColor(accent)
+        c.rect(10, H - 13, W - 20, 3, fill=1, stroke=0)
+
+        cy = H - 52
+
+        # AKFUNDED header
+        c.setFont('Helvetica-Bold', 16)
+        c.setFillColor(HexColor('#00D4FF'))
+        c.drawCentredString(W / 2, cy, 'AKFUNDED')
+        cy -= 16
+        c.setFont('Helvetica', 7)
+        c.setFillColor(HexColor('#3a6a5a'))
+        c.drawCentredString(W / 2, cy, 'PROP TRADING PLATFORM')
+        cy -= 20
+
+        # Divider with dot
+        c.setStrokeColor(HexColor('#1a3a1a'))
+        c.setLineWidth(0.7)
+        c.line(W / 2 - 220, cy, W / 2 - 8, cy)
+        c.line(W / 2 + 8,   cy, W / 2 + 220, cy)
+        c.setFillColor(accent)
+        c.circle(W / 2, cy, 3.5, fill=1, stroke=0)
+        cy -= 18
+
+        # OFFICIAL CERTIFICATE label
+        c.setFont('Helvetica-Bold', 7)
+        c.setFillColor(HexColor('#3a6a4a'))
+        c.drawCentredString(W / 2, cy, 'OFFICIAL CERTIFICATE')
+        cy -= 6
+
+        # Big CERTIFICATE word
+        c.setFont('Helvetica-Bold', 52)
+        c.setFillColor(accent)
+        c.drawCentredString(W / 2, cy - 46, 'CERTIFICATE')
+        cy -= 54
+
+        # OF RECOGNITION
+        c.setFont('Helvetica-Bold', 10)
+        c.setFillColor(HexColor('#2a5a3a'))
+        c.drawCentredString(W / 2, cy, 'OF RECOGNITION')
+        cy -= 18
+
+        # Presented-to divider
+        c.setStrokeColor(HexColor('#1a3a1a'))
+        c.line(W / 2 - 200, cy, W / 2 - 88, cy)
+        c.line(W / 2 + 88,  cy, W / 2 + 200, cy)
+        c.setFont('Helvetica', 7)
+        c.setFillColor(HexColor('#3a6a4a'))
+        c.drawCentredString(W / 2, cy - 6, 'This certificate is proudly presented to')
+        cy -= 14
+
+        # Trader name
+        c.setFont('Helvetica-Bold', 36)
+        c.setFillColor(HexColor('#EFEFEF'))
+        c.drawCentredString(W / 2, cy - 34, name.upper())
+        cy -= 42
+
+        # Name underline
+        c.setStrokeColor(accent)
+        c.setLineWidth(1)
+        c.line(W / 2 - 180, cy, W / 2 + 180, cy)
+        cy -= 14
+
+        # Description
+        c.setFont('Helvetica', 9)
+        c.setFillColor(HexColor('#4a7a5a'))
+        c.drawCentredString(W / 2, cy,
+            'This trader demonstrated exceptional discipline and risk management in the AKFunded prop trading evaluation.')
+        cy -= 22
+
+        # Phase badge box
+        r_rules = RULES.get(plan, {})
+        phase_type  = r_rules.get("phase", "1step")
+        phase_label = ("INSTANT FUNDED"    if phase_type == "instant"
+                       else "ONE-STEP CHALLENGE" if phase_type == "1step"
+                       else "TWO-STEP CHALLENGE")
+        cap_str = f"${capital // 1000}K"
+        badge_w, badge_h = 290, 22
+        bx = W / 2 - badge_w / 2
+        c.setFillColor(Color(0, 0.45, 0.3, alpha=0.06))
+        c.setStrokeColor(HexColor('#1a7a5a'))
+        c.setLineWidth(0.8)
+        c.rect(bx, cy - badge_h + 6, badge_w, badge_h, fill=1, stroke=1)
+        c.setFont('Helvetica-Bold', 8)
+        c.setFillColor(accent)
+        c.drawCentredString(W / 2, cy - 4, f'{phase_label}  \u00b7  {cap_str} ACCOUNT')
+        cy -= 32
+
+        # Stats boxes
+        box_w, box_h, gap = 195, 55, 8
+        total_bw = 3 * box_w + 2 * gap
+        sx = W / 2 - total_bw / 2
+        sy = cy - box_h
+
+        stats_data = [
+            (f'+{pnl_pct:.2f}%', 'PROFIT ACHIEVED', HexColor('#00B87A')),
+            (str(days),           'TRADING DAYS',    HexColor('#D4A843')),
+            (date_str,            'DATE ISSUED',     HexColor('#D8D8D8')),
+        ]
+        for i, (val, label, color) in enumerate(stats_data):
+            bx2 = sx + i * (box_w + gap)
+            c.setFillColor(HexColor('#0f200f'))
+            c.setStrokeColor(HexColor('#1a3a1a'))
+            c.setLineWidth(0.8)
+            c.rect(bx2, sy, box_w, box_h, fill=1, stroke=1)
+            c.setFont('Helvetica-Bold', 22)
+            c.setFillColor(color)
+            c.drawCentredString(bx2 + box_w / 2, sy + box_h - 26, val)
+            c.setFont('Helvetica', 7)
+            c.setFillColor(HexColor('#3a6a4a'))
+            c.drawCentredString(bx2 + box_w / 2, sy + 9, label)
+
+        cy = sy - 20
+
+        # Footer divider
+        c.setStrokeColor(HexColor('#1a3a1a'))
+        c.setLineWidth(0.8)
+        c.line(28, cy, W - 28, cy)
+        cy -= 20
+
+        # Signature – left
+        c.setFont('Helvetica-BoldOblique', 20)
+        c.setFillColor(accent)
+        c.drawString(68, cy - 2, 'Akash Injeti')
+        c.setStrokeColor(HexColor('#1a3a1a'))
+        c.setLineWidth(0.7)
+        c.line(68, cy - 9, 218, cy - 9)
+        c.setFont('Helvetica', 6.5)
+        c.setFillColor(HexColor('#3a6a4a'))
+        c.drawString(68, cy - 20, 'AKASH INJETI')
+        c.drawString(68, cy - 30, 'FOUNDER, AKFUNDED')
+
+        # Seal – centre
+        cx2 = W / 2
+        c.setFillColor(HexColor('#0f200f'))
+        c.setStrokeColor(HexColor('#1a3a1a'))
+        c.setLineWidth(1.2)
+        c.circle(cx2, cy - 12, 28, fill=1, stroke=1)
+        c.setFont('Helvetica-Bold', 7)
+        c.setFillColor(accent)
+        c.drawCentredString(cx2, cy - 5,  'AK')
+        c.drawCentredString(cx2, cy - 14, 'FUNDED')
+        c.drawCentredString(cx2, cy - 23, '\u2713')
+        c.setFont('Helvetica', 5.5)
+        c.setFillColor(HexColor('#2a5a3a'))
+        c.drawCentredString(cx2, cy - 44, 'VERIFIED')
+
+        # Right info
+        c.setFont('Helvetica', 7.5)
+        c.setFillColor(HexColor('#2a5a3a'))
+        c.drawRightString(W - 68, cy - 4,  'akfunded.streamlit.app')
+        c.drawRightString(W - 68, cy - 16, '@akfunded')
+        c.drawRightString(W - 68, cy - 28, 'Simulated Prop Trading')
+
+        # Bottom green bar
+        c.setFillColor(accent)
+        c.rect(10, 10, W - 20, 3, fill=1, stroke=0)
+
+        c.save()
+        buf.seek(0)
+        return buf.read()
+
+    except ImportError:
+        return None
+
 
 def goto(page):
     st.session_state.page = page
@@ -2271,7 +2693,7 @@ elif st.session_state.page == "risk_calc":
     footer()
 
 # ══════════════════════════════════════════════════════════════
-# CERTIFICATE
+# CERTIFICATE  ← KEY FIX: email uses table-based HTML, PDF download added
 # ══════════════════════════════════════════════════════════════
 elif st.session_state.page == "certificate":
     if not st.session_state.user: goto("auth")
@@ -2309,23 +2731,43 @@ elif st.session_state.page == "certificate":
         days     = acc.get("days_traded", 0)
         date_str = ch.get("started_at", "")[:10]
 
+        # ── On-screen certificate (browser flex/grid — looks great) ──
         cert_html = build_certificate_html(name, ch["plan"], cap, pnl_pct, days, date_str, ch["id"])
-        st.markdown(
-            f'<div style="overflow-x:auto;padding:1rem 0;">{cert_html}</div>',
-            unsafe_allow_html=True
-        )
+        st.markdown(f'<div style="overflow-x:auto;padding:1rem 0;">{cert_html}</div>', unsafe_allow_html=True)
 
         st.markdown("<br>", unsafe_allow_html=True)
-        col1, col2, col3 = st.columns(3)
+        col1, col2, col3, col4 = st.columns(4)
+
+        # ── Email Certificate — uses Gmail-safe table HTML ──
         with col1:
             if st.button("Email Certificate", use_container_width=True, key="email_cert"):
                 email_addr = st.session_state.user.get("email", "")
-                ok = send_email_html(email_addr, "AKFunded — Certificate of Achievement", cert_html)
+                # Use table-based email version, NOT the flex/grid browser version
+                email_html = build_certificate_email_html(name, ch["plan"], cap, pnl_pct, days, date_str)
+                ok = send_email_html(email_addr, "AKFunded — Certificate of Achievement", email_html)
                 if ok:
                     st.success(f"Certificate emailed to {email_addr}.")
                 else:
-                    st.info("Configure SMTP_EMAIL and SMTP_PASSWORD in secrets.")
+                    st.info("Configure SMTP_EMAIL and SMTP_PASSWORD in secrets to send emails.")
+
+        # ── Download PDF ──
         with col2:
+            with st.spinner("Generating PDF..."):
+                pdf_bytes = build_certificate_pdf(name, ch["plan"], cap, pnl_pct, days, date_str)
+            if pdf_bytes:
+                st.download_button(
+                    label="Download PDF",
+                    data=pdf_bytes,
+                    file_name=f"AKFunded_Certificate_{name.replace(' ','_')}_{date_str}.pdf",
+                    mime="application/pdf",
+                    use_container_width=True,
+                    key="dl_cert_pdf"
+                )
+            else:
+                st.info("Install reportlab to enable PDF: pip install reportlab")
+
+        # ── Copy share text ──
+        with col3:
             if st.button("Copy Share Text", use_container_width=True, key="share_cert"):
                 cap_str = f"${cap // 1000}K"
                 share = (
@@ -2334,7 +2776,9 @@ elif st.session_state.page == "certificate":
                     f"Trading Forex & XAUUSD. @akfunded #AKFunded #PropTrading #Forex"
                 )
                 st.code(share, language=None)
-        with col3:
+
+        # ── Instagram ──
+        with col4:
             if st.button("Share on Instagram", use_container_width=True, key="ig_cert"):
                 st.markdown(
                     f'<a href="{IG_URL}" target="_blank" style="color:var(--cyan);">Open @akfunded on Instagram</a>',
@@ -2344,7 +2788,8 @@ elif st.session_state.page == "certificate":
         st.markdown(
             '<div style="background:var(--s2);border:1px solid var(--border);border-left:2px solid rgba(0,184,122,.4);padding:1rem 1.4rem;margin-top:1rem;">'
             '<div style="font-size:.72rem;color:var(--dim);line-height:1.7;">'
-            'Tag <b style="color:var(--cyan);">@akfunded</b> on Instagram when you share your achievement.'
+            'Tag <b style="color:var(--cyan);">@akfunded</b> on Instagram when you share your achievement. '
+            'The emailed certificate is formatted for Gmail &amp; Outlook. Download the PDF for the best print quality.'
             '</div></div>',
             unsafe_allow_html=True
         )
