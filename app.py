@@ -25,56 +25,70 @@ supabase = get_supabase()
 # ─── GLOBAL STYLES ─────────────────────────────────────────────
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Alex+Brush&family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&family=Dancing+Script:wght@700&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Alex+Brush&family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&family=Exo+2:ital,wght@0,100;0,300;0,400;0,600;0,700;1,300&family=JetBrains+Mono:wght@400;700&family=Rajdhani:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --gold:#D4A843;
-  --gold-dim:#5c450e;
-  --gold-glow:rgba(212,168,67,.15);
-  --black:#050505;
-  --s0:#080808;
-  --s1:#0d0d0d;
-  --s2:#111111;
-  --s3:#161616;
-  --border:#1e1e1e;
-  --border2:#252525;
-  --border3:#2e2e2e;
-  --text:#D8D8D8;
-  --dim:#505050;
-  --dim2:#3a3a3a;
-  --green:#00B87A;
-  --green-dim:rgba(0,184,122,.1);
-  --red:#E03A52;
-  --red-dim:rgba(224,58,82,.1);
-  --purple:#7B6EF6;
-  --blue:#2D7DD2;
-  --cyan:#00D4FF;
-  --cyan-dim:rgba(0,212,255,.1);
+  --gold:#FFB627;
+  --gold-dim:#5c3d00;
+  --gold-glow:rgba(255,182,39,.2);
+  --black:#02030a;
+  --s0:#030410;
+  --s1:#060818;
+  --s2:#080b1e;
+  --s3:#0b0f28;
+  --border:#12183a;
+  --border2:#1a2248;
+  --border3:#222e5c;
+  --text:#c8d4f0;
+  --dim:#3a4870;
+  --dim2:#2a3560;
+  --green:#00ff9d;
+  --green-dim:rgba(0,255,157,.1);
+  --red:#ff2d6b;
+  --red-dim:rgba(255,45,107,.1);
+  --purple:#bf5fff;
+  --blue:#4d9eff;
+  --cyan:#00e5ff;
+  --cyan-dim:rgba(0,229,255,.08);
   --neon:#39FF14;
+  --accent:#7c3aed;
+  --accent2:#2563eb;
 }
 
 html, body {
-  background:#050505!important;
-  font-family:'Rajdhani',sans-serif;
+  background:#02030a!important;
+  font-family:'Exo 2',sans-serif;
 }
 [class*="css"],.main,.stApp,.stApp>div,section.main,
 div[data-testid="stAppViewContainer"],div[data-testid="stHeader"],
 div[data-testid="stToolbar"],div[data-testid="stDecoration"],
 div[data-testid="stBottom"],.appview-container,.reportview-container,
 .main .block-container,iframe {
-  background-color:#050505!important;background:#050505!important;
+  background-color:#02030a!important;background:#02030a!important;
 }
-* { font-family:'Rajdhani',sans-serif; color:var(--text); }
+* { font-family:'Exo 2',sans-serif; color:var(--text); }
 #MainMenu,footer,header { visibility:hidden!important;display:none!important; }
-.block-container { padding:1rem 2.5rem 3rem!important;max-width:1400px!important; }
+.block-container { padding:1rem 2.5rem 3rem!important;max-width:1440px!important; }
 ::-webkit-scrollbar { width:2px; }
-::-webkit-scrollbar-thumb { background:var(--gold-dim); }
+::-webkit-scrollbar-thumb { background:var(--accent); border-radius:2px; }
 
+body::before {
+  content:'';
+  position:fixed;
+  top:0;left:0;right:0;bottom:0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 10%, rgba(124,58,237,.07) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 90%, rgba(37,99,235,.06) 0%, transparent 60%);
+  pointer-events:none;
+  z-index:0;
+}
 body::after {
   content:'';
   position:fixed;
   top:0;left:0;right:0;bottom:0;
-  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px);
+  background:
+    repeating-linear-gradient(0deg,transparent,transparent 60px,rgba(0,229,255,.012) 60px,rgba(0,229,255,.012) 61px),
+    repeating-linear-gradient(90deg,transparent,transparent 60px,rgba(0,229,255,.012) 60px,rgba(0,229,255,.012) 61px);
   pointer-events:none;
   z-index:0;
 }
@@ -83,130 +97,114 @@ body::after {
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding:1.2rem 0;
+  padding:1rem 0;
   border-bottom:1px solid var(--border);
   margin-bottom:2rem;
   position:relative;
+  background:linear-gradient(90deg,rgba(124,58,237,.05),transparent);
 }
-.ak-nav::after {
+.ak-nav::before {
   content:'';
   position:absolute;
-  bottom:-1px;
-  left:0;
-  width:200px;
+  bottom:-1px;left:0;right:0;
   height:1px;
-  background:linear-gradient(90deg,var(--cyan),transparent);
+  background:linear-gradient(90deg,var(--accent),var(--cyan),transparent);
+  opacity:.6;
 }
 .ak-logo {
-  font-family:'Bebas Neue',sans-serif;
-  font-size:2.2rem;
-  letter-spacing:6px;
+  font-family:'Orbitron',monospace;
+  font-size:1.6rem;
+  letter-spacing:4px;
   display:inline-flex;
   align-items:baseline;
   gap:2px;
+  font-weight:900;
 }
-.ak-part { color:var(--cyan); text-shadow:0 0 20px rgba(0,212,255,.4); }
-.funded-part { color:#fff; }
+.ak-part { color:var(--cyan); text-shadow:0 0 20px rgba(0,229,255,.5),0 0 40px rgba(0,229,255,.2); }
+.funded-part { color:#fff; letter-spacing:2px; }
 .ak-beta {
-  background:var(--gold);
-  color:#000;
-  font-size:.5rem;
+  background:linear-gradient(135deg,var(--accent),var(--cyan));
+  color:#fff;
+  font-size:.42rem;
   font-weight:700;
   padding:2px 6px;
   border-radius:3px;
-  letter-spacing:1.5px;
+  letter-spacing:2px;
   vertical-align:super;
   margin-left:5px;
-  font-family:'Rajdhani',sans-serif;
+  font-family:'Orbitron',monospace;
 }
 .ak-tagline {
-  font-size:.6rem;
+  font-size:.58rem;
   color:var(--dim);
-  letter-spacing:3px;
+  letter-spacing:4px;
   text-transform:uppercase;
-  margin-top:2px;
+  margin-top:3px;
+  font-family:'Share Tech Mono',monospace;
 }
 
 .ticker-wrap {
   overflow:hidden;
   background:var(--s1);
-  border-top:1px solid rgba(0,212,255,.15);
-  border-bottom:1px solid rgba(0,212,255,.15);
-  padding:.45rem 0;
+  border-top:1px solid rgba(0,229,255,.12);
+  border-bottom:1px solid rgba(0,229,255,.12);
+  padding:.4rem 0;
   margin-bottom:2rem;
   position:relative;
 }
 .ticker-wrap::before {
-  content:'LIVE';
+  content:'◈ LIVE';
   position:absolute;
   left:0;
   top:50%;
   transform:translateY(-50%);
-  background:var(--cyan);
-  color:#000;
-  font-size:.5rem;
+  background:linear-gradient(135deg,var(--accent),var(--cyan));
+  color:#fff;
+  font-size:.48rem;
   font-weight:700;
-  padding:3px 10px;
+  padding:3px 12px;
   letter-spacing:2px;
   z-index:2;
+  font-family:'Orbitron',monospace;
 }
 .ticker-inner {
   display:flex;
   gap:3.5rem;
   animation:ticker 45s linear infinite;
   white-space:nowrap;
-  padding-left:60px;
+  padding-left:80px;
 }
 @keyframes ticker { 0%{transform:translateX(0);} 100%{transform:translateX(-50%);} }
-.ticker-item { display:inline-flex;align-items:center;gap:.6rem;font-size:.72rem; }
-.ticker-sep { color:rgba(0,212,255,.3); }
-.ticker-sym { font-weight:700;color:var(--text);font-family:'Rajdhani',sans-serif;letter-spacing:1px; }
-.ticker-price { font-family:'JetBrains Mono',monospace;color:var(--dim);font-size:.7rem; }
-.ticker-chg { font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:700; }
+.ticker-item { display:inline-flex;align-items:center;gap:.6rem;font-size:.7rem; }
+.ticker-sep { color:rgba(0,229,255,.25); }
+.ticker-sym { font-weight:700;color:var(--text);font-family:'Orbitron',monospace;letter-spacing:1px;font-size:.6rem; }
+.ticker-price { font-family:'Share Tech Mono',monospace;color:var(--dim);font-size:.68rem; }
+.ticker-chg { font-family:'Share Tech Mono',monospace;font-size:.68rem;font-weight:700; }
 .ticker-chg.up { color:var(--green); }
 .ticker-chg.dn { color:var(--red); }
 
 .hero-v2 {
   position:relative;
   text-align:center;
-  padding:7rem 2rem 5rem;
+  padding:5rem 2rem 4rem;
   overflow:hidden;
-}
-.hero-v2::before {
-  content:'';
-  position:absolute;
-  top:-20%;
-  left:50%;
-  transform:translateX(-50%);
-  width:900px;
-  height:600px;
-  background:radial-gradient(ellipse,rgba(0,212,255,.05) 0%,transparent 65%);
-  pointer-events:none;
-}
-.hero-v2::after {
-  content:'';
-  position:absolute;
-  top:0;left:0;right:0;bottom:0;
-  background:
-    repeating-linear-gradient(0deg,transparent,transparent 60px,rgba(0,212,255,.008) 60px,rgba(0,212,255,.008) 61px),
-    repeating-linear-gradient(90deg,transparent,transparent 60px,rgba(0,212,255,.008) 60px,rgba(0,212,255,.008) 61px);
-  pointer-events:none;
 }
 .eyebrow {
   display:inline-flex;
   align-items:center;
   gap:.6rem;
-  border:1px solid rgba(0,212,255,.2);
+  border:1px solid rgba(0,229,255,.2);
   color:var(--cyan);
-  font-size:.6rem;
-  letter-spacing:3px;
-  padding:5px 18px;
+  font-size:.55rem;
+  letter-spacing:4px;
+  padding:6px 20px;
   border-radius:2px;
-  margin-bottom:2.5rem;
+  margin-bottom:2rem;
   text-transform:uppercase;
-  background:rgba(0,212,255,.04);
-  font-family:'Rajdhani',sans-serif;
+  background:rgba(0,229,255,.04);
+  font-family:'Orbitron',monospace;
   font-weight:600;
+  box-shadow:0 0 20px rgba(0,229,255,.08),inset 0 0 20px rgba(0,229,255,.03);
 }
 .eyebrow-dot {
   width:5px;height:5px;
@@ -218,22 +216,30 @@ body::after {
 }
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
 .hero-v2 h1 {
-  font-family:'Bebas Neue',sans-serif;
-  font-size:clamp(4rem,10vw,10.5rem);
-  line-height:.88;
-  letter-spacing:6px;
-  margin:0 0 1.8rem;
+  font-family:'Orbitron',monospace;
+  font-size:clamp(2.8rem,7vw,7rem);
+  line-height:.95;
+  letter-spacing:4px;
+  margin:0 0 1.5rem;
   color:#fff;
+  font-weight:900;
+  text-shadow:0 0 60px rgba(124,58,237,.3);
 }
-.hero-v2 h1 em { color:var(--cyan);font-style:normal;text-shadow:0 0 40px rgba(0,212,255,.3); }
+.hero-v2 h1 em { 
+  color:var(--cyan);
+  font-style:normal;
+  text-shadow:0 0 40px rgba(0,229,255,.5),0 0 80px rgba(0,229,255,.2);
+  display:block;
+}
 .hero-v2 .sub {
-  font-size:1rem;
-  color:#3a3a3a;
-  max-width:480px;
-  margin:0 auto 3rem;
+  font-size:.95rem;
+  color:var(--dim);
+  max-width:500px;
+  margin:0 auto 2.5rem;
   line-height:1.9;
-  font-weight:400;
-  letter-spacing:.3px;
+  font-weight:300;
+  letter-spacing:.5px;
+  font-family:'Exo 2',sans-serif;
 }
 
 .hstats {
@@ -244,10 +250,11 @@ body::after {
   margin-bottom:4rem;
   border-radius:4px;
   overflow:hidden;
+  background:var(--s1);
 }
 .hstat {
   flex:1;
-  padding:1.5rem 2rem;
+  padding:1.4rem 2rem;
   border-right:1px solid var(--border);
   text-align:center;
   position:relative;
@@ -258,23 +265,26 @@ body::after {
   position:absolute;
   top:0;left:0;right:0;
   height:1px;
-  background:linear-gradient(90deg,transparent,rgba(0,212,255,.3),transparent);
+  background:linear-gradient(90deg,transparent,var(--cyan),transparent);
+  opacity:.4;
 }
 .hstat:last-child { border-right:none; }
 .hstat .n {
-  font-family:'Bebas Neue',sans-serif;
-  font-size:2rem;
+  font-family:'Orbitron',monospace;
+  font-size:1.6rem;
   color:var(--cyan);
   letter-spacing:2px;
   display:block;
-  margin-bottom:.2rem;
-  text-shadow:0 0 20px rgba(0,212,255,.2);
+  margin-bottom:.25rem;
+  font-weight:700;
+  text-shadow:0 0 20px rgba(0,229,255,.3);
 }
 .hstat .l {
-  font-size:.58rem;
+  font-size:.52rem;
   color:var(--dim);
-  letter-spacing:2.5px;
+  letter-spacing:3px;
   text-transform:uppercase;
+  font-family:'Share Tech Mono',monospace;
 }
 
 .metric-row { display:grid;grid-template-columns:repeat(4,1fr);gap:1px;margin-bottom:1px;background:var(--border); }
@@ -289,46 +299,49 @@ body::after {
   position:absolute;
   top:0;left:0;
   width:2px;height:100%;
-  background:var(--cyan);
-  opacity:.3;
+  background:linear-gradient(180deg,var(--cyan),var(--accent));
+  opacity:.5;
 }
 .m-card::after {
   content:'';
   position:absolute;
   top:0;left:0;right:0;
   height:1px;
-  background:linear-gradient(90deg,var(--cyan),transparent);
-  opacity:.2;
+  background:linear-gradient(90deg,var(--cyan),var(--accent),transparent);
+  opacity:.3;
 }
 .m-label {
-  font-size:.58rem;
+  font-size:.5rem;
   color:var(--dim);
-  letter-spacing:2.5px;
+  letter-spacing:3px;
   text-transform:uppercase;
   margin-bottom:.6rem;
   font-weight:600;
+  font-family:'Share Tech Mono',monospace;
 }
 .m-val {
-  font-family:'Bebas Neue',sans-serif;
-  font-size:1.9rem;
+  font-family:'Orbitron',monospace;
+  font-size:1.6rem;
   letter-spacing:2px;
   line-height:1;
+  font-weight:700;
 }
-.m-val.g { color:var(--green); }
-.m-val.r { color:var(--red); }
+.m-val.g { color:var(--green); text-shadow:0 0 15px rgba(0,255,157,.3); }
+.m-val.r { color:var(--red); text-shadow:0 0 15px rgba(255,45,107,.3); }
 .m-val.o { color:var(--gold); }
-.m-val.c { color:var(--cyan); }
+.m-val.c { color:var(--cyan); text-shadow:0 0 15px rgba(0,229,255,.3); }
 .m-val.w { color:var(--text); }
-.m-sub { font-size:.65rem;color:var(--dim);margin-top:.5rem;font-family:'JetBrains Mono',monospace; }
+.m-sub { font-size:.6rem;color:var(--dim);margin-top:.5rem;font-family:'Share Tech Mono',monospace; }
 
 .stats-row { display:grid;grid-template-columns:repeat(5,1fr);gap:1px;margin-bottom:1.5rem;background:var(--border); }
-.stat-box { background:var(--s1);padding:1.1rem 1rem;text-align:center; }
-.stat-box .sv { font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:2px;line-height:1; }
-.stat-box .sl { font-size:.58rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-top:.4rem; }
-.sv.g { color:var(--green); }
+.stat-box { background:var(--s1);padding:1.1rem 1rem;text-align:center;position:relative;overflow:hidden; }
+.stat-box::after { content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.3; }
+.stat-box .sv { font-family:'Orbitron',monospace;font-size:1.3rem;letter-spacing:2px;line-height:1;font-weight:700; }
+.stat-box .sl { font-size:.48rem;color:var(--dim);letter-spacing:2.5px;text-transform:uppercase;margin-top:.4rem;font-family:'Share Tech Mono',monospace; }
+.sv.g { color:var(--green); text-shadow:0 0 10px rgba(0,255,157,.3); }
 .sv.r { color:var(--red); }
 .sv.o { color:var(--gold); }
-.sv.c { color:var(--cyan); }
+.sv.c { color:var(--cyan); text-shadow:0 0 10px rgba(0,229,255,.3); }
 .sv.w { color:var(--text); }
 
 .rules-box {
@@ -337,35 +350,39 @@ body::after {
   border-radius:0;
   padding:1.6rem;
   margin-bottom:1.5rem;
+  position:relative;
+  overflow:hidden;
 }
+.rules-box::before { content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--accent),var(--cyan),transparent);opacity:.4; }
 .r-row { display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem; }
-.r-name { font-size:.75rem;color:var(--dim);letter-spacing:.5px; }
-.r-val { font-family:'JetBrains Mono',monospace;font-size:.75rem;font-weight:600; }
+.r-name { font-size:.72rem;color:var(--dim);letter-spacing:.5px;font-family:'Exo 2',sans-serif; }
+.r-val { font-family:'Share Tech Mono',monospace;font-size:.72rem;font-weight:600; }
 .r-val.ok { color:var(--green); }
 .r-val.bad { color:var(--red); }
-.prog { height:2px;background:var(--border3);margin-bottom:1.2rem; }
-.prog-fill { height:100%; }
+.prog { height:2px;background:var(--border3);margin-bottom:1.2rem;border-radius:1px; }
+.prog-fill { height:100%;border-radius:1px; }
 
 .t-header,.t-row {
   display:grid;
   grid-template-columns:2fr 1fr 1fr 1fr 1fr 1.2fr;
   padding:.65rem 1rem;
-  font-size:.75rem;
+  font-size:.72rem;
   align-items:center;
 }
 .t-header {
   color:var(--dim);
-  font-size:.58rem;
-  letter-spacing:2px;
+  font-size:.5rem;
+  letter-spacing:3px;
   text-transform:uppercase;
   border-bottom:1px solid var(--border);
   font-weight:600;
+  font-family:'Share Tech Mono',monospace;
 }
 .t-row { border-bottom:1px solid var(--border); }
 .t-row:hover { background:var(--s2); }
 .t-row:last-child { border-bottom:none; }
-.tag-b { background:rgba(0,184,122,.1);color:var(--green);padding:2px 8px;border-radius:2px;font-size:.62rem;font-weight:700;letter-spacing:1px; }
-.tag-s { background:rgba(224,58,82,.1);color:var(--red);padding:2px 8px;border-radius:2px;font-size:.62rem;font-weight:700;letter-spacing:1px; }
+.tag-b { background:rgba(0,255,157,.08);color:var(--green);padding:2px 8px;border-radius:2px;font-size:.58rem;font-weight:700;letter-spacing:1px;border:1px solid rgba(0,255,157,.2); }
+.tag-s { background:rgba(255,45,107,.08);color:var(--red);padding:2px 8px;border-radius:2px;font-size:.58rem;font-weight:700;letter-spacing:1px;border:1px solid rgba(255,45,107,.2); }
 
 .lb-item {
   display:flex;
@@ -376,18 +393,18 @@ body::after {
   border-left:2px solid transparent;
   padding:1rem 1.4rem;
   margin-bottom:2px;
-  transition:border-color .2s;
+  transition:all .2s;
 }
-.lb-item:hover { border-left-color:var(--cyan); }
-.lb-rank { font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--dim);width:36px;text-align:center; }
-.lb-rank.top { color:var(--cyan); text-shadow:0 0 15px rgba(0,212,255,.4); }
+.lb-item:hover { border-left-color:var(--cyan);background:var(--s2);transform:translateX(2px); }
+.lb-rank { font-family:'Orbitron',monospace;font-size:1.1rem;color:var(--dim);width:36px;text-align:center;font-weight:700; }
+.lb-rank.top { color:var(--cyan); text-shadow:0 0 15px rgba(0,229,255,.5); }
 .lb-info { flex:1; }
 .lb-name { font-weight:600;font-size:.88rem;letter-spacing:.3px; }
-.lb-country { font-size:.68rem;color:var(--dim);margin-top:2px; }
-.lb-pnl { font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--green);font-size:.95rem; }
-.lb-badge { font-size:.55rem;padding:2px 8px;border-radius:2px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase; }
-.funded-b { background:rgba(0,212,255,.1);color:var(--cyan);border:1px solid rgba(0,212,255,.2); }
-.active-b { background:rgba(0,184,122,.08);color:var(--green);border:1px solid rgba(0,184,122,.2); }
+.lb-country { font-size:.65rem;color:var(--dim);margin-top:2px;font-family:'Share Tech Mono',monospace; }
+.lb-pnl { font-family:'Share Tech Mono',monospace;font-weight:700;color:var(--green);font-size:.9rem; }
+.lb-badge { font-size:.5rem;padding:2px 8px;border-radius:2px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;font-family:'Orbitron',monospace; }
+.funded-b { background:rgba(0,229,255,.08);color:var(--cyan);border:1px solid rgba(0,229,255,.2); }
+.active-b { background:rgba(0,255,157,.06);color:var(--green);border:1px solid rgba(0,255,157,.15); }
 
 .journal-entry {
   background:var(--s1);
@@ -397,13 +414,13 @@ body::after {
   margin-bottom:2px;
   transition:border-left-color .2s;
 }
-.journal-entry:hover { border-left-color:var(--cyan); }
-.je-date { font-size:.58rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:.4rem;font-family:'JetBrains Mono',monospace; }
+.journal-entry:hover { border-left-color:var(--accent); }
+.je-date { font-size:.52rem;color:var(--dim);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:.4rem;font-family:'Share Tech Mono',monospace; }
 .je-note { font-size:.85rem;color:var(--text);line-height:1.7;font-weight:300; }
 .je-tags { display:flex;gap:.4rem;margin-top:.7rem;flex-wrap:wrap; }
-.je-tag { font-size:.58rem;padding:2px 8px;border-radius:2px;background:rgba(0,212,255,.08);color:var(--cyan);font-weight:700;letter-spacing:1px; }
-.je-tag.win { background:rgba(0,184,122,.1);color:var(--green);border:1px solid rgba(0,184,122,.2); }
-.je-tag.loss { background:rgba(224,58,82,.1);color:var(--red);border:1px solid rgba(224,58,82,.2); }
+.je-tag { font-size:.52rem;padding:2px 8px;border-radius:2px;background:rgba(0,229,255,.06);color:var(--cyan);font-weight:700;letter-spacing:1px;font-family:'Share Tech Mono',monospace; }
+.je-tag.win { background:rgba(0,255,157,.08);color:var(--green);border:1px solid rgba(0,255,157,.15); }
+.je-tag.loss { background:rgba(255,45,107,.08);color:var(--red);border:1px solid rgba(255,45,107,.15); }
 
 .ch-card {
   background:var(--s1);
@@ -415,11 +432,11 @@ body::after {
   align-items:center;
   gap:1rem;
 }
-.ch-plan { font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:3px;color:var(--cyan); }
-.ch-status { padding:3px 12px;border-radius:2px;font-size:.58rem;font-weight:700;letter-spacing:2px;text-align:center;text-transform:uppercase; }
-.ch-status.passed { background:rgba(0,184,122,.1);color:var(--green);border:1px solid rgba(0,184,122,.2); }
-.ch-status.failed { background:rgba(224,58,82,.1);color:var(--red);border:1px solid rgba(224,58,82,.2); }
-.ch-status.active { background:rgba(0,212,255,.08);color:var(--cyan);border:1px solid rgba(0,212,255,.2); }
+.ch-plan { font-family:'Orbitron',monospace;font-size:.9rem;letter-spacing:2px;color:var(--cyan);font-weight:700; }
+.ch-status { padding:3px 12px;border-radius:2px;font-size:.52rem;font-weight:700;letter-spacing:2px;text-align:center;text-transform:uppercase;font-family:'Orbitron',monospace; }
+.ch-status.passed { background:rgba(0,255,157,.08);color:var(--green);border:1px solid rgba(0,255,157,.2); }
+.ch-status.failed { background:rgba(255,45,107,.08);color:var(--red);border:1px solid rgba(255,45,107,.2); }
+.ch-status.active { background:rgba(0,229,255,.06);color:var(--cyan);border:1px solid rgba(0,229,255,.15); }
 
 .notif-item {
   display:flex;
@@ -431,13 +448,13 @@ body::after {
   padding:1rem 1.4rem;
   margin-bottom:2px;
 }
-.notif-item.unread { border-left:2px solid var(--cyan); }
+.notif-item.unread { border-left:2px solid var(--accent); }
 .notif-icon { font-size:1rem;flex-shrink:0;margin-top:2px;opacity:.7; }
 .notif-body { flex:1; }
 .notif-title { font-weight:600;font-size:.85rem;color:var(--text);margin-bottom:3px; }
-.notif-msg { font-size:.75rem;color:var(--dim);line-height:1.5; }
-.notif-time { font-size:.6rem;color:var(--dim2);letter-spacing:1px;margin-top:5px;font-family:'JetBrains Mono',monospace; }
-.notif-badge { background:var(--cyan);color:#000;font-size:.5rem;font-weight:800;padding:1px 6px;border-radius:2px;margin-left:6px;vertical-align:middle;letter-spacing:1px; }
+.notif-msg { font-size:.72rem;color:var(--dim);line-height:1.5; }
+.notif-time { font-size:.58rem;color:var(--dim2);letter-spacing:1px;margin-top:5px;font-family:'Share Tech Mono',monospace; }
+.notif-badge { background:linear-gradient(135deg,var(--accent),var(--cyan));color:#fff;font-size:.48rem;font-weight:800;padding:1px 6px;border-radius:2px;margin-left:6px;vertical-align:middle;letter-spacing:1px; }
 
 .profile-hero {
   background:var(--s1);
@@ -447,33 +464,38 @@ body::after {
   display:flex;
   gap:2.5rem;
   align-items:center;
+  position:relative;
+  overflow:hidden;
 }
+.profile-hero::before { content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--accent),var(--cyan),transparent);opacity:.4; }
 .profile-avatar {
   width:72px;height:72px;
-  border:1px solid rgba(0,212,255,.3);
+  border:1px solid rgba(0,229,255,.3);
   display:flex;
   align-items:center;
   justify-content:center;
-  font-family:'Bebas Neue',sans-serif;
-  font-size:2rem;
+  font-family:'Orbitron',monospace;
+  font-size:1.6rem;
   color:var(--cyan);
   flex-shrink:0;
   background:var(--s2);
-  box-shadow:inset 0 0 20px rgba(0,212,255,.05);
+  box-shadow:0 0 30px rgba(124,58,237,.2),inset 0 0 20px rgba(0,229,255,.05);
+  font-weight:700;
 }
-.profile-name { font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:4px;color:var(--text);line-height:1; }
-.profile-email { font-size:.75rem;color:var(--dim);margin-top:5px;font-family:'JetBrains Mono',monospace; }
+.profile-name { font-family:'Orbitron',monospace;font-size:1.4rem;letter-spacing:3px;color:var(--text);line-height:1;font-weight:700; }
+.profile-email { font-size:.68rem;color:var(--dim);margin-top:5px;font-family:'Share Tech Mono',monospace; }
 .funded-badge-inline {
   display:inline-block;
   background:transparent;
-  border:1px solid rgba(0,212,255,.2);
+  border:1px solid rgba(0,229,255,.25);
   color:var(--cyan);
-  font-size:.6rem;
+  font-size:.52rem;
   letter-spacing:2.5px;
   padding:3px 12px;
   margin-top:8px;
   font-weight:700;
   text-transform:uppercase;
+  font-family:'Orbitron',monospace;
 }
 
 .admin-row {
@@ -485,11 +507,11 @@ body::after {
   border-bottom:1px solid var(--border);
   font-size:.78rem;
 }
-.admin-row.header { color:var(--dim);font-size:.58rem;letter-spacing:2px;text-transform:uppercase; }
-.admin-status { padding:2px 10px;border-radius:2px;font-size:.58rem;font-weight:700;letter-spacing:1.5px;text-align:center;text-transform:uppercase; }
-.admin-status.active { background:rgba(0,212,255,.08);color:var(--cyan); }
-.admin-status.passed { background:rgba(0,184,122,.1);color:var(--green); }
-.admin-status.failed { background:rgba(224,58,82,.1);color:var(--red); }
+.admin-row.header { color:var(--dim);font-size:.5rem;letter-spacing:2.5px;text-transform:uppercase;font-family:'Share Tech Mono',monospace; }
+.admin-status { padding:2px 10px;border-radius:2px;font-size:.5rem;font-weight:700;letter-spacing:1.5px;text-align:center;text-transform:uppercase;font-family:'Orbitron',monospace; }
+.admin-status.active { background:rgba(0,229,255,.06);color:var(--cyan); }
+.admin-status.passed { background:rgba(0,255,157,.08);color:var(--green); }
+.admin-status.failed { background:rgba(255,45,107,.08);color:var(--red); }
 
 .plan-rules { list-style:none;padding:0;margin:0 0 1.2rem; }
 .plan-rules li {
@@ -497,27 +519,27 @@ body::after {
   justify-content:space-between;
   padding:.45rem 0;
   border-bottom:1px solid var(--border);
-  font-size:.78rem;
+  font-size:.76rem;
   color:var(--dim);
 }
 .plan-rules li b { color:var(--text);font-weight:500; }
 
 .chat-container { background:var(--s1);border:1px solid var(--border);overflow:hidden;margin-bottom:1rem; }
 .chat-header { padding:1rem 1.4rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.8rem; }
-.chat-ai-dot { width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;box-shadow:0 0 8px var(--green); }
+.chat-ai-dot { width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;box-shadow:0 0 10px var(--green); }
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
 .chat-messages { padding:1.2rem;max-height:380px;overflow-y:auto; }
 .chat-msg { margin-bottom:1rem;display:flex;gap:.8rem;align-items:flex-start; }
 .chat-msg.user { flex-direction:row-reverse; }
 .chat-bubble { padding:.7rem 1rem;font-size:.82rem;line-height:1.6;max-width:78%; }
 .chat-bubble.ai { background:var(--s2);border:1px solid var(--border);color:var(--text); }
-.chat-bubble.user { background:var(--cyan);color:#000;font-weight:500; }
-.chat-avatar { width:26px;height:26px;font-size:.7rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--s2);border:1px solid var(--border);font-weight:700; }
-.chat-avatar.user { background:var(--cyan);color:#000; }
+.chat-bubble.user { background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-weight:500; }
+.chat-avatar { width:28px;height:28px;font-size:.65rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--s2);border:1px solid var(--border);font-weight:700;font-family:'Orbitron',monospace; }
+.chat-avatar.user { background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff; }
 
 .risk-card { background:var(--s1);border:1px solid var(--border);padding:1.5rem; }
 .risk-result { background:var(--s2);border:1px solid var(--border);padding:1.1rem;text-align:center;margin-top:1rem; }
-.risk-val { font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:2px; }
+.risk-val { font-family:'Orbitron',monospace;font-size:1.8rem;letter-spacing:2px;font-weight:700; }
 
 .ref-code-box {
   background:var(--s2);
@@ -529,13 +551,14 @@ body::after {
   justify-content:space-between;
   margin:1rem 0;
 }
-.ref-code { font-family:'JetBrains Mono',monospace;font-size:1.4rem;color:var(--cyan);font-weight:700;letter-spacing:5px; }
+.ref-code { font-family:'Share Tech Mono',monospace;font-size:1.4rem;color:var(--cyan);font-weight:700;letter-spacing:5px; }
 .ref-stats { display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin:1rem 0;background:var(--border); }
 
 .heatmap-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:1px;margin-top:1rem;background:var(--border); }
-.hmap-cell { padding:.8rem .5rem;text-align:center;cursor:default; }
-.hmap-sym { font-size:.68rem;font-weight:700;color:var(--text);letter-spacing:1px; }
-.hmap-chg { font-size:.75rem;font-family:'JetBrains Mono',monospace;margin-top:3px; }
+.hmap-cell { padding:.8rem .5rem;text-align:center;cursor:default;transition:opacity .2s; }
+.hmap-cell:hover { opacity:.85; }
+.hmap-sym { font-size:.62rem;font-weight:700;color:var(--text);letter-spacing:1px;font-family:'Orbitron',monospace; }
+.hmap-chg { font-size:.72rem;font-family:'Share Tech Mono',monospace;margin-top:3px; }
 
 .scan-row {
   display:flex;
@@ -546,42 +569,37 @@ body::after {
   border-left:2px solid transparent;
   padding:.85rem 1.2rem;
   margin-bottom:2px;
-  transition:border-left-color .15s;
+  transition:all .15s;
 }
-.scan-row:hover { border-left-color:var(--cyan); }
-.scan-sym { font-weight:700;font-size:.85rem;letter-spacing:.5px; }
-.scan-signal { font-size:.58rem;font-weight:700;letter-spacing:2px;padding:3px 10px;border-radius:2px;text-transform:uppercase; }
-.scan-signal.bull { background:rgba(0,184,122,.1);color:var(--green);border:1px solid rgba(0,184,122,.25); }
-.scan-signal.bear { background:rgba(224,58,82,.1);color:var(--red);border:1px solid rgba(224,58,82,.25); }
-.scan-signal.neut { background:rgba(0,212,255,.08);color:var(--cyan);border:1px solid rgba(0,212,255,.2); }
+.scan-row:hover { border-left-color:var(--accent);background:var(--s2); }
+.scan-sym { font-weight:700;font-size:.82rem;letter-spacing:.5px;font-family:'Orbitron',monospace; }
+.scan-signal { font-size:.5rem;font-weight:700;letter-spacing:2px;padding:3px 10px;border-radius:2px;text-transform:uppercase;font-family:'Orbitron',monospace; }
+.scan-signal.bull { background:rgba(0,255,157,.08);color:var(--green);border:1px solid rgba(0,255,157,.2); }
+.scan-signal.bear { background:rgba(255,45,107,.08);color:var(--red);border:1px solid rgba(255,45,107,.2); }
+.scan-signal.neut { background:rgba(0,229,255,.06);color:var(--cyan);border:1px solid rgba(0,229,255,.15); }
 
 .wl-row { display:flex;align-items:center;justify-content:space-between;padding:.7rem .5rem;border-bottom:1px solid var(--border); }
 .wl-row:last-child { border-bottom:none; }
 
-.ob-row { display:grid;grid-template-columns:1fr 1fr 1fr;padding:.3rem .8rem;font-size:.73rem;font-family:'JetBrains Mono',monospace; }
+.ob-row { display:grid;grid-template-columns:1fr 1fr 1fr;padding:.3rem .8rem;font-size:.7rem;font-family:'Share Tech Mono',monospace; }
 .ob-bid { color:var(--green); }
 .ob-ask { color:var(--red); }
 .ob-vol { color:var(--dim);text-align:right; }
 
 .steps-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:1px;margin:3rem 0;background:var(--border); }
 .step-card { background:var(--s1);padding:2rem 1.5rem;position:relative;overflow:hidden; }
-.step-card::after {
-  content:'';
-  position:absolute;
-  top:0;left:0;right:0;
-  height:1px;
-  background:linear-gradient(90deg,var(--cyan),transparent);
-  opacity:.2;
-}
-.step-num { font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:var(--cyan);line-height:1;margin-bottom:.5rem;letter-spacing:2px;opacity:.5; }
-.step-title { font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2.5px;color:var(--text);margin-bottom:.6rem; }
-.step-desc { font-size:.82rem;color:var(--dim);line-height:1.7;font-weight:400; }
+.step-card::before { content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--accent),var(--cyan),transparent);opacity:.3; }
+.step-card::after { content:'';position:absolute;bottom:0;right:0;width:60px;height:60px;background:radial-gradient(circle,rgba(124,58,237,.1),transparent);pointer-events:none; }
+.step-num { font-family:'Orbitron',monospace;font-size:2.2rem;color:var(--accent);line-height:1;margin-bottom:.6rem;letter-spacing:2px;opacity:.6;font-weight:900; }
+.step-title { font-family:'Orbitron',monospace;font-size:.72rem;letter-spacing:2.5px;color:var(--text);margin-bottom:.6rem;font-weight:700; }
+.step-desc { font-size:.8rem;color:var(--dim);line-height:1.7;font-weight:300; }
 
 .testi-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin:2rem 0;background:var(--border); }
-.testi-card { background:var(--s1);padding:1.8rem; }
-.testi-quote { font-size:.85rem;color:var(--text);line-height:1.8;margin-bottom:1.2rem;font-weight:300;border-left:2px solid rgba(0,212,255,.2);padding-left:1rem; }
-.testi-name { font-weight:700;font-size:.8rem;color:var(--cyan);letter-spacing:.5px; }
-.testi-meta { font-size:.68rem;color:var(--dim);margin-top:3px; }
+.testi-card { background:var(--s1);padding:1.8rem;position:relative;overflow:hidden; }
+.testi-card::before { content:'"';position:absolute;top:-.5rem;left:1rem;font-size:5rem;color:var(--accent);opacity:.08;font-family:'Orbitron',monospace;line-height:1; }
+.testi-quote { font-size:.84rem;color:var(--text);line-height:1.8;margin-bottom:1.2rem;font-weight:300;border-left:2px solid var(--accent);padding-left:1rem;opacity:.9; }
+.testi-name { font-weight:700;font-size:.78rem;color:var(--cyan);letter-spacing:.5px;font-family:'Orbitron',monospace; }
+.testi-meta { font-size:.65rem;color:var(--dim);margin-top:3px;font-family:'Share Tech Mono',monospace; }
 
 .ak-footer {
   text-align:center;
@@ -589,7 +607,7 @@ body::after {
   border-top:1px solid var(--border);
   margin-top:5rem;
   color:var(--dim);
-  font-size:.68rem;
+  font-size:.65rem;
   letter-spacing:1px;
   position:relative;
 }
@@ -599,14 +617,15 @@ body::after {
   top:-1px;
   left:50%;
   transform:translateX(-50%);
-  width:120px;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(0,212,255,.3),transparent);
+  width:200px;height:1px;
+  background:linear-gradient(90deg,transparent,var(--accent),var(--cyan),transparent);
+  opacity:.5;
 }
 .ak-footer b { color:var(--cyan); }
 
 .breach-alert {
-  background:rgba(224,58,82,.08);
-  border:1px solid rgba(224,58,82,.3);
+  background:rgba(255,45,107,.06);
+  border:1px solid rgba(255,45,107,.25);
   border-left:3px solid var(--red);
   padding:1.2rem 1.6rem;
   margin-bottom:1rem;
@@ -615,29 +634,31 @@ body::after {
 .stButton>button {
   background:var(--s2)!important;
   color:var(--cyan)!important;
-  font-weight:700!important;
-  border:1px solid rgba(0,212,255,.3)!important;
+  font-weight:600!important;
+  border:1px solid rgba(0,229,255,.25)!important;
   border-radius:2px!important;
-  font-family:'Rajdhani',sans-serif!important;
-  letter-spacing:2px!important;
+  font-family:'Orbitron',monospace!important;
+  letter-spacing:1.5px!important;
   white-space:nowrap!important;
   text-transform:uppercase!important;
-  font-size:.78rem!important;
+  font-size:.62rem!important;
   transition:all .2s!important;
 }
 .stButton>button:hover {
-  background:rgba(0,212,255,.1)!important;
-  border-color:var(--cyan)!important;
-  box-shadow:0 0 15px rgba(0,212,255,.15)!important;
+  background:rgba(124,58,237,.15)!important;
+  border-color:var(--accent)!important;
+  color:var(--text)!important;
+  box-shadow:0 0 20px rgba(124,58,237,.2)!important;
 }
 .stButton>button p { color:var(--cyan)!important; }
 .stButton>button[kind="primary"],
 .stButton>button[data-testid*="primary"] {
-  background:var(--cyan)!important;
-  color:#000!important;
-  border-color:var(--cyan)!important;
+  background:linear-gradient(135deg,var(--accent),var(--accent2))!important;
+  color:#fff!important;
+  border-color:transparent!important;
+  box-shadow:0 0 20px rgba(124,58,237,.3)!important;
 }
-.stButton>button[kind="primary"] p { color:#000!important; }
+.stButton>button[kind="primary"] p { color:#fff!important; }
 div[data-testid="stTabs"] [data-baseweb="tab-list"] {
   background:var(--s1)!important;
   border:1px solid var(--border)!important;
@@ -645,8 +666,8 @@ div[data-testid="stTabs"] [data-baseweb="tab-list"] {
   padding:3px!important;
   gap:3px!important;
 }
-div[data-testid="stTabs"] [data-baseweb="tab"] { color:var(--dim)!important;font-family:'Rajdhani',sans-serif!important;font-size:.78rem!important;letter-spacing:1px!important; }
-div[data-testid="stTabs"] [aria-selected="true"] { background:rgba(0,212,255,.1)!important;color:var(--cyan)!important;border-radius:2px!important;border:1px solid rgba(0,212,255,.2)!important; }
+div[data-testid="stTabs"] [data-baseweb="tab"] { color:var(--dim)!important;font-family:'Orbitron',monospace!important;font-size:.55rem!important;letter-spacing:1.5px!important; }
+div[data-testid="stTabs"] [aria-selected="true"] { background:rgba(124,58,237,.15)!important;color:var(--cyan)!important;border-radius:2px!important;border:1px solid rgba(0,229,255,.2)!important; }
 div[data-testid="stTabs"] [data-baseweb="tab-highlight"],
 div[data-testid="stTabs"] [data-baseweb="tab-border"] { display:none!important; }
 .stSelectbox>div>div,
@@ -657,20 +678,20 @@ div[data-testid="stTabs"] [data-baseweb="tab-border"] { display:none!important; 
   border:1px solid var(--border)!important;
   color:var(--text)!important;
   border-radius:2px!important;
-  font-family:'Rajdhani',sans-serif!important;
+  font-family:'Exo 2',sans-serif!important;
 }
 .stSelectbox>div>div:focus-within,
 .stNumberInput>div>div>input:focus,
 .stTextInput>div>div>input:focus,
 .stTextArea>div>div>textarea:focus {
-  border-color:rgba(0,212,255,.4)!important;
-  box-shadow:0 0 10px rgba(0,212,255,.1)!important;
+  border-color:rgba(124,58,237,.5)!important;
+  box-shadow:0 0 15px rgba(124,58,237,.15)!important;
 }
-label[data-testid="stWidgetLabel"] { color:var(--dim)!important;font-size:.68rem!important;letter-spacing:1.5px!important;text-transform:uppercase!important; }
+label[data-testid="stWidgetLabel"] { color:var(--dim)!important;font-size:.55rem!important;letter-spacing:2px!important;text-transform:uppercase!important;font-family:'Share Tech Mono',monospace!important; }
 div[data-testid="stVerticalBlock"],div[data-testid="stHorizontalBlock"],
 div[data-testid="column"],div[data-testid="stMarkdownContainer"],
 div.element-container,div.stMarkdown { background:transparent!important; }
-.stSlider [data-baseweb="slider"] [data-testid="stSliderThumb"] { background:var(--cyan)!important; }
+.stSlider [data-baseweb="slider"] [data-testid="stSliderThumb"] { background:var(--accent)!important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -993,7 +1014,7 @@ def build_certificate_html(name, plan, capital, pnl_pct, days, date_str, challen
         '<div style="width:1123px;height:794px;max-width:100%;margin:0 auto;'
         'background:linear-gradient(160deg,#070d07 0%,#060a06 60%,#050905 100%);'
         'position:relative;overflow:hidden;box-sizing:border-box;'
-        f'border:1px solid {accent_bord};font-family:Rajdhani,sans-serif;'
+        f'border:1px solid {accent_bord};font-family:Orbitron,monospace;'
         'display:flex;flex-direction:column;">'
 
         '<div style="position:absolute;inset:0;background:'
@@ -1016,7 +1037,7 @@ def build_certificate_html(name, plan, capital, pnl_pct, days, date_str, challen
         f'<div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;">'
         f'<img src="{LOGO_URL}" onerror="this.style.display=\'none\'" style="height:44px;width:44px;object-fit:contain;opacity:0.9;" />'
         '<div>'
-        '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.5rem;letter-spacing:6px;color:#00D4FF;line-height:1;">AKFUNDED</div>'
+        '<div style="font-family:\'Orbitron\',monospace;font-size:1.5rem;letter-spacing:6px;color:#00D4FF;line-height:1;">AKFUNDED</div>'
         '<div style="font-size:0.48rem;color:#3a6a5a;letter-spacing:3px;text-transform:uppercase;">Prop Trading Platform</div>'
         '</div></div>'
 
@@ -1027,7 +1048,7 @@ def build_certificate_html(name, plan, capital, pnl_pct, days, date_str, challen
         '</div>'
 
         '<div style="font-size:0.52rem;color:#3a6a4a;letter-spacing:4px;text-transform:uppercase;margin-bottom:6px;font-weight:600;">OFFICIAL CERTIFICATE</div>'
-        f'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:3.6rem;letter-spacing:10px;color:{accent};line-height:1;margin-bottom:1px;text-shadow:0 0 40px {accent_glow};">CERTIFICATE</div>'
+        f'<div style="font-family:\'Orbitron\',monospace;font-size:3.6rem;letter-spacing:10px;color:{accent};line-height:1;margin-bottom:1px;text-shadow:0 0 40px {accent_glow};">CERTIFICATE</div>'
         '<div style="font-size:0.8rem;letter-spacing:8px;color:#2a5a3a;margin-bottom:10px;font-weight:700;text-transform:uppercase;">OF RECOGNITION</div>'
 
         f'<div style="display:flex;align-items:center;gap:14px;width:100%;margin-bottom:10px;">'
@@ -1037,7 +1058,7 @@ def build_certificate_html(name, plan, capital, pnl_pct, days, date_str, challen
         '</div>'
 
         '<div style="text-align:center;margin-bottom:6px;">'
-        f'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:2.9rem;color:#EFEFEF;line-height:1.1;letter-spacing:6px;">{name.upper()}</div>'
+        f'<div style="font-family:\'Orbitron\',monospace;font-size:2.9rem;color:#EFEFEF;line-height:1.1;letter-spacing:6px;">{name.upper()}</div>'
         f'<div style="width:320px;height:1px;background:linear-gradient(90deg,transparent,{accent},transparent);margin:7px auto 0;"></div>'
         '</div>'
 
@@ -1052,15 +1073,15 @@ def build_certificate_html(name, plan, capital, pnl_pct, days, date_str, challen
 
         f'<div style="display:grid;grid-template-columns:repeat(3,1fr);width:100%;border:1px solid {accent_bord};background:{accent_bd2};">'
         f'<div style="padding:12px 16px;border-right:1px solid {accent_bord};text-align:center;">'
-        f'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.8rem;letter-spacing:2px;color:{accent};line-height:1;margin-bottom:3px;">+{pnl_pct:.2f}%</div>'
+        f'<div style="font-family:\'Orbitron\',monospace;font-size:1.8rem;letter-spacing:2px;color:{accent};line-height:1;margin-bottom:3px;">+{pnl_pct:.2f}%</div>'
         '<div style="font-size:0.48rem;color:#3a6a4a;letter-spacing:2.5px;text-transform:uppercase;">Profit Achieved</div>'
         '</div>'
         f'<div style="padding:12px 16px;border-right:1px solid {accent_bord};text-align:center;">'
-        f'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.8rem;letter-spacing:2px;color:#D4A843;line-height:1;margin-bottom:3px;">{days}</div>'
+        f'<div style="font-family:\'Orbitron\',monospace;font-size:1.8rem;letter-spacing:2px;color:#D4A843;line-height:1;margin-bottom:3px;">{days}</div>'
         '<div style="font-size:0.48rem;color:#3a6a4a;letter-spacing:2.5px;text-transform:uppercase;">Trading Days</div>'
         '</div>'
         f'<div style="padding:12px 16px;text-align:center;">'
-        f'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.45rem;letter-spacing:2px;color:#D8D8D8;line-height:1;margin-bottom:3px;">{date_str}</div>'
+        f'<div style="font-family:\'Orbitron\',monospace;font-size:1.45rem;letter-spacing:2px;color:#D8D8D8;line-height:1;margin-bottom:3px;">{date_str}</div>'
         '<div style="font-size:0.48rem;color:#3a6a4a;letter-spacing:2.5px;text-transform:uppercase;">Date Issued</div>'
         '</div>'
         '</div>'
@@ -1536,10 +1557,10 @@ def nav():
     st.markdown(
         '<div class="ak-nav">'
         f'<div style="display:flex;align-items:center;gap:14px;">'
-        f'<img src="{LOGO_URL}" onerror="this.style.display=\'none\'" style="height:34px;width:34px;object-fit:contain;" />'
+        f'<img src="{LOGO_URL}" onerror="this.style.display=\'none\'" style="height:34px;width:34px;object-fit:contain;filter:drop-shadow(0 0 10px rgba(124,58,237,.5));" />'
         '<div>'
         '<div class="ak-logo"><span class="ak-part">AK</span><span class="funded-part">FUNDED</span><span class="ak-beta">BETA</span></div>'
-        '<div class="ak-tagline">Prove Your Edge — Get Funded</div>'
+        '<div class="ak-tagline">// PROVE YOUR EDGE — GET FUNDED</div>'
         '</div></div></div>',
         unsafe_allow_html=True
     )
@@ -1595,12 +1616,12 @@ def footer():
     )
 
 def sec(title, sub=""):
-    sub_html = f'<div style="color:var(--dim);font-size:.78rem;margin-top:.4rem;letter-spacing:.5px;font-weight:400;">{sub}</div>' if sub else ""
+    sub_html = f'<div style="color:var(--dim);font-size:.78rem;margin-top:.4rem;letter-spacing:.5px;font-weight:300;">{sub}</div>' if sub else ""
     st.markdown(
         '<div style="margin-bottom:1.5rem;">'
-        f'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.7rem;letter-spacing:4px;color:var(--text);line-height:1;">{title}</div>'
+        f'<div style="font-family:\'Orbitron\',monospace;font-size:1.3rem;letter-spacing:4px;color:var(--text);line-height:1;font-weight:700;">{title}</div>'
         f'{sub_html}'
-        '<div style="width:40px;height:1px;background:var(--cyan);margin-top:.6rem;opacity:.5;box-shadow:0 0 8px var(--cyan);"></div>'
+        '<div style="width:40px;height:1px;background:linear-gradient(90deg,var(--accent),var(--cyan));margin-top:.6rem;box-shadow:0 0 8px rgba(124,58,237,.5);"></div>'
         '</div>',
         unsafe_allow_html=True
     )
@@ -1660,11 +1681,11 @@ def render_signal_scanner():
             f'<div class="scan-row">'
             f'<div>'
             f'<div class="scan-sym">{sym} <span style="font-size:.65rem;color:var(--dim);font-weight:400;">{name}</span></div>'
-            f'<div style="font-size:.65rem;color:var(--dim);font-family:\'JetBrains Mono\',monospace;margin-top:2px;">RSI {rsi} &nbsp;|&nbsp; Vol: {vol}</div>'
+            f'<div style="font-size:.65rem;color:var(--dim);font-family:\'Share Tech Mono\',monospace;margin-top:2px;">RSI {rsi} &nbsp;|&nbsp; Vol: {vol}</div>'
             f'</div>'
             f'<div style="text-align:right;">'
             f'<div class="scan-signal {cls}">{sig}</div>'
-            f'<div style="font-size:.68rem;color:{col};font-family:\'JetBrains Mono\',monospace;margin-top:4px;">{sign}{chg:.2f}%</div>'
+            f'<div style="font-size:.68rem;color:{col};font-family:\'Share Tech Mono\',monospace;margin-top:4px;">{sign}{chg:.2f}%</div>'
             f'</div></div>',
             unsafe_allow_html=True
         )
@@ -1676,13 +1697,279 @@ def pbar(pct, col):
 # HOME
 # ══════════════════════════════════════════════════════════════
 if st.session_state.page == "home":
+    # ─── FULL-SCREEN 3D GLOBE INTRO ────────────────────────────
+    st.components.v1.html("""
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:#02030a;overflow:hidden;font-family:'Orbitron',monospace;}
+  #intro{
+    position:fixed;top:0;left:0;width:100vw;height:100vh;
+    background:#02030a;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    z-index:9999;
+    transition:opacity 1s ease;
+  }
+  #intro.fade-out{opacity:0;pointer-events:none;}
+  canvas{display:block;}
+  #globe-wrap{
+    position:relative;width:420px;height:420px;
+    margin-bottom:2.5rem;
+  }
+  #globe-canvas{
+    border-radius:50%;
+    box-shadow:0 0 80px rgba(124,58,237,.4),0 0 160px rgba(0,229,255,.15);
+  }
+  .ring{
+    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    border-radius:50%;
+    border:1px solid rgba(0,229,255,.15);
+    animation:pulse-ring 3s infinite ease-out;
+  }
+  .ring:nth-child(1){width:480px;height:480px;animation-delay:0s;}
+  .ring:nth-child(2){width:540px;height:540px;animation-delay:.8s;}
+  .ring:nth-child(3){width:600px;height:600px;animation-delay:1.6s;}
+  @keyframes pulse-ring{
+    0%{opacity:.4;transform:translate(-50%,-50%) scale(.9);}
+    100%{opacity:0;transform:translate(-50%,-50%) scale(1.1);}
+  }
+  #tagline{
+    text-align:center;
+    animation:reveal 1.2s ease 0.3s both;
+  }
+  @keyframes reveal{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
+  #top-line{
+    font-size:.65rem;letter-spacing:8px;text-transform:uppercase;
+    color:rgba(0,229,255,.5);margin-bottom:1rem;
+    font-family:'Share Tech Mono',monospace;
+  }
+  #main-line{
+    font-size:clamp(1.8rem,4vw,3.5rem);
+    font-weight:900;
+    letter-spacing:3px;
+    line-height:1.1;
+    background:linear-gradient(135deg,#fff 0%,#c8d4f0 40%,#00e5ff 100%);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    background-clip:text;
+    margin-bottom:.6rem;
+  }
+  #sub-line{
+    font-size:.75rem;
+    color:rgba(124,58,237,.8);
+    letter-spacing:4px;
+    text-transform:uppercase;
+    font-family:'Share Tech Mono',monospace;
+  }
+  #enter-btn{
+    margin-top:2.5rem;
+    padding:1rem 3rem;
+    background:transparent;
+    border:1px solid rgba(0,229,255,.4);
+    color:#00e5ff;
+    font-family:'Orbitron',monospace;
+    font-size:.7rem;
+    letter-spacing:4px;
+    text-transform:uppercase;
+    cursor:pointer;
+    position:relative;
+    overflow:hidden;
+    transition:all .3s;
+    animation:reveal 1s ease 1.8s both;
+  }
+  #enter-btn::before{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(135deg,rgba(124,58,237,.2),rgba(0,229,255,.1));
+    opacity:0;transition:opacity .3s;
+  }
+  #enter-btn:hover{
+    border-color:var(--c,#00e5ff);
+    box-shadow:0 0 30px rgba(0,229,255,.3),inset 0 0 30px rgba(124,58,237,.1);
+    transform:translateY(-2px);
+  }
+  #enter-btn:hover::before{opacity:1;}
+  #particles{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;}
+  #globe-wrap{z-index:2;}
+  #tagline{z-index:2;}
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Share+Tech+Mono&display=swap');
+</style>
+</head>
+<body>
+<div id="intro">
+  <canvas id="particles" width="0" height="0"></canvas>
+  <div id="globe-wrap">
+    <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+    <canvas id="globe-canvas" width="420" height="420"></canvas>
+  </div>
+  <div id="tagline">
+    <div id="top-line">// AKFUNDED TERMINAL v1.0</div>
+    <div id="main-line">WELCOME TO<br>THE REAL WORLD</div>
+    <div id="sub-line">TRADE OUR CAPITAL &nbsp;&bull;&nbsp; KEEP YOUR PROFITS</div>
+    <button id="enter-btn" onclick="enterPlatform()">ENTER THE MATRIX &nbsp;&#x25B6;</button>
+  </div>
+</div>
+
+<script>
+// ── PARTICLE CANVAS ──────────────────────────────────────────
+const pc = document.getElementById('particles');
+pc.width = window.innerWidth; pc.height = window.innerHeight;
+const px = pc.getContext('2d');
+const particles = Array.from({length:80},()=>({
+  x:Math.random()*pc.width, y:Math.random()*pc.height,
+  vx:(Math.random()-.5)*.3, vy:(Math.random()-.5)*.3,
+  r:Math.random()*1.5+.5,
+  c:`rgba(${Math.random()>.5?'0,229,255':'124,58,237'},${Math.random()*.4+.1})`
+}));
+function animParticles(){
+  px.clearRect(0,0,pc.width,pc.height);
+  particles.forEach(p=>{
+    p.x+=p.vx; p.y+=p.vy;
+    if(p.x<0||p.x>pc.width) p.vx*=-1;
+    if(p.y<0||p.y>pc.height) p.vy*=-1;
+    px.beginPath(); px.arc(p.x,p.y,p.r,0,Math.PI*2);
+    px.fillStyle=p.c; px.fill();
+  });
+  requestAnimationFrame(animParticles);
+}
+animParticles();
+
+// ── 3D GLOBE ──────────────────────────────────────────────────
+const gc = document.getElementById('globe-canvas');
+const g = gc.getContext('2d');
+const W=420, R=200, CX=W/2, CY=W/2;
+let rot=0;
+const DOTS = [];
+// Generate dots on sphere using Fibonacci lattice
+const N=600;
+const golden = Math.PI*(3-Math.sqrt(5));
+for(let i=0;i<N;i++){
+  const y2 = 1-(i/(N-1))*2;
+  const radius = Math.sqrt(1-y2*y2);
+  const theta = golden*i;
+  const x2=Math.cos(theta)*radius, z2=Math.sin(theta)*radius;
+  DOTS.push([x2,y2,z2]);
+}
+// Lat/lon lines
+const LINES=[];
+for(let lat=-80;lat<=80;lat+=20){
+  const r2=Math.cos(lat*Math.PI/180);
+  const y2=Math.sin(lat*Math.PI/180);
+  const pts=[];
+  for(let lon=0;lon<=360;lon+=4){
+    pts.push([r2*Math.cos(lon*Math.PI/180),y2,r2*Math.sin(lon*Math.PI/180)]);
+  }
+  LINES.push(pts);
+}
+for(let lon=0;lon<360;lon+=30){
+  const pts=[];
+  for(let lat=-90;lat<=90;lat+=3){
+    const r2=Math.cos(lat*Math.PI/180);
+    const y2=Math.sin(lat*Math.PI/180);
+    pts.push([r2*Math.cos(lon*Math.PI/180),y2,r2*Math.sin(lon*Math.PI/180)]);
+  }
+  LINES.push(pts);
+}
+
+function proj(x,y,z,rx,ry){
+  // rotate Y
+  const cosY=Math.cos(ry), sinY=Math.sin(ry);
+  const x2=x*cosY+z*sinY, z2=-x*sinY+z*cosY;
+  // rotate X
+  const cosX=Math.cos(rx), sinX=Math.sin(rx);
+  const y3=y*cosX-z2*sinX, z3=y*sinX+z2*cosX;
+  return {sx:CX+x2*R, sy:CY+y3*R, z:z3};
+}
+
+function drawGlobe(){
+  g.clearRect(0,0,W,W);
+  // Background glow
+  const grd=g.createRadialGradient(CX,CY,0,CX,CY,R);
+  grd.addColorStop(0,'rgba(124,58,237,.08)');
+  grd.addColorStop(.5,'rgba(37,99,235,.04)');
+  grd.addColorStop(1,'transparent');
+  g.beginPath(); g.arc(CX,CY,R,0,Math.PI*2);
+  g.fillStyle=grd; g.fill();
+
+  const rx=0.25, ry=rot;
+
+  // Draw grid lines
+  LINES.forEach(pts=>{
+    let first=true;
+    g.beginPath();
+    pts.forEach(([x,y,z])=>{
+      const {sx,sy,z:pz}=proj(x,y,z,rx,ry);
+      if(pz<0){first=true;return;}
+      if(first){g.moveTo(sx,sy);first=false;}
+      else g.lineTo(sx,sy);
+    });
+    g.strokeStyle='rgba(0,229,255,.06)'; g.lineWidth=.5; g.stroke();
+  });
+
+  // Draw dots
+  const front=[],back=[];
+  DOTS.forEach(([x,y,z])=>{
+    const {sx,sy,z:pz}=proj(x,y,z,rx,ry);
+    (pz>=0?front:back).push({sx,sy,pz});
+  });
+  back.forEach(({sx,sy})=>{
+    g.beginPath(); g.arc(sx,sy,1,0,Math.PI*2);
+    g.fillStyle='rgba(124,58,237,.12)'; g.fill();
+  });
+  front.forEach(({sx,sy,pz})=>{
+    const br=Math.pow(pz,1.5);
+    g.beginPath(); g.arc(sx,sy,1.4,0,Math.PI*2);
+    g.fillStyle=`rgba(0,229,255,${0.15+br*.55})`; g.fill();
+  });
+
+  // Globe rim glow
+  const rim=g.createRadialGradient(CX,CY,R*.75,CX,CY,R);
+  rim.addColorStop(0,'transparent');
+  rim.addColorStop(.8,'rgba(0,229,255,.04)');
+  rim.addColorStop(1,'rgba(0,229,255,.18)');
+  g.beginPath(); g.arc(CX,CY,R,0,Math.PI*2);
+  g.fillStyle=rim; g.fill();
+
+  rot+=0.004;
+  requestAnimationFrame(drawGlobe);
+}
+drawGlobe();
+
+// ── ENTER ──────────────────────────────────────────────────────
+function enterPlatform(){
+  const intro=document.getElementById('intro');
+  intro.style.transition='opacity .8s ease';
+  intro.style.opacity='0';
+  setTimeout(()=>{ intro.style.display='none'; window.parent.postMessage({type:'akfunded_enter'},'*'); },800);
+}
+// Auto-enter after 8 seconds if user doesn't click
+setTimeout(enterPlatform, 8000);
+</script>
+</body>
+</html>
+""", height=700, scrolling=False)
+
+    # After globe intro, show dashboard link to skip
+    _,cc,_ = st.columns([2,1.5,2])
+    with cc:
+        if st.button("⚡  Skip Intro — Enter Platform", use_container_width=True, key="skip_intro"):
+            if st.session_state.user:
+                goto("dashboard")
+            else:
+                goto("auth")
+
+    st.markdown("<div style='margin-top:1rem;'>", unsafe_allow_html=True)
     nav()
     render_live_ticker()
 
     st.markdown(
         '<div class="hero-v2">'
-        f'<div style="margin-bottom:2rem;"><img src="{LOGO_URL}" onerror="this.style.display=\'none\'" style="height:64px;width:64px;object-fit:contain;filter:drop-shadow(0 0 20px rgba(0,212,255,.3));" /></div>'
-        '<div class="eyebrow"><span class="eyebrow-dot"></span> Forex &middot; Metals &middot; Commodities &middot; Prop Trading</div>'
+        f'<div style="margin-bottom:1.5rem;">'
+        f'<img src="{LOGO_URL}" onerror="this.style.display=\'none\'" style="height:56px;width:56px;object-fit:contain;filter:drop-shadow(0 0 20px rgba(124,58,237,.6));" />'
+        f'</div>'
+        '<div class="eyebrow"><span class="eyebrow-dot"></span> Forex &nbsp;&bull;&nbsp; Metals &nbsp;&bull;&nbsp; Commodities &nbsp;&bull;&nbsp; Prop Trading</div>'
         '<h1>TRADE OUR<br><em>CAPITAL.</em></h1>'
         '<p class="sub">Pass the evaluation. Get funded up to $100,000.<br>Keep up to 90% of your profits. Trade XAUUSD, Forex &amp; Crude Oil.</p>'
         '</div>',
@@ -1691,10 +1978,10 @@ if st.session_state.page == "home":
 
     c1,c2,c3 = st.columns([2,1,2])
     with c2:
-        if st.button("Start Challenge", use_container_width=True): goto("plans")
+        if st.button("ENTER CHALLENGE", use_container_width=True): goto("plans")
 
     st.markdown(
-        '<div class="hstats" style="margin-top:2.5rem;">'
+        '<div class="hstats" style="margin-top:2rem;">'
         '<div class="hstat"><span class="n">$2M+</span><span class="l">Total Payouts</span></div>'
         '<div class="hstat"><span class="n">3,500+</span><span class="l">Funded Traders</span></div>'
         '<div class="hstat"><span class="n">180+</span><span class="l">Countries</span></div>'
@@ -1704,25 +1991,26 @@ if st.session_state.page == "home":
         unsafe_allow_html=True
     )
 
-    st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.2rem;letter-spacing:4px;color:var(--text);margin:3rem 0 .5rem;">LIVE INSTRUMENTS</div><div style="width:30px;height:1px;background:var(--cyan);margin-bottom:1.5rem;opacity:.5;box-shadow:0 0 8px var(--cyan);"></div>', unsafe_allow_html=True)
+    st.markdown(f'<div style="font-family:\'Orbitron\',monospace;font-size:.85rem;letter-spacing:4px;color:var(--text);margin:3rem 0 .5rem;font-weight:700;">// LIVE INSTRUMENTS</div><div style="width:30px;height:1px;background:linear-gradient(90deg,var(--accent),var(--cyan));margin-bottom:1.5rem;box-shadow:0 0 8px rgba(124,58,237,.5);"></div>', unsafe_allow_html=True)
     render_market_heatmap()
 
-    st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.2rem;letter-spacing:4px;color:var(--text);margin:3.5rem 0 .5rem;">CHOOSE YOUR PROGRAM</div><div style="width:30px;height:1px;background:var(--cyan);margin-bottom:1.5rem;opacity:.5;box-shadow:0 0 8px var(--cyan);"></div>', unsafe_allow_html=True)
+    st.markdown(f'<div style="font-family:\'Orbitron\',monospace;font-size:.85rem;letter-spacing:4px;color:var(--text);margin:3.5rem 0 .5rem;font-weight:700;">// CHOOSE YOUR PROGRAM</div><div style="width:30px;height:1px;background:linear-gradient(90deg,var(--accent),var(--cyan));margin-bottom:1.5rem;box-shadow:0 0 8px rgba(124,58,237,.5);"></div>', unsafe_allow_html=True)
 
     col1, col2, col3 = st.columns(3, gap="small")
     with col1:
         st.markdown(
-            '<div style="background:linear-gradient(135deg,rgba(212,168,67,.08),rgba(212,168,67,.02));border:1px solid rgba(212,168,67,.3);padding:2rem;position:relative;">'
-            '<div style="position:absolute;top:.8rem;right:.8rem;background:var(--gold);color:#000;font-size:.52rem;font-weight:700;padding:2px 10px;letter-spacing:1.5px;">INSTANT</div>'
-            '<div style="font-size:.58rem;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem;">INSTANT FUNDED</div>'
-            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(212,168,67,.1);margin-bottom:1.5rem;">'
-            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Daily Loss</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--red);">3%</div></div>'
-            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Max Loss</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--red);">6%</div></div>'
-            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Challenge</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--green);">NONE</div></div>'
-            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Profit Split</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--gold);">70-75%</div></div>'
+            '<div style="background:linear-gradient(135deg,rgba(255,182,39,.06),rgba(255,182,39,.02));border:1px solid rgba(255,182,39,.25);padding:2rem;position:relative;overflow:hidden;">'
+            '<div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--gold),transparent);opacity:.5;"></div>'
+            '<div style="position:absolute;top:.7rem;right:.7rem;background:var(--gold);color:#000;font-size:.45rem;font-weight:700;padding:2px 8px;letter-spacing:2px;font-family:\'Orbitron\',monospace;">INSTANT</div>'
+            '<div style="font-size:.5rem;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem;font-family:\'Orbitron\',monospace;">INSTANT FUNDED</div>'
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(255,182,39,.08);margin-bottom:1.5rem;">'
+            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.45rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;font-family:\'Share Tech Mono\',monospace;">Daily Loss</div><div style="font-family:\'Orbitron\',monospace;font-size:1.2rem;color:var(--red);font-weight:700;">3%</div></div>'
+            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.45rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;font-family:\'Share Tech Mono\',monospace;">Max Loss</div><div style="font-family:\'Orbitron\',monospace;font-size:1.2rem;color:var(--red);font-weight:700;">6%</div></div>'
+            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.45rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;font-family:\'Share Tech Mono\',monospace;">Challenge</div><div style="font-family:\'Orbitron\',monospace;font-size:1.2rem;color:var(--green);font-weight:700;">NONE</div></div>'
+            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.45rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;font-family:\'Share Tech Mono\',monospace;">Profit Split</div><div style="font-family:\'Orbitron\',monospace;font-size:1.2rem;color:var(--gold);font-weight:700;">70-75%</div></div>'
             '</div>'
-            '<div style="font-size:.65rem;color:var(--dim);margin-bottom:.3rem;letter-spacing:1px;">ONE-TIME FEE FROM</div>'
-            '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:2.4rem;color:var(--gold);letter-spacing:2px;">$299</div>'
+            '<div style="font-size:.55rem;color:var(--dim);margin-bottom:.3rem;letter-spacing:1px;font-family:\'Share Tech Mono\',monospace;">ONE-TIME FEE FROM</div>'
+            '<div style="font-family:\'Orbitron\',monospace;font-size:2rem;color:var(--gold);letter-spacing:2px;font-weight:700;">$299</div>'
             '</div>',
             unsafe_allow_html=True
         )
@@ -1731,16 +2019,17 @@ if st.session_state.page == "home":
 
     with col2:
         st.markdown(
-            '<div style="background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.25);padding:2rem;position:relative;">'
-            '<div style="font-size:.58rem;color:var(--cyan);letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem;">ONE-STEP</div>'
+            '<div style="background:rgba(0,229,255,.04);border:1px solid rgba(0,229,255,.2);padding:2rem;position:relative;overflow:hidden;">'
+            '<div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--cyan),transparent);opacity:.5;"></div>'
+            '<div style="font-size:.5rem;color:var(--cyan);letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem;font-family:\'Orbitron\',monospace;">ONE-STEP</div>'
             '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);margin-bottom:1.5rem;">'
-            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Profit Target</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--green);">8%</div></div>'
-            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Max Loss</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--red);">10%</div></div>'
-            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Daily Loss</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--red);">5%</div></div>'
-            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Profit Split</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--cyan);">80%</div></div>'
+            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.45rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;font-family:\'Share Tech Mono\',monospace;">Profit Target</div><div style="font-family:\'Orbitron\',monospace;font-size:1.2rem;color:var(--green);font-weight:700;">8%</div></div>'
+            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.45rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;font-family:\'Share Tech Mono\',monospace;">Max Loss</div><div style="font-family:\'Orbitron\',monospace;font-size:1.2rem;color:var(--red);font-weight:700;">10%</div></div>'
+            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.45rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;font-family:\'Share Tech Mono\',monospace;">Daily Loss</div><div style="font-family:\'Orbitron\',monospace;font-size:1.2rem;color:var(--red);font-weight:700;">5%</div></div>'
+            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.45rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;font-family:\'Share Tech Mono\',monospace;">Profit Split</div><div style="font-family:\'Orbitron\',monospace;font-size:1.2rem;color:var(--cyan);font-weight:700;">80%</div></div>'
             '</div>'
-            '<div style="font-size:.65rem;color:var(--dim);margin-bottom:.3rem;letter-spacing:1px;">ONE-TIME FEE FROM</div>'
-            '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:2.4rem;color:var(--text);letter-spacing:2px;">$79</div>'
+            '<div style="font-size:.55rem;color:var(--dim);margin-bottom:.3rem;letter-spacing:1px;font-family:\'Share Tech Mono\',monospace;">ONE-TIME FEE FROM</div>'
+            '<div style="font-family:\'Orbitron\',monospace;font-size:2rem;color:var(--text);letter-spacing:2px;font-weight:700;">$79</div>'
             '</div>',
             unsafe_allow_html=True
         )
@@ -1749,24 +2038,25 @@ if st.session_state.page == "home":
 
     with col3:
         st.markdown(
-            '<div style="background:rgba(123,110,246,.05);border:1px solid rgba(123,110,246,.25);padding:2rem;position:relative;">'
-            '<div style="position:absolute;top:.8rem;right:.8rem;background:var(--purple);color:#fff;font-size:.52rem;font-weight:700;padding:2px 8px;letter-spacing:1.5px;">BEST VALUE</div>'
-            '<div style="font-size:.58rem;color:var(--purple);letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem;">TWO-STEP</div>'
+            '<div style="background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.25);padding:2rem;position:relative;overflow:hidden;">'
+            '<div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--accent),var(--cyan));opacity:.4;"></div>'
+            '<div style="position:absolute;top:.7rem;right:.7rem;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:.45rem;font-weight:700;padding:2px 8px;letter-spacing:2px;font-family:\'Orbitron\',monospace;">BEST VALUE</div>'
+            '<div style="font-size:.5rem;color:var(--purple);letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem;font-family:\'Orbitron\',monospace;">TWO-STEP</div>'
             '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);margin-bottom:1.5rem;">'
-            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Phase 1</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--green);">8%</div></div>'
-            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Max Loss</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--red);">10%</div></div>'
-            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Daily Loss</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--red);">5%</div></div>'
-            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Profit Split</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--purple);">90%</div></div>'
+            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.45rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;font-family:\'Share Tech Mono\',monospace;">Phase 1</div><div style="font-family:\'Orbitron\',monospace;font-size:1.2rem;color:var(--green);font-weight:700;">8%</div></div>'
+            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.45rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;font-family:\'Share Tech Mono\',monospace;">Max Loss</div><div style="font-family:\'Orbitron\',monospace;font-size:1.2rem;color:var(--red);font-weight:700;">10%</div></div>'
+            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.45rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;font-family:\'Share Tech Mono\',monospace;">Daily Loss</div><div style="font-family:\'Orbitron\',monospace;font-size:1.2rem;color:var(--red);font-weight:700;">5%</div></div>'
+            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.45rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;font-family:\'Share Tech Mono\',monospace;">Profit Split</div><div style="font-family:\'Orbitron\',monospace;font-size:1.2rem;color:var(--purple);font-weight:700;">90%</div></div>'
             '</div>'
-            '<div style="font-size:.65rem;color:var(--dim);margin-bottom:.3rem;letter-spacing:1px;">ONE-TIME FEE FROM</div>'
-            '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:2.4rem;color:var(--text);letter-spacing:2px;">$49</div>'
+            '<div style="font-size:.55rem;color:var(--dim);margin-bottom:.3rem;letter-spacing:1px;font-family:\'Share Tech Mono\',monospace;">ONE-TIME FEE FROM</div>'
+            '<div style="font-family:\'Orbitron\',monospace;font-size:2rem;color:var(--text);letter-spacing:2px;font-weight:700;">$49</div>'
             '</div>',
             unsafe_allow_html=True
         )
         if st.button("Get Two-Step", use_container_width=True, key="h_2p"):
             st.session_state["selected_phase"] = "two"; goto("plans")
 
-    st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.2rem;letter-spacing:4px;color:var(--text);margin:3.5rem 0 .5rem;">HOW IT WORKS</div><div style="width:30px;height:1px;background:var(--cyan);margin-bottom:1.5rem;opacity:.5;"></div>', unsafe_allow_html=True)
+    st.markdown(f'<div style="font-family:\'Orbitron\',monospace;font-size:.85rem;letter-spacing:4px;color:var(--text);margin:3.5rem 0 .5rem;font-weight:700;">// HOW IT WORKS</div><div style="width:30px;height:1px;background:linear-gradient(90deg,var(--accent),var(--cyan));margin-bottom:1.5rem;box-shadow:0 0 8px rgba(124,58,237,.5);"></div>', unsafe_allow_html=True)
     st.markdown(
         '<div class="steps-grid">'
         '<div class="step-card"><div class="step-num">01</div><div class="step-title">Choose a Plan</div><div class="step-desc">Instant Funded, One-Step, or Two-Step. Accounts from $5K to $100K.</div></div>'
@@ -1777,7 +2067,7 @@ if st.session_state.page == "home":
         unsafe_allow_html=True
     )
 
-    st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.2rem;letter-spacing:4px;color:var(--text);margin:2.5rem 0 .5rem;">FUNDED TRADERS</div><div style="width:30px;height:1px;background:var(--cyan);margin-bottom:1.5rem;opacity:.5;"></div>', unsafe_allow_html=True)
+    st.markdown(f'<div style="font-family:\'Orbitron\',monospace;font-size:.85rem;letter-spacing:4px;color:var(--text);margin:2.5rem 0 .5rem;font-weight:700;">// FUNDED TRADERS</div><div style="width:30px;height:1px;background:linear-gradient(90deg,var(--accent),var(--cyan));margin-bottom:1.5rem;box-shadow:0 0 8px rgba(124,58,237,.5);"></div>', unsafe_allow_html=True)
     st.markdown(
         '<div class="testi-grid">'
         '<div class="testi-card"><div class="testi-quote">Passed the $50K One-Step on XAUUSD in 4 days. The rules are clear and the platform is rock solid.</div><div class="testi-name">Rahul S.</div><div class="testi-meta">$50K Funded &nbsp;|&nbsp; +$4,000 payout &nbsp;|&nbsp; One-Step</div></div>'
@@ -1789,7 +2079,8 @@ if st.session_state.page == "home":
 
     c1,c2,c3 = st.columns([2,1,2])
     with c2:
-        if st.button("Start Now", use_container_width=True, key="cta2"): goto("plans")
+        if st.button("LAUNCH NOW", use_container_width=True, key="cta2"): goto("plans")
+    st.markdown("</div>", unsafe_allow_html=True)
     footer()
 
 # ══════════════════════════════════════════════════════════════
@@ -1800,7 +2091,7 @@ elif st.session_state.page == "auth":
     st.markdown("<br>", unsafe_allow_html=True)
     _,col,_ = st.columns([1,1.2,1])
     with col:
-        st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.5rem;letter-spacing:4px;color:var(--text);margin-bottom:.3rem;">ACCESS AKFUNDED</div><div style="width:30px;height:1px;background:var(--cyan);margin-bottom:1.5rem;opacity:.5;"></div>', unsafe_allow_html=True)
+        st.markdown('<div style="font-family:\'Orbitron\',monospace;font-size:1.5rem;letter-spacing:4px;color:var(--text);margin-bottom:.3rem;">ACCESS AKFUNDED</div><div style="width:30px;height:1px;background:var(--cyan);margin-bottom:1.5rem;opacity:.5;"></div>', unsafe_allow_html=True)
         t1,t2 = st.tabs(["  Sign In  ","  Create Account  "])
         with t1:
             email = st.text_input("Email", placeholder="you@email.com", key="si_e")
@@ -1926,11 +2217,11 @@ elif st.session_state.page == "plans":
             f'<div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,{accent},transparent);opacity:.4;"></div>'
             f'{pop}'
             f'<div style="font-size:.52rem;color:var(--dim);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:.3rem;">Account Size</div>'
-            f'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:2.6rem;color:{accent};letter-spacing:2px;line-height:1;margin-bottom:1.2rem;">{plan["name"]}</div>'
+            f'<div style="font-family:\'Orbitron\',monospace;font-size:2.6rem;color:{accent};letter-spacing:2px;line-height:1;margin-bottom:1.2rem;">{plan["name"]}</div>'
             f'<ul class="plan-rules">{rules_html}</ul>'
             f'<div style="border-top:1px solid var(--border);padding-top:.8rem;">'
             f'<div style="font-size:.62rem;color:var(--dim);text-decoration:line-through;letter-spacing:1px;">${plan["price"]} value</div>'
-            f'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.6rem;color:var(--green);letter-spacing:2px;">FREE <span style="font-size:.8rem;color:var(--dim);font-family:\'Rajdhani\',sans-serif;">testing</span></div>'
+            f'<div style="font-family:\'Orbitron\',monospace;font-size:1.6rem;color:var(--green);letter-spacing:2px;">FREE <span style="font-size:.8rem;color:var(--dim);font-family:\'Exo 2\',sans-serif;">testing</span></div>'
             f'</div></div>',
             unsafe_allow_html=True
         )
@@ -1966,7 +2257,7 @@ elif st.session_state.page == "plans":
         for i, plan in enumerate(PLANS_2P):
             with cols[i]: render_plan_card(plan, "2step")
 
-    st.markdown('<br><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1rem;letter-spacing:3px;color:var(--dim);margin-bottom:1rem;">PROGRAM COMPARISON</div>', unsafe_allow_html=True)
+    st.markdown('<br><div style="font-family:\'Orbitron\',monospace;font-size:1rem;letter-spacing:3px;color:var(--dim);margin-bottom:1rem;">PROGRAM COMPARISON</div>', unsafe_allow_html=True)
     st.markdown('<div style="background:var(--s1);border:1px solid var(--border);"><div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;padding:.8rem 1.2rem;background:var(--s2);font-size:.58rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;font-weight:600;border-bottom:1px solid var(--border);"><span>Feature</span><span style="text-align:center;color:var(--gold);">Instant</span><span style="text-align:center;color:var(--cyan);">One-Step</span><span style="text-align:center;color:var(--purple);">Two-Step</span></div>', unsafe_allow_html=True)
     for feat,v0,v1,v2 in [
         ("Account Sizes","$5K–$100K","$5K–$100K","$5K–$100K"),
@@ -2000,7 +2291,7 @@ elif st.session_state.page == "dashboard":
     if not challenge or not account:
         st.markdown(
             f'<div style="text-align:center;padding:6rem 2rem;">'
-            f'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:2.5rem;letter-spacing:5px;color:var(--text);">Welcome, {name.upper()}</div>'
+            f'<div style="font-family:\'Orbitron\',monospace;font-size:2.5rem;letter-spacing:5px;color:var(--text);">Welcome, {name.upper()}</div>'
             f'<div style="font-size:.85rem;color:var(--dim);margin:.5rem 0 2rem;font-weight:300;letter-spacing:.5px;">No active challenge. Activate one to start trading.</div>'
             f'</div>',
             unsafe_allow_html=True
@@ -2045,7 +2336,7 @@ elif st.session_state.page == "dashboard":
 
     st.markdown(
         f'<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.5rem;">'
-        f'<div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.8rem;letter-spacing:4px;color:var(--text);line-height:1;">Trading Dashboard</div>'
+        f'<div><div style="font-family:\'Orbitron\',monospace;font-size:1.8rem;letter-spacing:4px;color:var(--text);line-height:1;">Trading Dashboard</div>'
         f'<div style="font-size:.72rem;color:var(--dim);margin-top:.3rem;letter-spacing:.5px;">{name} &nbsp;|&nbsp; {challenge["plan"].upper()} &nbsp;|&nbsp; Day {days}</div>'
         f'<div style="width:30px;height:1px;background:var(--cyan);margin-top:.6rem;opacity:.5;"></div></div>'
         f'<div style="display:flex;gap:.5rem;align-items:center;">'
@@ -2143,13 +2434,13 @@ elif st.session_state.page == "dashboard":
         st.markdown(
             f'<div style="background:var(--s2);border:1px solid var(--border);border-left:2px solid {ec};padding:1rem;margin:.8rem 0;">'
             f'<div style="font-size:.55rem;color:var(--dim);letter-spacing:2.5px;margin-bottom:4px;text-transform:uppercase;">Estimated P&L</div>'
-            f'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:2.2rem;color:{ec};letter-spacing:2px;line-height:1;">{es}${est:,.2f}</div>'
-            f'<div style="font-size:.68rem;color:{ec};margin-top:4px;font-family:\'JetBrains Mono\',monospace;">{es}{roi:.3f}% acct &nbsp;|&nbsp; R:R 1:{rr:.1f}</div>'
-            f'<div style="font-size:.65rem;color:var(--red);margin-top:4px;font-family:\'JetBrains Mono\',monospace;">Risk: ${risk_trade:,.2f}</div>'
+            f'<div style="font-family:\'Orbitron\',monospace;font-size:2.2rem;color:{ec};letter-spacing:2px;line-height:1;">{es}${est:,.2f}</div>'
+            f'<div style="font-size:.68rem;color:{ec};margin-top:4px;font-family:\'Share Tech Mono\',monospace;">{es}{roi:.3f}% acct &nbsp;|&nbsp; R:R 1:{rr:.1f}</div>'
+            f'<div style="font-size:.65rem;color:var(--red);margin-top:4px;font-family:\'Share Tech Mono\',monospace;">Risk: ${risk_trade:,.2f}</div>'
             f'</div>'
             f'<div style="background:var(--s2);border:1px solid var(--border);padding:.6rem 1rem;margin-bottom:.8rem;display:flex;justify-content:space-between;align-items:center;">'
             f'<div style="font-size:.55rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;">Live Price</div>'
-            f'<div style="font-family:\'JetBrains Mono\',monospace;font-size:1rem;color:var(--cyan);">{live_px:.{decimal}f}</div>'
+            f'<div style="font-family:\'Share Tech Mono\',monospace;font-size:1rem;color:var(--cyan);">{live_px:.{decimal}f}</div>'
             f'</div>',
             unsafe_allow_html=True
         )
@@ -2209,12 +2500,12 @@ elif st.session_state.page == "dashboard":
             dec = 5 if MARKET_DATA.get(sym,{}).get("price",1) < 10 else 2
             st.markdown(
                 f'<div class="t-row">'
-                f'<span style="font-weight:700;">{sym} <span style="font-size:.62rem;color:var(--dim);font-family:\'JetBrains Mono\',monospace;">{dt}</span></span>'
+                f'<span style="font-weight:700;">{sym} <span style="font-size:.62rem;color:var(--dim);font-family:\'Share Tech Mono\',monospace;">{dt}</span></span>'
                 f'{tag}'
-                f'<span style="font-family:\'JetBrains Mono\',monospace;font-size:.72rem;">{t.get("entry_price",0):.{dec}f}</span>'
-                f'<span style="font-family:\'JetBrains Mono\',monospace;font-size:.72rem;">{t.get("exit_price",0):.{dec}f}</span>'
-                f'<span style="font-family:\'JetBrains Mono\',monospace;">{t.get("quantity",0):.2f}</span>'
-                f'<span style="color:{pc3};font-family:\'JetBrains Mono\',monospace;font-weight:700;">{ps3}${p:,.2f}</span>'
+                f'<span style="font-family:\'Share Tech Mono\',monospace;font-size:.72rem;">{t.get("entry_price",0):.{dec}f}</span>'
+                f'<span style="font-family:\'Share Tech Mono\',monospace;font-size:.72rem;">{t.get("exit_price",0):.{dec}f}</span>'
+                f'<span style="font-family:\'Share Tech Mono\',monospace;">{t.get("quantity",0):.2f}</span>'
+                f'<span style="color:{pc3};font-family:\'Share Tech Mono\',monospace;font-weight:700;">{ps3}${p:,.2f}</span>'
                 f'</div>',
                 unsafe_allow_html=True
             )
@@ -2259,7 +2550,7 @@ elif st.session_state.page == "markets":
             sig="BUY" if chg>0.5 else ("SELL" if chg<-0.5 else "HOLD")
             sc="bull" if sig=="BUY" else ("bear" if sig=="SELL" else "neut")
             dec = 5 if data["price"] < 10 else 2
-            st.markdown(f'<div style="display:grid;grid-template-columns:1.5fr 1.2fr 1fr 1fr 1fr 1fr;padding:.65rem 1.2rem;border-top:1px solid var(--border);align-items:center;"><span style="font-weight:700;color:var(--text);">{sym}</span><span style="font-size:.72rem;color:var(--dim);">{data.get("name","")}</span><span style="font-family:\'JetBrains Mono\',monospace;font-size:.75rem;">{data["price"]:.{dec}f}</span><span style="color:{col};font-weight:700;font-family:\'JetBrains Mono\',monospace;font-size:.75rem;">{sign}{chg:.2f}%</span><span style="font-size:.72rem;color:var(--dim);">{data["vol"]}</span><span class="scan-signal {sc}" style="width:fit-content;">{sig}</span></div>', unsafe_allow_html=True)
+            st.markdown(f'<div style="display:grid;grid-template-columns:1.5fr 1.2fr 1fr 1fr 1fr 1fr;padding:.65rem 1.2rem;border-top:1px solid var(--border);align-items:center;"><span style="font-weight:700;color:var(--text);">{sym}</span><span style="font-size:.72rem;color:var(--dim);">{data.get("name","")}</span><span style="font-family:\'Share Tech Mono\',monospace;font-size:.75rem;">{data["price"]:.{dec}f}</span><span style="color:{col};font-weight:700;font-family:\'Share Tech Mono\',monospace;font-size:.75rem;">{sign}{chg:.2f}%</span><span style="font-size:.72rem;color:var(--dim);">{data["vol"]}</span><span class="scan-signal {sc}" style="width:fit-content;">{sig}</span></div>', unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
 
     with tab_sc:
@@ -2300,7 +2591,7 @@ elif st.session_state.page == "markets":
             data=MARKET_DATA.get(sym,{"price":1.0,"change":0.0,"vol":"N/A","name":sym})
             chg=data["change"]; col="var(--green)" if chg>=0 else "var(--red)"; sign="+" if chg>=0 else ""
             dec = 5 if data["price"] < 10 else 2
-            st.markdown(f'<div class="wl-row"><div><div style="font-weight:700;color:var(--text);">{sym}</div><div style="font-size:.65rem;color:var(--dim);">{data.get("name","")} &middot; {data["vol"]}</div></div><div style="font-family:\'JetBrains Mono\',monospace;color:var(--text);font-size:.82rem;">{data["price"]:.{dec}f}</div><div style="font-weight:700;color:{col};font-family:\'JetBrains Mono\',monospace;font-size:.78rem;">{sign}{chg:.2f}%</div></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="wl-row"><div><div style="font-weight:700;color:var(--text);">{sym}</div><div style="font-size:.65rem;color:var(--dim);">{data.get("name","")} &middot; {data["vol"]}</div></div><div style="font-family:\'Share Tech Mono\',monospace;color:var(--text);font-size:.82rem;">{data["price"]:.{dec}f}</div><div style="font-weight:700;color:{col};font-family:\'Share Tech Mono\',monospace;font-size:.78rem;">{sign}{chg:.2f}%</div></div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
     footer()
 
@@ -2344,7 +2635,7 @@ elif st.session_state.page == "analytics":
         pc=("var(--green)" if total>=0 else "var(--red)"); ps2=("+" if total>=0 else "")
         cnt=sym_cnt.get(sym,1); wr2=round(sym_wins.get(sym,0)/cnt*100,0)
         wrc2="var(--green)" if wr2>=50 else "var(--red)"
-        st.markdown(f'<div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;padding:.65rem 1.2rem;border-top:1px solid var(--border);align-items:center;"><span style="font-weight:700;color:var(--text);">{sym}</span><span style="color:{pc};font-family:\'JetBrains Mono\',monospace;font-size:.75rem;">{ps2}${total:,.2f}</span><span style="color:var(--text);">{cnt}</span><span style="color:{wrc2};font-weight:700;">{wr2:.0f}%</span></div>', unsafe_allow_html=True)
+        st.markdown(f'<div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;padding:.65rem 1.2rem;border-top:1px solid var(--border);align-items:center;"><span style="font-weight:700;color:var(--text);">{sym}</span><span style="color:{pc};font-family:\'Share Tech Mono\',monospace;font-size:.75rem;">{ps2}${total:,.2f}</span><span style="color:var(--text);">{cnt}</span><span style="color:{wrc2};font-weight:700;">{wr2:.0f}%</span></div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
     footer()
 
@@ -2379,10 +2670,10 @@ elif st.session_state.page == "portfolio":
             f'<div style="background:var(--s1);border:1px solid rgba(0,212,255,.2);border-left:2px solid var(--cyan);padding:1.8rem 2rem;margin-bottom:1.5rem;">'
             f'<div style="font-size:.58rem;color:var(--dim);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:1rem;">Active Challenge</div>'
             f'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;">'
-            f'<div><div class="m-label">Plan</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--cyan);">{challenge["plan"].upper()}</div></div>'
-            f'<div><div class="m-label">Balance</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--text);">${bal:,.2f}</div></div>'
-            f'<div><div class="m-label">P&L</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:{pc};">{ps}${p:,.2f}</div></div>'
-            f'<div><div class="m-label">Progress</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--cyan);">{ps}{pp:.1f}%</div></div>'
+            f'<div><div class="m-label">Plan</div><div style="font-family:\'Orbitron\',monospace;font-size:1.4rem;color:var(--cyan);">{challenge["plan"].upper()}</div></div>'
+            f'<div><div class="m-label">Balance</div><div style="font-family:\'Orbitron\',monospace;font-size:1.4rem;color:var(--text);">${bal:,.2f}</div></div>'
+            f'<div><div class="m-label">P&L</div><div style="font-family:\'Orbitron\',monospace;font-size:1.4rem;color:{pc};">{ps}${p:,.2f}</div></div>'
+            f'<div><div class="m-label">Progress</div><div style="font-family:\'Orbitron\',monospace;font-size:1.4rem;color:var(--cyan);">{ps}{pp:.1f}%</div></div>'
             f'</div></div>',
             unsafe_allow_html=True
         )
@@ -2448,7 +2739,7 @@ elif st.session_state.page == "history":
             r=RULES.get(ch.get("plan",""),{}); phase=r.get("phase","1step")
             cap_str=f"${cap//1000}K"; date_str=ch.get("started_at","")[:10]
             pc="var(--green)" if p>=0 else "var(--red)"; ps="+" if p>=0 else ""
-            st.markdown(f'<div class="ch-card"><div><div class="ch-plan">{ch.get("plan","").upper()}</div><div style="font-size:.68rem;color:var(--dim);font-family:\'JetBrains Mono\',monospace;">{cap_str} &nbsp;|&nbsp; {date_str} &nbsp;|&nbsp; {phase.upper()}</div></div><div style="font-size:.8rem;">Balance: <b style="color:var(--text);">${bal:,.2f}</b></div><div style="font-size:.8rem;color:{pc};">P&L: <b>{ps}${p:,.2f} ({ps}{pp:.1f}%)</b></div><div style="font-size:.8rem;color:var(--dim);">Days: <b style="color:var(--text);">{d}</b></div><div class="ch-status {status}">{status.upper()}</div></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="ch-card"><div><div class="ch-plan">{ch.get("plan","").upper()}</div><div style="font-size:.68rem;color:var(--dim);font-family:\'Share Tech Mono\',monospace;">{cap_str} &nbsp;|&nbsp; {date_str} &nbsp;|&nbsp; {phase.upper()}</div></div><div style="font-size:.8rem;">Balance: <b style="color:var(--text);">${bal:,.2f}</b></div><div style="font-size:.8rem;color:{pc};">P&L: <b>{ps}${p:,.2f} ({ps}{pp:.1f}%)</b></div><div style="font-size:.8rem;color:var(--dim);">Days: <b style="color:var(--text);">{d}</b></div><div class="ch-status {status}">{status.upper()}</div></div>', unsafe_allow_html=True)
     footer()
 
 # ══════════════════════════════════════════════════════════════
@@ -2501,10 +2792,10 @@ elif st.session_state.page == "profile":
         f'<div style="font-size:.68rem;color:var(--dim);margin-top:4px;letter-spacing:.5px;">{country}</div>'
         f'{badge_html}</div>'
         f'<div style="margin-left:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:2rem;text-align:center;">'
-        f'<div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.6rem;color:var(--cyan);">{tt}</div><div style="font-size:.55rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-top:4px;">Trades</div></div>'
-        f'<div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.6rem;color:{"var(--green)" if wr>=50 else "var(--red)"};">{wr:.0f}%</div><div style="font-size:.55rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-top:4px;">Win Rate</div></div>'
-        f'<div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.6rem;color:var(--green);">{passed}</div><div style="font-size:.55rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-top:4px;">Passed</div></div>'
-        f'<div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.6rem;color:var(--red);">{failed}</div><div style="font-size:.55rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-top:4px;">Failed</div></div>'
+        f'<div><div style="font-family:\'Orbitron\',monospace;font-size:1.6rem;color:var(--cyan);">{tt}</div><div style="font-size:.55rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-top:4px;">Trades</div></div>'
+        f'<div><div style="font-family:\'Orbitron\',monospace;font-size:1.6rem;color:{"var(--green)" if wr>=50 else "var(--red)"};">{wr:.0f}%</div><div style="font-size:.55rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-top:4px;">Win Rate</div></div>'
+        f'<div><div style="font-family:\'Orbitron\',monospace;font-size:1.6rem;color:var(--green);">{passed}</div><div style="font-size:.55rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-top:4px;">Passed</div></div>'
+        f'<div><div style="font-family:\'Orbitron\',monospace;font-size:1.6rem;color:var(--red);">{failed}</div><div style="font-size:.55rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-top:4px;">Failed</div></div>'
         f'</div></div>',
         unsafe_allow_html=True
     )
@@ -2578,7 +2869,7 @@ elif st.session_state.page == "admin":
     for r in filtered[:50]:
         pc="var(--green)" if r["pnl_pct"]>=0 else "var(--red)"; ps="+" if r["pnl_pct"]>=0 else ""
         cap_str=f"${r['capital']//1000}K"
-        st.markdown(f'<div class="admin-row"><div><div style="font-weight:700;color:var(--text);">{r["name"]}</div><div style="font-size:.65rem;color:var(--dim);font-family:\'JetBrains Mono\',monospace;">{r["email"]}</div></div><div style="color:var(--cyan);font-size:.75rem;">{r["plan"].upper()} ({cap_str})</div><div style="font-family:\'JetBrains Mono\',monospace;font-size:.75rem;">${r["balance"]:,.2f}</div><div style="color:{pc};font-family:\'JetBrains Mono\',monospace;font-weight:700;">{ps}{r["pnl_pct"]:.2f}%</div><div style="color:var(--text);">{r["days_traded"]}</div><div class="admin-status {r["status"]}">{r["status"].upper()}</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="admin-row"><div><div style="font-weight:700;color:var(--text);">{r["name"]}</div><div style="font-size:.65rem;color:var(--dim);font-family:\'Share Tech Mono\',monospace;">{r["email"]}</div></div><div style="color:var(--cyan);font-size:.75rem;">{r["plan"].upper()} ({cap_str})</div><div style="font-family:\'Share Tech Mono\',monospace;font-size:.75rem;">${r["balance"]:,.2f}</div><div style="color:{pc};font-family:\'Share Tech Mono\',monospace;font-weight:700;">{ps}{r["pnl_pct"]:.2f}%</div><div style="color:var(--text);">{r["days_traded"]}</div><div class="admin-status {r["status"]}">{r["status"].upper()}</div></div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
     footer()
 
@@ -2676,14 +2967,14 @@ elif st.session_state.page == "risk_calc":
             st.markdown(
                 f'<div class="risk-card">'
                 f'<div style="margin-bottom:1.2rem;"><div class="m-label">Daily Loss Remaining</div>'
-                f'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.8rem;color:{"var(--green)" if daily_rem>daily_lim*0.5 else "var(--red)"};">${daily_rem:,.2f}</div>'
-                f'<div style="font-size:.65rem;color:var(--dim);font-family:\'JetBrains Mono\',monospace;">of ${daily_lim:,.2f} ({r.get("daily_loss",5)}%)</div></div>'
+                f'<div style="font-family:\'Orbitron\',monospace;font-size:1.8rem;color:{"var(--green)" if daily_rem>daily_lim*0.5 else "var(--red)"};">${daily_rem:,.2f}</div>'
+                f'<div style="font-size:.65rem;color:var(--dim);font-family:\'Share Tech Mono\',monospace;">of ${daily_lim:,.2f} ({r.get("daily_loss",5)}%)</div></div>'
                 f'<div style="margin-bottom:1.2rem;"><div class="m-label">Total Loss Remaining</div>'
-                f'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.8rem;color:{"var(--green)" if total_rem>total_lim*0.5 else "var(--red)"};">${total_rem:,.2f}</div>'
-                f'<div style="font-size:.65rem;color:var(--dim);font-family:\'JetBrains Mono\',monospace;">of ${total_lim:,.2f} ({r.get("total_loss",10)}%)</div></div>'
+                f'<div style="font-family:\'Orbitron\',monospace;font-size:1.8rem;color:{"var(--green)" if total_rem>total_lim*0.5 else "var(--red)"};">${total_rem:,.2f}</div>'
+                f'<div style="font-size:.65rem;color:var(--dim);font-family:\'Share Tech Mono\',monospace;">of ${total_lim:,.2f} ({r.get("total_loss",10)}%)</div></div>'
                 f'<div style="background:var(--s2);border:1px solid var(--border);border-left:2px solid var(--green);padding:1rem;margin-top:1px;">'
                 f'<div class="m-label">Recommended Max Risk / Trade</div>'
-                f'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.8rem;color:var(--green);">${min(daily_rem*0.25,total_rem*0.1):,.2f}</div>'
+                f'<div style="font-family:\'Orbitron\',monospace;font-size:1.8rem;color:var(--green);">${min(daily_rem*0.25,total_rem*0.1):,.2f}</div>'
                 f'<div style="font-size:.65rem;color:var(--dim);">Protects daily &amp; total loss limits</div>'
                 f'</div></div>',
                 unsafe_allow_html=True
@@ -2708,7 +2999,7 @@ elif st.session_state.page == "certificate":
     if not passed_ch:
         st.markdown(
             '<div style="text-align:center;padding:5rem;background:var(--s1);border:1px solid var(--border);">'
-            '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.5rem;letter-spacing:4px;color:var(--dim);margin-bottom:.5rem;">No Certificate Yet</div>'
+            '<div style="font-family:\'Orbitron\',monospace;font-size:1.5rem;letter-spacing:4px;color:var(--dim);margin-bottom:.5rem;">No Certificate Yet</div>'
             '<div style="font-size:.8rem;color:var(--dim);font-weight:300;">Pass a challenge to earn your funded trader certificate.</div>'
             '</div>',
             unsafe_allow_html=True
@@ -2824,7 +3115,7 @@ elif st.session_state.page == "referral":
     c1,c2=st.columns(2)
     with c1:
         wa=f"https://wa.me/?text=Join%20AKFunded%20-%20Forex%20Prop%20Trading%20Simulator.%20Use%20code%20{code}.%20{share_url}"
-        st.markdown(f'<a href="{wa}" target="_blank"><button style="width:100%;background:rgba(0,212,255,.1);color:var(--cyan);font-weight:700;border:1px solid rgba(0,212,255,.3);padding:.55rem;font-family:\'Rajdhani\',sans-serif;cursor:pointer;letter-spacing:2px;font-size:.78rem;text-transform:uppercase;">Share on WhatsApp</button></a>', unsafe_allow_html=True)
+        st.markdown(f'<a href="{wa}" target="_blank"><button style="width:100%;background:rgba(0,212,255,.1);color:var(--cyan);font-weight:700;border:1px solid rgba(0,212,255,.3);padding:.55rem;font-family:\'Exo 2\',sans-serif;cursor:pointer;letter-spacing:2px;font-size:.78rem;text-transform:uppercase;">Share on WhatsApp</button></a>', unsafe_allow_html=True)
     with c2:
         if st.button("Email Invite",use_container_width=True,key="email_invite"):
             html_invite=(
