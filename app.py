@@ -1680,15 +1680,361 @@ if st.session_state.page == "home":
     nav()
     render_live_ticker()
 
-    st.markdown(
-        '<div class="hero-v2">'
-        f'<div style="margin-bottom:2rem;"><img src="{LOGO_URL}" onerror="this.style.display=\'none\'" style="height:64px;width:64px;object-fit:contain;filter:drop-shadow(0 0 20px rgba(0,212,255,.3));" /></div>'
-        '<div class="eyebrow"><span class="eyebrow-dot"></span> Forex &middot; Metals &middot; Commodities &middot; Prop Trading</div>'
-        '<h1>TRADE OUR<br><em>CAPITAL.</em></h1>'
-        '<p class="sub">Pass the evaluation. Get funded up to $100,000.<br>Keep up to 90% of your profits. Trade XAUUSD, Forex &amp; Crude Oil.</p>'
-        '</div>',
-        unsafe_allow_html=True
-    )
+    hero_logo = LOGO_URL
+    st.components.v1.html(f"""
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&display=swap');
+  *{{margin:0;padding:0;box-sizing:border-box;}}
+  body{{background:#050505;overflow:hidden;}}
+  #hero{{
+    position:relative;
+    width:100%;
+    height:600px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+    background:#050505;
+  }}
+  #bgCanvas{{
+    position:absolute;
+    top:0;left:0;
+    width:100%;height:100%;
+    z-index:0;
+  }}
+  .hero-content{{
+    position:relative;
+    z-index:2;
+    text-align:center;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }}
+  .hero-logo{{
+    height:68px;width:68px;
+    object-fit:contain;
+    margin-bottom:1.6rem;
+    filter:drop-shadow(0 0 24px rgba(0,212,255,.5));
+    animation:floatLogo 4s ease-in-out infinite;
+  }}
+  @keyframes floatLogo{{
+    0%,100%{{transform:translateY(0);}}
+    50%{{transform:translateY(-8px);}}
+  }}
+  .eyebrow{{
+    display:inline-flex;
+    align-items:center;
+    gap:.6rem;
+    border:1px solid rgba(0,212,255,.25);
+    color:#00D4FF;
+    font-size:.6rem;
+    letter-spacing:3px;
+    padding:5px 18px;
+    border-radius:2px;
+    margin-bottom:2.2rem;
+    text-transform:uppercase;
+    background:rgba(0,212,255,.05);
+    font-family:'Rajdhani',sans-serif;
+    font-weight:600;
+  }}
+  .eyebrow-dot{{
+    width:5px;height:5px;
+    background:#00D4FF;
+    border-radius:50%;
+    display:inline-block;
+    animation:blink 2s infinite;
+    box-shadow:0 0 8px #00D4FF;
+  }}
+  @keyframes blink{{0%,100%{{opacity:1;}}50%{{opacity:.2;}}}}
+  .hero-h1{{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:clamp(4rem,9vw,9.5rem);
+    line-height:.88;
+    letter-spacing:6px;
+    color:#fff;
+    margin:0 0 1.5rem;
+    text-shadow:0 0 80px rgba(255,255,255,.05);
+  }}
+  .hero-h1 em{{
+    color:#00D4FF;
+    font-style:normal;
+    text-shadow:0 0 60px rgba(0,212,255,.5), 0 0 120px rgba(0,212,255,.2);
+  }}
+  .hero-sub{{
+    font-size:.95rem;
+    color:#3a3a3a;
+    max-width:460px;
+    line-height:2;
+    font-weight:400;
+    letter-spacing:.3px;
+    font-family:'Rajdhani',sans-serif;
+  }}
+</style>
+</head>
+<body>
+<div id="hero">
+  <canvas id="bgCanvas"></canvas>
+  <div class="hero-content">
+    <div style="margin-bottom:1.6rem;">
+      <img class="hero-logo" src="{hero_logo}" onerror="this.style.display='none'" />
+    </div>
+    <div class="eyebrow"><span class="eyebrow-dot"></span> Forex &middot; Metals &middot; Commodities &middot; Prop Trading</div>
+    <div class="hero-h1">TRADE OUR<br><em>CAPITAL.</em></div>
+    <p class="hero-sub">Pass the evaluation. Get funded up to $100,000.<br>Keep up to 90% of your profits. Trade XAUUSD, Forex &amp; Crude Oil.</p>
+  </div>
+</div>
+
+<script>
+(function(){{
+  const canvas = document.getElementById('bgCanvas');
+  const ctx    = canvas.getContext('2d');
+  let W, H;
+
+  function resize(){{
+    W = canvas.width  = canvas.offsetWidth;
+    H = canvas.height = canvas.offsetHeight;
+  }}
+  resize();
+  window.addEventListener('resize', resize);
+
+  // ── PARTICLES ──────────────────────────────────────────────
+  const PARTICLE_COUNT = 120;
+  const particles = Array.from({{length: PARTICLE_COUNT}}, () => ({{
+    x: Math.random() * 1600,
+    y: Math.random() * 600,
+    z: Math.random() * 1200 + 100,
+    vx: (Math.random() - 0.5) * 0.4,
+    vy: (Math.random() - 0.5) * 0.3,
+    vz: -0.6 - Math.random() * 0.6,
+    color: Math.random() > 0.6 ? '#00D4FF' : Math.random() > 0.5 ? '#00B87A' : '#D4A843',
+    size: Math.random() * 1.5 + 0.4,
+  }}));
+
+  // ── GRID LINES (perspective) ──────────────────────────────
+  const GRID_ROWS = 12, GRID_COLS = 14;
+  const GRID_Z_NEAR = 60, GRID_Z_FAR = 1400;
+  const GRID_W = 2800, GRID_H_WORLD = 600;
+  let gridOffset = 0;
+
+  // ── FLOATING RINGS ────────────────────────────────────────
+  const rings = [
+    {{ x: 0.18, y: 0.38, r: 90,  rot: 0,   rotV: 0.008,  tiltX: 0.55, tiltY: 0.3,  color: '#00D4FF', alpha: 0.12 }},
+    {{ x: 0.82, y: 0.45, r: 70,  rot: 1.2, rotV: -0.006, tiltX: 0.4,  tiltY: 0.6,  color: '#00B87A', alpha: 0.10 }},
+    {{ x: 0.5,  y: 0.15, r: 50,  rot: 0.5, rotV: 0.012,  tiltX: 0.7,  tiltY: 0.2,  color: '#D4A843', alpha: 0.09 }},
+    {{ x: 0.12, y: 0.72, r: 44,  rot: 2.1, rotV: -0.009, tiltX: 0.3,  tiltY: 0.65, color: '#00D4FF', alpha: 0.08 }},
+    {{ x: 0.88, y: 0.78, r: 60,  rot: 1.8, rotV: 0.007,  tiltX: 0.5,  tiltY: 0.4,  color: '#7B6EF6', alpha: 0.09 }},
+  ];
+
+  // ── DATA STREAM LINES ─────────────────────────────────────
+  const streams = Array.from({{length: 18}}, () => ({{
+    x: Math.random() * 1600,
+    y: 0,
+    len: 40 + Math.random() * 80,
+    speed: 1.2 + Math.random() * 2.2,
+    alpha: 0.04 + Math.random() * 0.08,
+    color: Math.random() > 0.5 ? '#00D4FF' : '#00B87A',
+  }}));
+
+  // ── FLOATING PRICE TAGS ───────────────────────────────────
+  const tags = [
+    {{ sym:'XAUUSD', price:'2,345.80', chg:'+0.42%', up:true,  x:0.08, y:0.22, vy:-0.12 }},
+    {{ sym:'EURUSD', price:'1.0842',   chg:'-0.12%', up:false, x:0.80, y:0.28, vy: 0.10 }},
+    {{ sym:'GBPUSD', price:'1.2680',   chg:'+0.08%', up:true,  x:0.88, y:0.60, vy:-0.09 }},
+    {{ sym:'USOIL',  price:'82.45',    chg:'+1.20%', up:true,  x:0.04, y:0.65, vy: 0.11 }},
+  ];
+  tags.forEach(t => {{ t.fy = t.y * 600; t.oy = t.fy; }});
+
+  let frame = 0;
+
+  function drawRing(ring){{
+    const rx = ring.x * W, ry = ring.fy !== undefined ? ring.fy : ring.y * H;
+    ctx.save();
+    ctx.translate(rx, ry);
+    ctx.rotate(ring.rot);
+    ctx.scale(1, ring.tiltX);
+    ctx.beginPath();
+    ctx.ellipse(0, 0, ring.r, ring.r * ring.tiltY, 0, 0, Math.PI * 2);
+    ctx.strokeStyle = ring.color;
+    ctx.globalAlpha = ring.alpha;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    // Inner ring
+    ctx.beginPath();
+    ctx.ellipse(0, 0, ring.r * 0.6, ring.r * 0.6 * ring.tiltY, 0, 0, Math.PI * 2);
+    ctx.globalAlpha = ring.alpha * 0.5;
+    ctx.stroke();
+    ctx.restore();
+  }}
+
+  function drawPerspectiveGrid(){{
+    const vanishX = W / 2, vanishY = H * 0.52;
+    const floorY  = H + 20;
+    ctx.globalAlpha = 1;
+
+    // Horizontal lines (moving toward viewer)
+    for(let r = 0; r <= GRID_ROWS; r++){{
+      const t   = (r / GRID_ROWS + gridOffset) % 1;
+      const ease = t * t;
+      const y   = vanishY + (floorY - vanishY) * ease;
+      const xL  = vanishX - (W * 0.7) * ease;
+      const xR  = vanishX + (W * 0.7) * ease;
+      const a   = ease * 0.13;
+      ctx.beginPath();
+      ctx.moveTo(xL, y); ctx.lineTo(xR, y);
+      ctx.strokeStyle = `rgba(0,212,255,${{a.toFixed(3)}})`;
+      ctx.lineWidth   = 0.5;
+      ctx.stroke();
+    }}
+    // Vertical lines (radiating from vanishing point)
+    for(let c = 0; c <= GRID_COLS; c++){{
+      const frac = c / GRID_COLS;
+      const xFar = vanishX;
+      const xNear = W * frac * 1.15 - W * 0.075;
+      const g = ctx.createLinearGradient(xFar, vanishY, xNear, floorY);
+      g.addColorStop(0, 'rgba(0,212,255,0)');
+      g.addColorStop(1, 'rgba(0,212,255,0.07)');
+      ctx.beginPath();
+      ctx.moveTo(xFar, vanishY); ctx.lineTo(xNear, floorY);
+      ctx.strokeStyle = g;
+      ctx.lineWidth   = 0.5;
+      ctx.stroke();
+    }}
+    gridOffset += 0.0025;
+    if(gridOffset >= 1) gridOffset = 0;
+  }}
+
+  function drawParticles(){{
+    const fovX = W / 2, fovY = H / 2;
+    particles.forEach(p => {{
+      p.x += p.vx; p.y += p.vy; p.z += p.vz;
+      if(p.z < 10){{
+        p.z = 1200; p.x = Math.random() * 1600; p.y = Math.random() * 600;
+      }}
+      const scale = 600 / p.z;
+      const sx = fovX + (p.x - 800) * scale;
+      const sy = fovY + (p.y - 300) * scale;
+      const r  = p.size * scale;
+      const a  = Math.min(1, (1200 - p.z) / 1000) * 0.7;
+      if(sx < -10 || sx > W + 10 || sy < -10 || sy > H + 10) return;
+      ctx.globalAlpha = a;
+      ctx.beginPath();
+      ctx.arc(sx, sy, Math.max(r, 0.3), 0, Math.PI * 2);
+      ctx.fillStyle = p.color;
+      ctx.fill();
+      // Glow
+      if(a > 0.3){{
+        ctx.beginPath();
+        ctx.arc(sx, sy, Math.max(r * 3, 1), 0, Math.PI * 2);
+        ctx.fillStyle = p.color + '22';
+        ctx.fill();
+      }}
+    }});
+    ctx.globalAlpha = 1;
+  }}
+
+  function drawStreams(){{
+    streams.forEach(s => {{
+      s.y += s.speed;
+      if(s.y > H + s.len) {{ s.y = -s.len; s.x = Math.random() * W; }}
+      const g = ctx.createLinearGradient(s.x, s.y - s.len, s.x, s.y);
+      g.addColorStop(0, 'transparent');
+      g.addColorStop(1, s.color);
+      ctx.globalAlpha = s.alpha;
+      ctx.strokeStyle = g;
+      ctx.lineWidth = 0.8;
+      ctx.beginPath();
+      ctx.moveTo(s.x, s.y - s.len);
+      ctx.lineTo(s.x, s.y);
+      ctx.stroke();
+    }});
+    ctx.globalAlpha = 1;
+  }}
+
+  function drawFloatingTags(){{
+    tags.forEach(t => {{
+      t.fy += t.vy;
+      if(t.fy < -40) t.fy = H + 20;
+      if(t.fy > H + 20) t.fy = -40;
+      const tx = t.x * W, ty = t.fy;
+      ctx.globalAlpha = 0.55;
+      ctx.fillStyle = '#0d0d0d';
+      ctx.strokeStyle = t.up ? 'rgba(0,184,122,0.35)' : 'rgba(224,58,82,0.35)';
+      ctx.lineWidth = 0.8;
+      const bw = 108, bh = 40;
+      ctx.beginPath();
+      ctx.rect(tx, ty, bw, bh);
+      ctx.fill(); ctx.stroke();
+      // Left accent bar
+      ctx.fillStyle = t.up ? '#00B87A' : '#E03A52';
+      ctx.fillRect(tx, ty, 2, bh);
+      // Symbol
+      ctx.globalAlpha = 0.7;
+      ctx.fillStyle = '#D8D8D8';
+      ctx.font = 'bold 9px Courier New';
+      ctx.fillText(t.sym, tx + 8, ty + 14);
+      // Price
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 11px Courier New';
+      ctx.fillText(t.price, tx + 8, ty + 27);
+      // Change
+      ctx.fillStyle = t.up ? '#00B87A' : '#E03A52';
+      ctx.font = '8px Courier New';
+      ctx.fillText(t.chg, tx + 8, ty + 38);
+      ctx.globalAlpha = 1;
+    }});
+  }}
+
+  function drawCentralGlow(){{
+    const gx = W / 2, gy = H * 0.42;
+    const g1 = ctx.createRadialGradient(gx, gy, 0, gx, gy, W * 0.45);
+    g1.addColorStop(0, 'rgba(0,212,255,0.04)');
+    g1.addColorStop(0.4,'rgba(0,212,255,0.02)');
+    g1.addColorStop(1, 'transparent');
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = g1;
+    ctx.fillRect(0, 0, W, H);
+
+    // Subtle center cross-light
+    const g2 = ctx.createRadialGradient(gx, gy, 0, gx, gy, 180);
+    g2.addColorStop(0, 'rgba(0,212,255,0.06)');
+    g2.addColorStop(1, 'transparent');
+    ctx.fillStyle = g2;
+    ctx.beginPath();
+    ctx.arc(gx, gy, 180, 0, Math.PI * 2);
+    ctx.fill();
+  }}
+
+  function animate(){{
+    ctx.clearRect(0, 0, W, H);
+
+    // Base fill
+    ctx.fillStyle = '#050505';
+    ctx.fillRect(0, 0, W, H);
+
+    drawCentralGlow();
+    drawPerspectiveGrid();
+    drawStreams();
+    drawParticles();
+    rings.forEach(r => {{
+      r.rot += r.rotV;
+      r.fy = (r.fy || r.y * 600);
+      drawRing(r);
+    }});
+    drawFloatingTags();
+
+    frame++;
+    requestAnimationFrame(animate);
+  }}
+  animate();
+}})();
+</script>
+</body>
+</html>
+""", height=610, scrolling=False)
 
     c1,c2,c3 = st.columns([2,1,2])
     with c2:
