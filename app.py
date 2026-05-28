@@ -1677,6 +1677,320 @@ def pbar(pct, col):
 # HOME
 # ══════════════════════════════════════════════════════════════
 if st.session_state.page == "home":
+
+    # ── SPLASH INTRO SCREEN ──────────────────────────────────
+    splash_logo = LOGO_URL
+    st.components.v1.html(f"""
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@300;400;600;700&display=swap');
+  *{{margin:0;padding:0;box-sizing:border-box;}}
+  body{{background:#050505;overflow:hidden;width:100%;}}
+
+  #splash{{
+    position:fixed;
+    top:0;left:0;right:0;bottom:0;
+    width:100vw;height:100vh;
+    background:#050505;
+    z-index:9999;
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    transition:opacity 0.8s ease, transform 0.8s ease;
+  }}
+  #splash.fade-out{{
+    opacity:0;
+    transform:scale(1.04);
+    pointer-events:none;
+  }}
+  #splash.hidden{{ display:none; }}
+
+  /* BG canvas */
+  #splashBg{{
+    position:absolute;top:0;left:0;
+    width:100%;height:100%;
+    z-index:0;
+  }}
+
+  .splash-inner{{
+    position:relative;z-index:2;
+    display:flex;flex-direction:column;
+    align-items:center;gap:0;
+    text-align:center;
+  }}
+
+  /* Logo container with 3D spin-in */
+  .logo-ring{{
+    position:relative;
+    width:140px;height:140px;
+    display:flex;align-items:center;justify-content:center;
+    margin-bottom:2rem;
+    animation:logoEntrance 1.2s cubic-bezier(0.16,1,0.3,1) forwards;
+    opacity:0;
+  }}
+  @keyframes logoEntrance{{
+    0%  {{ opacity:0; transform:scale(0.3) rotateY(180deg); }}
+    60% {{ opacity:1; transform:scale(1.08) rotateY(-8deg); }}
+    100%{{ opacity:1; transform:scale(1) rotateY(0deg); }}
+  }}
+
+  /* Orbiting ring around logo */
+  .orbit-ring{{
+    position:absolute;
+    width:130px;height:130px;
+    border-radius:50%;
+    border:1px solid rgba(0,212,255,0.4);
+    animation:orbit 3s linear infinite;
+    box-shadow:0 0 12px rgba(0,212,255,0.15);
+  }}
+  .orbit-ring::before{{
+    content:'';
+    position:absolute;
+    top:-3px;left:50%;
+    width:6px;height:6px;
+    background:#00D4FF;
+    border-radius:50%;
+    box-shadow:0 0 10px #00D4FF;
+    transform:translateX(-50%);
+  }}
+  .orbit-ring2{{
+    position:absolute;
+    width:108px;height:108px;
+    border-radius:50%;
+    border:1px solid rgba(0,184,122,0.25);
+    animation:orbit 5s linear infinite reverse;
+  }}
+  @keyframes orbit{{ from{{transform:rotate(0deg);}} to{{transform:rotate(360deg);}} }}
+
+  .splash-logo{{
+    width:72px;height:72px;
+    object-fit:contain;
+    position:relative;z-index:2;
+    filter:drop-shadow(0 0 20px rgba(0,212,255,0.6));
+  }}
+
+  /* Welcome text */
+  .welcome-line{{
+    font-family:'Rajdhani',sans-serif;
+    font-size:.65rem;
+    letter-spacing:5px;
+    color:#00D4FF;
+    text-transform:uppercase;
+    font-weight:600;
+    opacity:0;
+    animation:fadeUp 0.6s ease forwards;
+    animation-delay:0.9s;
+    margin-bottom:.6rem;
+  }}
+  .brand-name{{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:clamp(3.5rem,8vw,6.5rem);
+    letter-spacing:10px;
+    line-height:1;
+    opacity:0;
+    animation:fadeUp 0.7s ease forwards;
+    animation-delay:1.1s;
+  }}
+  .brand-ak{{ color:#00D4FF; text-shadow:0 0 40px rgba(0,212,255,0.5); }}
+  .brand-funded{{ color:#fff; }}
+
+  .brand-tagline{{
+    font-family:'Rajdhani',sans-serif;
+    font-size:.78rem;
+    letter-spacing:3px;
+    color:#3a3a3a;
+    text-transform:uppercase;
+    font-weight:400;
+    opacity:0;
+    animation:fadeUp 0.6s ease forwards;
+    animation-delay:1.4s;
+    margin-top:.8rem;
+  }}
+
+  /* Loading bar */
+  .load-bar-wrap{{
+    width:220px;
+    height:1px;
+    background:rgba(255,255,255,0.06);
+    margin-top:2.5rem;
+    overflow:hidden;
+    opacity:0;
+    animation:fadeIn 0.4s ease forwards;
+    animation-delay:1.6s;
+  }}
+  .load-bar{{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#00D4FF,#00B87A);
+    box-shadow:0 0 8px #00D4FF;
+    animation:loadProgress 1.6s ease forwards;
+    animation-delay:1.7s;
+  }}
+  @keyframes loadProgress{{ 0%{{width:0%;}} 100%{{width:100%;}} }}
+
+  .load-status{{
+    font-family:'Rajdhani',sans-serif;
+    font-size:.52rem;
+    letter-spacing:3px;
+    color:#2a2a2a;
+    text-transform:uppercase;
+    margin-top:.6rem;
+    opacity:0;
+    animation:fadeIn 0.4s ease forwards;
+    animation-delay:1.8s;
+  }}
+
+  /* Corner decorations */
+  .corner{{
+    position:absolute;
+    width:40px;height:40px;
+    opacity:0;
+    animation:fadeIn 0.5s ease forwards;
+    animation-delay:0.5s;
+  }}
+  .corner-tl{{ top:20px;left:20px; border-top:1px solid rgba(0,212,255,0.3); border-left:1px solid rgba(0,212,255,0.3); }}
+  .corner-tr{{ top:20px;right:20px; border-top:1px solid rgba(0,212,255,0.3); border-right:1px solid rgba(0,212,255,0.3); }}
+  .corner-bl{{ bottom:20px;left:20px; border-bottom:1px solid rgba(0,212,255,0.3); border-left:1px solid rgba(0,212,255,0.3); }}
+  .corner-br{{ bottom:20px;right:20px; border-bottom:1px solid rgba(0,212,255,0.3); border-right:1px solid rgba(0,212,255,0.3); }}
+
+  /* Horizontal scan line */
+  .scan-line{{
+    position:absolute;
+    left:0;right:0;
+    height:1px;
+    background:linear-gradient(90deg,transparent,rgba(0,212,255,0.15),transparent);
+    animation:scan 3s ease-in-out infinite;
+    opacity:0;
+    animation-delay:0.8s;
+  }}
+  @keyframes scan{{
+    0%  {{ top:0%; opacity:0; }}
+    5%  {{ opacity:1; }}
+    95% {{ opacity:1; }}
+    100%{{ top:100%; opacity:0; }}
+  }}
+
+  @keyframes fadeUp{{
+    from{{ opacity:0; transform:translateY(16px); }}
+    to  {{ opacity:1; transform:translateY(0); }}
+  }}
+  @keyframes fadeIn{{
+    from{{ opacity:0; }}
+    to  {{ opacity:1; }}
+  }}
+</style>
+</head>
+<body>
+<div id="splash">
+  <canvas id="splashBg"></canvas>
+  <div class="corner corner-tl"></div>
+  <div class="corner corner-tr"></div>
+  <div class="corner corner-bl"></div>
+  <div class="corner corner-br"></div>
+  <div class="scan-line"></div>
+
+  <div class="splash-inner">
+    <div class="logo-ring">
+      <div class="orbit-ring"></div>
+      <div class="orbit-ring2"></div>
+      <img class="splash-logo" src="{splash_logo}" onerror="this.style.display='none'" />
+    </div>
+
+    <div class="welcome-line">Welcome to</div>
+    <div class="brand-name">
+      <span class="brand-ak">AK</span><span class="brand-funded">FUNDED</span>
+    </div>
+    <div class="brand-tagline">Prove Your Edge — Get Funded</div>
+
+    <div class="load-bar-wrap">
+      <div class="load-bar" id="loadBar"></div>
+    </div>
+    <div class="load-status" id="loadStatus">Initializing platform...</div>
+  </div>
+</div>
+
+<script>
+(function(){{
+  // ── Particle background on splash ──
+  const canvas = document.getElementById('splashBg');
+  const ctx    = canvas.getContext('2d');
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const W = canvas.width, H = canvas.height;
+
+  const pts = Array.from({{length:90}},()=>{{
+    const angle = Math.random()*Math.PI*2;
+    const dist  = 60 + Math.random()*Math.max(W,H)*0.7;
+    return {{
+      x: W/2 + Math.cos(angle)*dist*0.1,
+      y: H/2 + Math.sin(angle)*dist*0.1,
+      tx: W/2 + Math.cos(angle)*dist,
+      ty: H/2 + Math.sin(angle)*dist,
+      prog:0, speed:0.004+Math.random()*0.006,
+      color:Math.random()>0.6?'#00D4FF':Math.random()>0.5?'#00B87A':'#D4A843',
+      size: Math.random()*1.5+0.5, alpha:0,
+    }};
+  }});
+
+  let frame=0;
+  function drawBg(){{
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle='#050505'; ctx.fillRect(0,0,W,H);
+
+    // Center glow
+    const g=ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,320);
+    g.addColorStop(0,'rgba(0,212,255,0.05)');
+    g.addColorStop(1,'transparent');
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+
+    pts.forEach(p=>{{
+      if(frame>30) p.prog = Math.min(1, p.prog+p.speed);
+      p.alpha = p.prog * 0.6;
+      const cx = p.x + (p.tx-p.x)*p.prog;
+      const cy = p.y + (p.ty-p.y)*p.prog;
+      ctx.globalAlpha = p.alpha;
+      ctx.beginPath(); ctx.arc(cx,cy,p.size,0,Math.PI*2);
+      ctx.fillStyle=p.color; ctx.fill();
+      if(p.alpha>0.25){{
+        ctx.beginPath(); ctx.arc(cx,cy,p.size*3,0,Math.PI*2);
+        ctx.fillStyle=p.color+'22'; ctx.fill();
+      }}
+    }});
+    ctx.globalAlpha=1;
+    frame++;
+    requestAnimationFrame(drawBg);
+  }}
+  drawBg();
+
+  // ── Status text cycling ──
+  const statuses = [
+    'Initializing platform...',
+    'Loading market data...',
+    'Connecting to trading engine...',
+    'Almost ready...',
+  ];
+  let si=0;
+  const statusEl = document.getElementById('loadStatus');
+  const statusTimer = setInterval(()=>{{
+    si++;
+    if(si<statuses.length) statusEl.textContent=statuses[si];
+    else clearInterval(statusTimer);
+  }},500);
+
+  // ── Dismiss after 3.6s ──
+  setTimeout(()=>{{
+    const splash = document.getElementById('splash');
+    splash.classList.add('fade-out');
+    setTimeout(()=>splash.classList.add('hidden'), 850);
+  }}, 3600);
+}})();
+</script>
+</body>
+</html>
+""", height=520, scrolling=False)
+    # splash uses position:fixed so it overlays the entire viewport regardless of iframe height
+
     nav()
     render_live_ticker()
 
@@ -2262,109 +2576,6 @@ if st.session_state.page == "home":
 </script>
 """, height=380)
 
-    # ── 3D SECTION 2: 3D Animated Equity Curve ──
-    st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.2rem;letter-spacing:4px;color:var(--text);margin:2.5rem 0 .5rem;">LIVE EQUITY SIMULATION</div><div style="width:30px;height:1px;background:var(--cyan);margin-bottom:1.5rem;opacity:.5;box-shadow:0 0 8px var(--cyan);"></div>', unsafe_allow_html=True)
-    st.components.v1.html("""
-<style>
-  #eq-wrap { background:#080808; border:1px solid #1e1e1e; padding:1.5rem; position:relative; overflow:hidden; }
-  #eq-wrap::before { content:'LIVE'; position:absolute; top:1rem; left:1rem; font-size:.5rem; letter-spacing:2px; color:#000; background:#00D4FF; padding:2px 8px; font-weight:700; }
-  .eq-meta { display:flex; gap:2.5rem; margin-bottom:1.2rem; padding-left:.5rem; }
-  .eq-m { }
-  .eq-m-val { font-family:'Courier New',monospace; font-size:1.3rem; font-weight:700; }
-  .eq-m-lbl { font-size:.55rem; color:#505050; letter-spacing:2px; text-transform:uppercase; margin-top:2px; }
-  #eqCanvas { display:block; width:100%; }
-</style>
-<div id="eq-wrap">
-  <div class="eq-meta">
-    <div class="eq-m"><div class="eq-m-val" id="eq-bal" style="color:#00B87A;">$108,240</div><div class="eq-m-lbl">Current Balance</div></div>
-    <div class="eq-m"><div class="eq-m-val" id="eq-pnl" style="color:#00B87A;">+8.24%</div><div class="eq-m-lbl">Total P&L</div></div>
-    <div class="eq-m"><div class="eq-m-val" style="color:#D4A843;">Day 12</div><div class="eq-m-lbl">Trading Day</div></div>
-    <div class="eq-m"><div class="eq-m-val" style="color:#00D4FF;">$100K</div><div class="eq-m-lbl">Account Size</div></div>
-  </div>
-  <canvas id="eqCanvas" width="900" height="200"></canvas>
-</div>
-<script>
-(function(){
-  const canvas = document.getElementById('eqCanvas');
-  const ctx = canvas.getContext('2d');
-  canvas.width = canvas.parentElement.clientWidth - 40 || 860;
-  const W = canvas.width, H = canvas.height;
-
-  // Simulate equity curve
-  let equity = [100000];
-  for(let i=1;i<80;i++){
-    const prev = equity[i-1];
-    const rnd = (Math.random()-0.38)*800;
-    equity.push(Math.max(prev+rnd, prev*0.97));
-  }
-  const live = []; let liveIdx = 0;
-  const minE = Math.min(...equity)*0.998, maxE = Math.max(...equity)*1.002;
-
-  function toX(i){ return (i/(equity.length-1))*(W-20)+10; }
-  function toY(v){ return H-10 - ((v-minE)/(maxE-minE))*(H-25); }
-
-  function draw(){
-    ctx.clearRect(0,0,W,H);
-
-    // Grid lines
-    ctx.strokeStyle='rgba(255,255,255,0.04)'; ctx.lineWidth=0.5;
-    for(let i=0;i<5;i++){
-      const y = 10 + i*((H-20)/4);
-      ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke();
-    }
-
-    // Baseline (starting capital)
-    const baseY = toY(100000);
-    ctx.setLineDash([4,4]);
-    ctx.strokeStyle='rgba(212,168,67,0.25)'; ctx.lineWidth=1;
-    ctx.beginPath(); ctx.moveTo(0,baseY); ctx.lineTo(W,baseY); ctx.stroke();
-    ctx.setLineDash([]);
-
-    const pts = live.length>0?live:equity.slice(0,2);
-
-    // Fill gradient under curve
-    const grad = ctx.createLinearGradient(0,0,0,H);
-    grad.addColorStop(0,'rgba(0,184,122,0.18)');
-    grad.addColorStop(1,'rgba(0,184,122,0)');
-    ctx.beginPath();
-    ctx.moveTo(toX(0),H);
-    pts.forEach((v,i)=>ctx.lineTo(toX(i),toY(v)));
-    ctx.lineTo(toX(pts.length-1),H);
-    ctx.closePath();
-    ctx.fillStyle=grad; ctx.fill();
-
-    // Curve line with 3D shadow effect
-    ctx.shadowColor='rgba(0,184,122,0.4)'; ctx.shadowBlur=8;
-    ctx.beginPath();
-    pts.forEach((v,i)=>{ i===0?ctx.moveTo(toX(i),toY(v)):ctx.lineTo(toX(i),toY(v)); });
-    ctx.strokeStyle='#00B87A'; ctx.lineWidth=2; ctx.stroke();
-    ctx.shadowBlur=0;
-
-    // Last point dot
-    if(pts.length>1){
-      const lx=toX(pts.length-1), ly=toY(pts[pts.length-1]);
-      ctx.beginPath(); ctx.arc(lx,ly,4,0,Math.PI*2);
-      ctx.fillStyle='#00B87A'; ctx.fill();
-      ctx.beginPath(); ctx.arc(lx,ly,8,0,Math.PI*2);
-      ctx.fillStyle='rgba(0,184,122,0.2)'; ctx.fill();
-    }
-
-    // Animate
-    if(liveIdx < equity.length){
-      live.push(equity[liveIdx++]);
-      const last = live[live.length-1];
-      document.getElementById('eq-bal').textContent='$'+Math.round(last).toLocaleString();
-      const pct = ((last-100000)/100000*100).toFixed(2);
-      const el = document.getElementById('eq-pnl');
-      el.textContent=(pct>=0?'+':'')+pct+'%';
-      el.style.color=pct>=0?'#00B87A':'#E03A52';
-      setTimeout(()=>requestAnimationFrame(draw), 60);
-    }
-  }
-  draw();
-})();
-</script>
-""", height=290)
 
     # ── 3D SECTION 3: 3D Feature Cards with perspective tilt ──
     st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.2rem;letter-spacing:4px;color:var(--text);margin:3rem 0 .5rem;">PLATFORM FEATURES</div><div style="width:30px;height:1px;background:var(--cyan);margin-bottom:1.5rem;opacity:.5;box-shadow:0 0 8px var(--cyan);"></div>', unsafe_allow_html=True)
