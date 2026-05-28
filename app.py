@@ -1678,318 +1678,258 @@ def pbar(pct, col):
 # ══════════════════════════════════════════════════════════════
 if st.session_state.page == "home":
 
-    # ── SPLASH INTRO SCREEN ──────────────────────────────────
+    # ── SPLASH INTRO SCREEN — injected into parent page (true fullscreen) ──
     splash_logo = LOGO_URL
-    st.components.v1.html(f"""
-<!DOCTYPE html>
-<html>
-<head>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@300;400;600;700&display=swap');
-  *{{margin:0;padding:0;box-sizing:border-box;}}
-  body{{background:#050505;overflow:hidden;width:100%;}}
-
-  #splash{{
-    position:fixed;
-    top:0;left:0;right:0;bottom:0;
-    width:100vw;height:100vh;
-    background:#050505;
-    z-index:9999;
-    display:flex;flex-direction:column;
-    align-items:center;justify-content:center;
-    transition:opacity 0.8s ease, transform 0.8s ease;
-  }}
-  #splash.fade-out{{
-    opacity:0;
-    transform:scale(1.04);
-    pointer-events:none;
-  }}
-  #splash.hidden{{ display:none; }}
-
-  /* BG canvas */
-  #splashBg{{
-    position:absolute;top:0;left:0;
-    width:100%;height:100%;
-    z-index:0;
-  }}
-
-  .splash-inner{{
-    position:relative;z-index:2;
-    display:flex;flex-direction:column;
-    align-items:center;gap:0;
-    text-align:center;
-  }}
-
-  /* Logo container with 3D spin-in */
-  .logo-ring{{
-    position:relative;
-    width:140px;height:140px;
-    display:flex;align-items:center;justify-content:center;
-    margin-bottom:2rem;
-    animation:logoEntrance 1.2s cubic-bezier(0.16,1,0.3,1) forwards;
-    opacity:0;
-  }}
-  @keyframes logoEntrance{{
-    0%  {{ opacity:0; transform:scale(0.3) rotateY(180deg); }}
-    60% {{ opacity:1; transform:scale(1.08) rotateY(-8deg); }}
-    100%{{ opacity:1; transform:scale(1) rotateY(0deg); }}
-  }}
-
-  /* Orbiting ring around logo */
-  .orbit-ring{{
-    position:absolute;
-    width:130px;height:130px;
-    border-radius:50%;
-    border:1px solid rgba(0,212,255,0.4);
-    animation:orbit 3s linear infinite;
-    box-shadow:0 0 12px rgba(0,212,255,0.15);
-  }}
-  .orbit-ring::before{{
-    content:'';
-    position:absolute;
-    top:-3px;left:50%;
-    width:6px;height:6px;
-    background:#00D4FF;
-    border-radius:50%;
-    box-shadow:0 0 10px #00D4FF;
-    transform:translateX(-50%);
-  }}
-  .orbit-ring2{{
-    position:absolute;
-    width:108px;height:108px;
-    border-radius:50%;
-    border:1px solid rgba(0,184,122,0.25);
-    animation:orbit 5s linear infinite reverse;
-  }}
-  @keyframes orbit{{ from{{transform:rotate(0deg);}} to{{transform:rotate(360deg);}} }}
-
-  .splash-logo{{
-    width:72px;height:72px;
-    object-fit:contain;
-    position:relative;z-index:2;
-    filter:drop-shadow(0 0 20px rgba(0,212,255,0.6));
-  }}
-
-  /* Welcome text */
-  .welcome-line{{
-    font-family:'Rajdhani',sans-serif;
-    font-size:.65rem;
-    letter-spacing:5px;
-    color:#00D4FF;
-    text-transform:uppercase;
-    font-weight:600;
-    opacity:0;
-    animation:fadeUp 0.6s ease forwards;
-    animation-delay:0.9s;
-    margin-bottom:.6rem;
-  }}
-  .brand-name{{
-    font-family:'Bebas Neue',sans-serif;
-    font-size:clamp(3.5rem,8vw,6.5rem);
-    letter-spacing:10px;
-    line-height:1;
-    opacity:0;
-    animation:fadeUp 0.7s ease forwards;
-    animation-delay:1.1s;
-  }}
-  .brand-ak{{ color:#00D4FF; text-shadow:0 0 40px rgba(0,212,255,0.5); }}
-  .brand-funded{{ color:#fff; }}
-
-  .brand-tagline{{
-    font-family:'Rajdhani',sans-serif;
-    font-size:.78rem;
-    letter-spacing:3px;
-    color:#3a3a3a;
-    text-transform:uppercase;
-    font-weight:400;
-    opacity:0;
-    animation:fadeUp 0.6s ease forwards;
-    animation-delay:1.4s;
-    margin-top:.8rem;
-  }}
-
-  /* Loading bar */
-  .load-bar-wrap{{
-    width:220px;
-    height:1px;
-    background:rgba(255,255,255,0.06);
-    margin-top:2.5rem;
-    overflow:hidden;
-    opacity:0;
-    animation:fadeIn 0.4s ease forwards;
-    animation-delay:1.6s;
-  }}
-  .load-bar{{
-    height:100%;
-    width:0%;
-    background:linear-gradient(90deg,#00D4FF,#00B87A);
-    box-shadow:0 0 8px #00D4FF;
-    animation:loadProgress 1.6s ease forwards;
-    animation-delay:1.7s;
-  }}
-  @keyframes loadProgress{{ 0%{{width:0%;}} 100%{{width:100%;}} }}
-
-  .load-status{{
-    font-family:'Rajdhani',sans-serif;
-    font-size:.52rem;
-    letter-spacing:3px;
-    color:#2a2a2a;
-    text-transform:uppercase;
-    margin-top:.6rem;
-    opacity:0;
-    animation:fadeIn 0.4s ease forwards;
-    animation-delay:1.8s;
-  }}
-
-  /* Corner decorations */
-  .corner{{
-    position:absolute;
-    width:40px;height:40px;
-    opacity:0;
-    animation:fadeIn 0.5s ease forwards;
-    animation-delay:0.5s;
-  }}
-  .corner-tl{{ top:20px;left:20px; border-top:1px solid rgba(0,212,255,0.3); border-left:1px solid rgba(0,212,255,0.3); }}
-  .corner-tr{{ top:20px;right:20px; border-top:1px solid rgba(0,212,255,0.3); border-right:1px solid rgba(0,212,255,0.3); }}
-  .corner-bl{{ bottom:20px;left:20px; border-bottom:1px solid rgba(0,212,255,0.3); border-left:1px solid rgba(0,212,255,0.3); }}
-  .corner-br{{ bottom:20px;right:20px; border-bottom:1px solid rgba(0,212,255,0.3); border-right:1px solid rgba(0,212,255,0.3); }}
-
-  /* Horizontal scan line */
-  .scan-line{{
-    position:absolute;
-    left:0;right:0;
-    height:1px;
-    background:linear-gradient(90deg,transparent,rgba(0,212,255,0.15),transparent);
-    animation:scan 3s ease-in-out infinite;
-    opacity:0;
-    animation-delay:0.8s;
-  }}
-  @keyframes scan{{
-    0%  {{ top:0%; opacity:0; }}
-    5%  {{ opacity:1; }}
-    95% {{ opacity:1; }}
-    100%{{ top:100%; opacity:0; }}
-  }}
-
-  @keyframes fadeUp{{
-    from{{ opacity:0; transform:translateY(16px); }}
-    to  {{ opacity:1; transform:translateY(0); }}
-  }}
-  @keyframes fadeIn{{
-    from{{ opacity:0; }}
-    to  {{ opacity:1; }}
-  }}
-</style>
-</head>
-<body>
-<div id="splash">
-  <canvas id="splashBg"></canvas>
-  <div class="corner corner-tl"></div>
-  <div class="corner corner-tr"></div>
-  <div class="corner corner-bl"></div>
-  <div class="corner corner-br"></div>
-  <div class="scan-line"></div>
-
-  <div class="splash-inner">
-    <div class="logo-ring">
-      <div class="orbit-ring"></div>
-      <div class="orbit-ring2"></div>
-      <img class="splash-logo" src="{splash_logo}" onerror="this.style.display='none'" />
-    </div>
-
-    <div class="welcome-line">Welcome to</div>
-    <div class="brand-name">
-      <span class="brand-ak">AK</span><span class="brand-funded">FUNDED</span>
-    </div>
-    <div class="brand-tagline">Prove Your Edge — Get Funded</div>
-
-    <div class="load-bar-wrap">
-      <div class="load-bar" id="loadBar"></div>
-    </div>
-    <div class="load-status" id="loadStatus">Initializing platform...</div>
-  </div>
-</div>
-
+    st.markdown(f"""
 <script>
 (function(){{
-  // ── Particle background on splash ──
-  const canvas = document.getElementById('splashBg');
-  const ctx    = canvas.getContext('2d');
-  canvas.width  = window.innerWidth;
-  canvas.height = window.innerHeight;
-  const W = canvas.width, H = canvas.height;
+  // Only show once per session
+  if(sessionStorage.getItem('akfunded_splashed')) return;
+  sessionStorage.setItem('akfunded_splashed','1');
 
-  const pts = Array.from({{length:90}},()=>{{
-    const angle = Math.random()*Math.PI*2;
-    const dist  = 60 + Math.random()*Math.max(W,H)*0.7;
+  const logo = "{splash_logo}";
+
+  // Inject Google Fonts
+  const link = document.createElement('link');
+  link.rel='stylesheet';
+  link.href='https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@300;400;600;700&display=swap';
+  document.head.appendChild(link);
+
+  // Inject styles
+  const style = document.createElement('style');
+  style.textContent = `
+    #ak-splash {{
+      position:fixed; top:0; left:0; width:100vw; height:100vh;
+      background:#050505; z-index:999999;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      overflow:hidden;
+      transition: opacity 0.9s ease, transform 0.9s ease;
+    }}
+    #ak-splash.fade-out {{ opacity:0; transform:scale(1.05); pointer-events:none; }}
+
+    #ak-bg {{ position:absolute; top:0; left:0; width:100%; height:100%; z-index:0; }}
+
+    .ak-corner {{
+      position:absolute; width:44px; height:44px; z-index:2;
+      opacity:0; animation: ak-fadeIn 0.5s ease forwards 0.3s;
+    }}
+    .ak-corner-tl {{ top:24px; left:24px; border-top:1px solid rgba(0,212,255,0.4); border-left:1px solid rgba(0,212,255,0.4); }}
+    .ak-corner-tr {{ top:24px; right:24px; border-top:1px solid rgba(0,212,255,0.4); border-right:1px solid rgba(0,212,255,0.4); }}
+    .ak-corner-bl {{ bottom:24px; left:24px; border-bottom:1px solid rgba(0,212,255,0.4); border-left:1px solid rgba(0,212,255,0.4); }}
+    .ak-corner-br {{ bottom:24px; right:24px; border-bottom:1px solid rgba(0,212,255,0.4); border-right:1px solid rgba(0,212,255,0.4); }}
+
+    .ak-scanline {{
+      position:absolute; left:0; right:0; height:1px; z-index:2;
+      background:linear-gradient(90deg,transparent,rgba(0,212,255,0.2),transparent);
+      animation: ak-scan 3s ease-in-out infinite 0.8s;
+    }}
+    @keyframes ak-scan {{
+      0%   {{ top:0%; opacity:0; }}
+      5%   {{ opacity:1; }}
+      95%  {{ opacity:1; }}
+      100% {{ top:100%; opacity:0; }}
+    }}
+
+    .ak-inner {{
+      position:relative; z-index:3;
+      display:flex; flex-direction:column;
+      align-items:center; text-align:center;
+    }}
+
+    .ak-logo-wrap {{
+      position:relative; width:150px; height:150px;
+      display:flex; align-items:center; justify-content:center;
+      margin-bottom:2.2rem;
+      animation: ak-logoIn 1.2s cubic-bezier(0.16,1,0.3,1) forwards;
+      opacity:0;
+    }}
+    @keyframes ak-logoIn {{
+      0%   {{ opacity:0; transform:scale(0.2) rotateY(180deg); }}
+      60%  {{ opacity:1; transform:scale(1.1) rotateY(-6deg); }}
+      100% {{ opacity:1; transform:scale(1) rotateY(0deg); }}
+    }}
+    .ak-orbit1 {{
+      position:absolute; width:136px; height:136px; border-radius:50%;
+      border:1px solid rgba(0,212,255,0.45);
+      box-shadow:0 0 14px rgba(0,212,255,0.15);
+      animation:ak-spin 3s linear infinite;
+    }}
+    .ak-orbit1::before {{
+      content:''; position:absolute; top:-4px; left:50%;
+      width:8px; height:8px; background:#00D4FF; border-radius:50%;
+      box-shadow:0 0 12px #00D4FF, 0 0 24px rgba(0,212,255,0.5);
+      transform:translateX(-50%);
+    }}
+    .ak-orbit2 {{
+      position:absolute; width:112px; height:112px; border-radius:50%;
+      border:1px solid rgba(0,184,122,0.3);
+      animation:ak-spin 5s linear infinite reverse;
+    }}
+    .ak-orbit2::before {{
+      content:''; position:absolute; bottom:-3px; left:50%;
+      width:6px; height:6px; background:#00B87A; border-radius:50%;
+      box-shadow:0 0 8px #00B87A;
+      transform:translateX(-50%);
+    }}
+    @keyframes ak-spin {{ from{{transform:rotate(0deg);}} to{{transform:rotate(360deg);}} }}
+
+    .ak-logo-img {{
+      width:78px; height:78px; object-fit:contain; position:relative; z-index:2;
+      filter:drop-shadow(0 0 24px rgba(0,212,255,0.6));
+    }}
+
+    .ak-welcome {{
+      font-family:'Rajdhani',sans-serif;
+      font-size:.7rem; letter-spacing:6px; color:#00D4FF;
+      text-transform:uppercase; font-weight:600;
+      opacity:0; transform:translateY(14px);
+      animation:ak-up 0.6s ease forwards 1s;
+      margin-bottom:.5rem;
+    }}
+    .ak-brand {{
+      font-family:'Bebas Neue',sans-serif;
+      font-size:clamp(4rem,9vw,7.5rem);
+      letter-spacing:10px; line-height:1;
+      opacity:0; transform:translateY(18px);
+      animation:ak-up 0.7s ease forwards 1.2s;
+    }}
+    .ak-brand-ak {{ color:#00D4FF; text-shadow:0 0 50px rgba(0,212,255,0.6), 0 0 100px rgba(0,212,255,0.2); }}
+    .ak-brand-funded {{ color:#ffffff; }}
+    .ak-tagline {{
+      font-family:'Rajdhani',sans-serif;
+      font-size:.8rem; letter-spacing:4px; color:#2e2e2e;
+      text-transform:uppercase; font-weight:400;
+      opacity:0; transform:translateY(12px);
+      animation:ak-up 0.6s ease forwards 1.5s;
+      margin-top:.9rem;
+    }}
+
+    .ak-bar-wrap {{
+      width:240px; height:1px; background:rgba(255,255,255,0.06);
+      margin-top:2.8rem; overflow:hidden;
+      opacity:0; animation:ak-fadeIn 0.4s ease forwards 1.8s;
+    }}
+    .ak-bar {{
+      height:100%; width:0%;
+      background:linear-gradient(90deg,#00D4FF,#00B87A);
+      box-shadow:0 0 10px #00D4FF;
+      animation:ak-load 1.8s ease forwards 1.9s;
+    }}
+    @keyframes ak-load {{ 0%{{width:0%;}} 100%{{width:100%;}} }}
+
+    .ak-status {{
+      font-family:'Rajdhani',sans-serif;
+      font-size:.52rem; letter-spacing:3px; color:#252525;
+      text-transform:uppercase; margin-top:.7rem;
+      opacity:0; animation:ak-fadeIn 0.4s ease forwards 2s;
+    }}
+
+    @keyframes ak-up {{
+      from {{ opacity:0; transform:translateY(14px); }}
+      to   {{ opacity:1; transform:translateY(0); }}
+    }}
+    @keyframes ak-fadeIn {{
+      from {{ opacity:0; }} to {{ opacity:1; }}
+    }}
+  `;
+  document.head.appendChild(style);
+
+  // Build splash DOM
+  const splash = document.createElement('div');
+  splash.id = 'ak-splash';
+  splash.innerHTML = `
+    <canvas id="ak-bg"></canvas>
+    <div class="ak-corner ak-corner-tl"></div>
+    <div class="ak-corner ak-corner-tr"></div>
+    <div class="ak-corner ak-corner-bl"></div>
+    <div class="ak-corner ak-corner-br"></div>
+    <div class="ak-scanline"></div>
+    <div class="ak-inner">
+      <div class="ak-logo-wrap">
+        <div class="ak-orbit1"></div>
+        <div class="ak-orbit2"></div>
+        <img class="ak-logo-img" src="${{logo}}" onerror="this.style.display='none'" />
+      </div>
+      <div class="ak-welcome">Welcome to</div>
+      <div class="ak-brand">
+        <span class="ak-brand-ak">AK</span><span class="ak-brand-funded">FUNDED</span>
+      </div>
+      <div class="ak-tagline">Prove Your Edge — Get Funded</div>
+      <div class="ak-bar-wrap"><div class="ak-bar"></div></div>
+      <div class="ak-status" id="ak-status">Initializing platform...</div>
+    </div>
+  `;
+  document.body.appendChild(splash);
+
+  // Particle canvas
+  const canvas = document.getElementById('ak-bg');
+  const ctx = canvas.getContext('2d');
+  function resize() {{ canvas.width=window.innerWidth; canvas.height=window.innerHeight; }}
+  resize();
+  window.addEventListener('resize', resize);
+
+  const pts = Array.from({{length:100}}, ()=>{{
+    const a=Math.random()*Math.PI*2;
+    const d=50+Math.random()*Math.max(window.innerWidth,window.innerHeight)*0.72;
     return {{
-      x: W/2 + Math.cos(angle)*dist*0.1,
-      y: H/2 + Math.sin(angle)*dist*0.1,
-      tx: W/2 + Math.cos(angle)*dist,
-      ty: H/2 + Math.sin(angle)*dist,
-      prog:0, speed:0.004+Math.random()*0.006,
-      color:Math.random()>0.6?'#00D4FF':Math.random()>0.5?'#00B87A':'#D4A843',
-      size: Math.random()*1.5+0.5, alpha:0,
+      x:window.innerWidth/2, y:window.innerHeight/2,
+      tx:window.innerWidth/2+Math.cos(a)*d,
+      ty:window.innerHeight/2+Math.sin(a)*d,
+      prog:0, speed:0.003+Math.random()*0.006,
+      col:Math.random()>.6?'#00D4FF':Math.random()>.5?'#00B87A':'#D4A843',
+      sz:Math.random()*1.8+0.4,
     }};
   }});
 
-  let frame=0;
-  function drawBg(){{
+  let fr=0;
+  function draw(){{
+    const W=canvas.width, H=canvas.height;
     ctx.clearRect(0,0,W,H);
     ctx.fillStyle='#050505'; ctx.fillRect(0,0,W,H);
-
-    // Center glow
-    const g=ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,320);
-    g.addColorStop(0,'rgba(0,212,255,0.05)');
-    g.addColorStop(1,'transparent');
+    // center glow
+    const g=ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,Math.min(W,H)*0.4);
+    g.addColorStop(0,'rgba(0,212,255,0.06)'); g.addColorStop(1,'transparent');
     ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
-
+    // grid
+    ctx.strokeStyle='rgba(0,212,255,0.04)'; ctx.lineWidth=0.5;
+    const gs=80;
+    for(let x=0;x<W;x+=gs){{ ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke(); }}
+    for(let y=0;y<H;y+=gs){{ ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke(); }}
+    // particles
     pts.forEach(p=>{{
-      if(frame>30) p.prog = Math.min(1, p.prog+p.speed);
-      p.alpha = p.prog * 0.6;
-      const cx = p.x + (p.tx-p.x)*p.prog;
-      const cy = p.y + (p.ty-p.y)*p.prog;
-      ctx.globalAlpha = p.alpha;
-      ctx.beginPath(); ctx.arc(cx,cy,p.size,0,Math.PI*2);
-      ctx.fillStyle=p.color; ctx.fill();
-      if(p.alpha>0.25){{
-        ctx.beginPath(); ctx.arc(cx,cy,p.size*3,0,Math.PI*2);
-        ctx.fillStyle=p.color+'22'; ctx.fill();
-      }}
+      if(fr>20) p.prog=Math.min(1,p.prog+p.speed);
+      const cx=p.x+(p.tx-p.x)*p.prog, cy=p.y+(p.ty-p.y)*p.prog;
+      const al=p.prog*0.7;
+      ctx.globalAlpha=al;
+      ctx.beginPath(); ctx.arc(cx,cy,p.sz,0,Math.PI*2);
+      ctx.fillStyle=p.col; ctx.fill();
+      if(al>.3){{ ctx.beginPath();ctx.arc(cx,cy,p.sz*3.5,0,Math.PI*2);ctx.fillStyle=p.col+'18';ctx.fill(); }}
     }});
     ctx.globalAlpha=1;
-    frame++;
-    requestAnimationFrame(drawBg);
+    fr++;
+    if(document.getElementById('ak-splash')) requestAnimationFrame(draw);
   }}
-  drawBg();
+  draw();
 
-  // ── Status text cycling ──
-  const statuses = [
-    'Initializing platform...',
-    'Loading market data...',
-    'Connecting to trading engine...',
-    'Almost ready...',
-  ];
+  // Status cycling
+  const statuses=['Initializing platform...','Loading market data...','Connecting to trading engine...','Almost ready...'];
   let si=0;
-  const statusEl = document.getElementById('loadStatus');
-  const statusTimer = setInterval(()=>{{
-    si++;
-    if(si<statuses.length) statusEl.textContent=statuses[si];
-    else clearInterval(statusTimer);
-  }},500);
+  const st2=setInterval(()=>{{
+    si++; if(si<statuses.length) document.getElementById('ak-status').textContent=statuses[si];
+    else clearInterval(st2);
+  }},600);
 
-  // ── Dismiss after 3.6s ──
+  // Dismiss after 3.8s
   setTimeout(()=>{{
-    const splash = document.getElementById('splash');
-    splash.classList.add('fade-out');
-    setTimeout(()=>splash.classList.add('hidden'), 850);
-  }}, 3600);
+    splash.style.transition='opacity 0.9s ease, transform 0.9s ease';
+    splash.style.opacity='0';
+    splash.style.transform='scale(1.05)';
+    setTimeout(()=>{{ if(splash.parentNode) splash.parentNode.removeChild(splash); }}, 950);
+  }}, 3800);
 }})();
 </script>
-</body>
-</html>
-""", height=520, scrolling=False)
-    # splash uses position:fixed so it overlays the entire viewport regardless of iframe height
+""", unsafe_allow_html=True)
 
     nav()
     render_live_ticker()
