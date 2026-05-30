@@ -1,7 +1,7 @@
 import streamlit as st
 import streamlit.components.v1 as _stc
 from supabase import create_client
-import time, random, string, smtplib, base64, io
+import time, random, string, smtplib, base64, io, os
 from datetime import datetime, timedelta
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -1530,6 +1530,24 @@ def build_certificate_pdf(name, plan, capital, pnl_pct, days, date_str):
     except ImportError:
         return None
 
+def render_3d_model(filename="3dsvg.glb"):
+    try:
+        # Load from disk and base64 encode to safely embed inside the iframe
+        with open(filename, "rb") as f:
+            data = f.read()
+        b64 = base64.b64encode(data).decode()
+        html_code = f"""
+        <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+        <div style="display: flex; justify-content: center; align-items: center; background: #050505; border: 1px solid #1e1e1e; padding: 2rem;">
+            <model-viewer src="data:application/octet-stream;base64,{b64}"
+                          auto-rotate camera-controls
+                          style="width: 100%; max-width: 800px; height: 400px; background-color: transparent;">
+            </model-viewer>
+        </div>
+        """
+        st.components.v1.html(html_code, height=450)
+    except Exception as e:
+        st.warning(f"3D Model file `{filename}` not found or could not be loaded. Please ensure it is in the same directory.")
 
 def goto(page):
     st.session_state.page = page
@@ -1609,73 +1627,6 @@ def sec(title, sub=""):
         '</div>',
         unsafe_allow_html=True
     )
-
-def render_live_ticker():
-    items = ""
-    for sym, data in MARKET_DATA.items():
-        chg  = data["change"]
-        cls  = "up" if chg >= 0 else "dn"
-        sign = "+" if chg >= 0 else ""
-        dec  = 5 if data["price"] < 10 else 2
-        items += (
-            f'<span class="ticker-sep">&#9670;</span>'
-            f'<div class="ticker-item">'
-            f'<span class="ticker-sym">{sym}</span>'
-            f'<span class="ticker-price">{data["price"]:,.{dec}f}</span>'
-            f'<span class="ticker-chg {cls}">{sign}{chg:.2f}%</span>'
-            f'</div>'
-        )
-    st.markdown(f'<div class="ticker-wrap"><div class="ticker-inner">{items+items}</div></div>', unsafe_allow_html=True)
-
-def render_market_heatmap():
-    cells = ""
-    for sym, data in MARKET_DATA.items():
-        chg = data["change"]
-        if chg > 1.5:    bg,bord = "rgba(0,184,122,.2)","rgba(0,184,122,.3)"
-        elif chg > 0.3:  bg,bord = "rgba(0,184,122,.1)","rgba(0,184,122,.15)"
-        elif chg > 0:    bg,bord = "rgba(0,184,122,.04)","#1e1e1e"
-        elif chg > -0.3: bg,bord = "rgba(224,58,82,.04)","#1e1e1e"
-        elif chg > -1.5: bg,bord = "rgba(224,58,82,.1)","rgba(224,58,82,.15)"
-        else:             bg,bord = "rgba(224,58,82,.2)","rgba(224,58,82,.3)"
-        sign = "+" if chg >= 0 else ""
-        col  = "var(--green)" if chg >= 0 else "var(--red)"
-        name = data.get("name", sym)
-        cells += (
-            f'<div class="hmap-cell" style="background:{bg};border:1px solid {bord};">'
-            f'<div class="hmap-sym">{sym}</div>'
-            f'<div style="font-size:.6rem;color:var(--dim);margin-top:1px;">{name}</div>'
-            f'<div class="hmap-chg" style="color:{col};">{sign}{chg:.2f}%</div>'
-            f'</div>'
-        )
-    st.markdown(f'<div class="heatmap-grid">{cells}</div>', unsafe_allow_html=True)
-
-def render_signal_scanner():
-    for sym, data in MARKET_DATA.items():
-        chg = data["change"]; vol = data["vol"]
-        if chg > 1.5 and vol in ["High","Very High"]:   sig,cls = "STRONG BUY","bull"
-        elif chg > 0.3:                                  sig,cls = "BUY","bull"
-        elif chg < -1.5 and vol in ["High","Very High"]: sig,cls = "STRONG SELL","bear"
-        elif chg < -0.3:                                 sig,cls = "SELL","bear"
-        else:                                            sig,cls = "NEUTRAL","neut"
-        rsi  = random.randint(30,70)
-        sign = "+" if chg >= 0 else ""
-        col  = "var(--green)" if chg >= 0 else "var(--red)"
-        name = data.get("name", sym)
-        st.markdown(
-            f'<div class="scan-row">'
-            f'<div>'
-            f'<div class="scan-sym">{sym} <span style="font-size:.65rem;color:var(--dim);font-weight:400;">{name}</span></div>'
-            f'<div style="font-size:.65rem;color:var(--dim);font-family:\'JetBrains Mono\',monospace;margin-top:2px;">RSI {rsi} &nbsp;|&nbsp; Vol: {vol}</div>'
-            f'</div>'
-            f'<div style="text-align:right;">'
-            f'<div class="scan-signal {cls}">{sig}</div>'
-            f'<div style="font-size:.68rem;color:{col};font-family:\'JetBrains Mono\',monospace;margin-top:4px;">{sign}{chg:.2f}%</div>'
-            f'</div></div>',
-            unsafe_allow_html=True
-        )
-
-def pbar(pct, col):
-    return f'<div class="prog"><div class="prog-fill" style="width:{pct:.1f}%;background:{col};box-shadow:0 0 4px {col};"></div></div>'
 
 # ══════════════════════════════════════════════════════════════
 # HOME
@@ -1995,7 +1946,7 @@ if st.session_state.page == "home":
     border-radius:2px;
     margin-bottom:2.2rem;
     text-transform:uppercase;
-    background:rgba(0,212,255,.05);
+    background:rgba(0,212,255,.04);
     font-family:'Rajdhani',sans-serif;
     font-weight:600;
   }}
@@ -2298,104 +2249,6 @@ if st.session_state.page == "home":
     with c2:
         if st.button("Start Challenge", use_container_width=True): goto("plans")
 
-    st.markdown(
-        '<div class="hstats" style="margin-top:2.5rem;">'
-        '<div class="hstat"><span class="n">$2M+</span><span class="l">Total Payouts</span></div>'
-        '<div class="hstat"><span class="n">3,500+</span><span class="l">Funded Traders</span></div>'
-        '<div class="hstat"><span class="n">180+</span><span class="l">Countries</span></div>'
-        '<div class="hstat"><span class="n">90%</span><span class="l">Profit Split</span></div>'
-        '<div class="hstat"><span class="n">24hr</span><span class="l">Payouts</span></div>'
-        '</div>',
-        unsafe_allow_html=True
-    )
-
-    st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.2rem;letter-spacing:4px;color:var(--text);margin:3rem 0 .5rem;">LIVE INSTRUMENTS</div><div style="width:30px;height:1px;background:var(--cyan);margin-bottom:1.5rem;opacity:.5;box-shadow:0 0 8px var(--cyan);"></div>', unsafe_allow_html=True)
-    render_market_heatmap()
-
-    st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.2rem;letter-spacing:4px;color:var(--text);margin:3.5rem 0 .5rem;">CHOOSE YOUR PROGRAM</div><div style="width:30px;height:1px;background:var(--cyan);margin-bottom:1.5rem;opacity:.5;box-shadow:0 0 8px var(--cyan);"></div>', unsafe_allow_html=True)
-
-    col1, col2, col3 = st.columns(3, gap="small")
-    with col1:
-        st.markdown(
-            '<div style="background:linear-gradient(135deg,rgba(212,168,67,.08),rgba(212,168,67,.02));border:1px solid rgba(212,168,67,.3);padding:2rem;position:relative;">'
-            '<div style="position:absolute;top:.8rem;right:.8rem;background:var(--gold);color:#000;font-size:.52rem;font-weight:700;padding:2px 10px;letter-spacing:1.5px;">INSTANT</div>'
-            '<div style="font-size:.58rem;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem;">INSTANT FUNDED</div>'
-            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(212,168,67,.1);margin-bottom:1.5rem;">'
-            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Daily Loss</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--red);">3%</div></div>'
-            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Max Loss</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--red);">6%</div></div>'
-            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Challenge</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--green);">NONE</div></div>'
-            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Profit Split</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--gold);">70-75%</div></div>'
-            '</div>'
-            '<div style="font-size:.65rem;color:var(--dim);margin-bottom:.3rem;letter-spacing:1px;">ONE-TIME FEE FROM</div>'
-            '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:2.4rem;color:var(--gold);letter-spacing:2px;">$299</div>'
-            '</div>',
-            unsafe_allow_html=True
-        )
-        if st.button("Get Instant Funded", use_container_width=True, key="h_inst"):
-            st.session_state["selected_phase"] = "instant"; goto("plans")
-
-    with col2:
-        st.markdown(
-            '<div style="background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.25);padding:2rem;position:relative;">'
-            '<div style="font-size:.58rem;color:var(--cyan);letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem;">ONE-STEP</div>'
-            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);margin-bottom:1.5rem;">'
-            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Profit Target</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--green);">8%</div></div>'
-            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Max Loss</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--red);">10%</div></div>'
-            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Daily Loss</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--red);">5%</div></div>'
-            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Profit Split</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--cyan);">80%</div></div>'
-            '</div>'
-            '<div style="font-size:.65rem;color:var(--dim);margin-bottom:.3rem;letter-spacing:1px;">ONE-TIME FEE FROM</div>'
-            '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:2.4rem;color:var(--text);letter-spacing:2px;">$79</div>'
-            '</div>',
-            unsafe_allow_html=True
-        )
-        if st.button("Get One-Step", use_container_width=True, key="h_1p"):
-            st.session_state["selected_phase"] = "one"; goto("plans")
-
-    with col3:
-        st.markdown(
-            '<div style="background:rgba(123,110,246,.05);border:1px solid rgba(123,110,246,.25);padding:2rem;position:relative;">'
-            '<div style="position:absolute;top:.8rem;right:.8rem;background:var(--purple);color:#fff;font-size:.52rem;font-weight:700;padding:2px 8px;letter-spacing:1.5px;">BEST VALUE</div>'
-            '<div style="font-size:.58rem;color:var(--purple);letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem;">TWO-STEP</div>'
-            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);margin-bottom:1.5rem;">'
-            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Phase 1</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--green);">8%</div></div>'
-            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Max Loss</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--red);">10%</div></div>'
-            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Daily Loss</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--red);">5%</div></div>'
-            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Profit Split</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--purple);">90%</div></div>'
-            '</div>'
-            '<div style="font-size:.65rem;color:var(--dim);margin-bottom:.3rem;letter-spacing:1px;">ONE-TIME FEE FROM</div>'
-            '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:2.4rem;color:var(--text);letter-spacing:2px;">$49</div>'
-            '</div>',
-            unsafe_allow_html=True
-        )
-        if st.button("Get Two-Step", use_container_width=True, key="h_2p"):
-            st.session_state["selected_phase"] = "two"; goto("plans")
-
-    st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.2rem;letter-spacing:4px;color:var(--text);margin:3.5rem 0 .5rem;">HOW IT WORKS</div><div style="width:30px;height:1px;background:var(--cyan);margin-bottom:1.5rem;opacity:.5;"></div>', unsafe_allow_html=True)
-    st.markdown(
-        '<div class="steps-grid">'
-        '<div class="step-card"><div class="step-num">01</div><div class="step-title">Choose a Plan</div><div class="step-desc">Instant Funded, One-Step, or Two-Step. Accounts from $5K to $100K.</div></div>'
-        '<div class="step-card"><div class="step-num">02</div><div class="step-title">Pass the Evaluation</div><div class="step-desc">Hit the profit target while respecting strict drawdown rules.</div></div>'
-        '<div class="step-card"><div class="step-num">03</div><div class="step-title">Get Funded</div><div class="step-desc">Complete verification and receive your funded account. 24-hour payouts.</div></div>'
-        '<div class="step-card"><div class="step-num">04</div><div class="step-title">Scale Up</div><div class="step-desc">Keep up to 90% of profits. Scale to $2,000,000 with consistent performance.</div></div>'
-        '</div>',
-        unsafe_allow_html=True
-    )
-
-    st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.2rem;letter-spacing:4px;color:var(--text);margin:2.5rem 0 .5rem;">FUNDED TRADERS</div><div style="width:30px;height:1px;background:var(--cyan);margin-bottom:1.5rem;opacity:.5;"></div>', unsafe_allow_html=True)
-    st.markdown(
-        '<div class="testi-grid">'
-        '<div class="testi-card"><div class="testi-quote">Passed the $50K One-Step on XAUUSD in 4 days. The rules are clear and the platform is rock solid.</div><div class="testi-name">Rahul S.</div><div class="testi-meta">$50K Funded &nbsp;|&nbsp; +$4,000 payout &nbsp;|&nbsp; One-Step</div></div>'
-        '<div class="testi-card"><div class="testi-quote">Two-Step gave me 90% profit split at an affordable entry. Already on my third funded account.</div><div class="testi-name">Priya M.</div><div class="testi-meta">$25K Funded &nbsp;|&nbsp; +$2,250 payout &nbsp;|&nbsp; Two-Step</div></div>'
-        '<div class="testi-card"><div class="testi-quote">Instant Funded is worth every rupee. Got funded same day and started trading USOIL immediately.</div><div class="testi-name">Kiran T.</div><div class="testi-meta">$25K Instant Funded &nbsp;|&nbsp; 3 accounts completed</div></div>'
-        '</div>',
-        unsafe_allow_html=True
-    )
-
-    c1,c2,c3 = st.columns([2,1,2])
-    with c2:
-        if st.button("Start Now", use_container_width=True, key="cta2"): goto("plans")
-
     # ── 3D SECTION 1: Rotating Globe / Sphere with trader nodes ──
     st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.2rem;letter-spacing:4px;color:var(--text);margin:3.5rem 0 .5rem;">GLOBAL TRADING NETWORK</div><div style="width:30px;height:1px;background:var(--cyan);margin-bottom:1.5rem;opacity:.5;box-shadow:0 0 8px var(--cyan);"></div>', unsafe_allow_html=True)
     st.components.v1.html("""
@@ -2519,6 +2372,94 @@ if st.session_state.page == "home":
 })();
 </script>
 """, height=380)
+
+
+    st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.2rem;letter-spacing:4px;color:var(--text);margin:3.5rem 0 .5rem;">CHOOSE YOUR PROGRAM</div><div style="width:30px;height:1px;background:var(--cyan);margin-bottom:1.5rem;opacity:.5;box-shadow:0 0 8px var(--cyan);"></div>', unsafe_allow_html=True)
+
+    col1, col2, col3 = st.columns(3, gap="small")
+    with col1:
+        st.markdown(
+            '<div style="background:linear-gradient(135deg,rgba(212,168,67,.08),rgba(212,168,67,.02));border:1px solid rgba(212,168,67,.3);padding:2rem;position:relative;">'
+            '<div style="position:absolute;top:.8rem;right:.8rem;background:var(--gold);color:#000;font-size:.52rem;font-weight:700;padding:2px 10px;letter-spacing:1.5px;">INSTANT</div>'
+            '<div style="font-size:.58rem;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem;">INSTANT FUNDED</div>'
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(212,168,67,.1);margin-bottom:1.5rem;">'
+            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Daily Loss</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--red);">3%</div></div>'
+            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Max Loss</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--red);">6%</div></div>'
+            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Challenge</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--green);">NONE</div></div>'
+            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Profit Split</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--gold);">70-75%</div></div>'
+            '</div>'
+            '<div style="font-size:.65rem;color:var(--dim);margin-bottom:.3rem;letter-spacing:1px;">ONE-TIME FEE FROM</div>'
+            '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:2.4rem;color:var(--gold);letter-spacing:2px;">$299</div>'
+            '</div>',
+            unsafe_allow_html=True
+        )
+        if st.button("Get Instant Funded", use_container_width=True, key="h_inst"):
+            st.session_state["selected_phase"] = "instant"; goto("plans")
+
+    with col2:
+        st.markdown(
+            '<div style="background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.25);padding:2rem;position:relative;">'
+            '<div style="font-size:.58rem;color:var(--cyan);letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem;">ONE-STEP</div>'
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);margin-bottom:1.5rem;">'
+            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Profit Target</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--green);">8%</div></div>'
+            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Max Loss</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--red);">10%</div></div>'
+            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Daily Loss</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--red);">5%</div></div>'
+            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Profit Split</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--cyan);">80%</div></div>'
+            '</div>'
+            '<div style="font-size:.65rem;color:var(--dim);margin-bottom:.3rem;letter-spacing:1px;">ONE-TIME FEE FROM</div>'
+            '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:2.4rem;color:var(--text);letter-spacing:2px;">$79</div>'
+            '</div>',
+            unsafe_allow_html=True
+        )
+        if st.button("Get One-Step", use_container_width=True, key="h_1p"):
+            st.session_state["selected_phase"] = "one"; goto("plans")
+
+    with col3:
+        st.markdown(
+            '<div style="background:rgba(123,110,246,.05);border:1px solid rgba(123,110,246,.25);padding:2rem;position:relative;">'
+            '<div style="position:absolute;top:.8rem;right:.8rem;background:var(--purple);color:#fff;font-size:.52rem;font-weight:700;padding:2px 8px;letter-spacing:1.5px;">BEST VALUE</div>'
+            '<div style="font-size:.58rem;color:var(--purple);letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem;">TWO-STEP</div>'
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);margin-bottom:1.5rem;">'
+            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Phase 1</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--green);">8%</div></div>'
+            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Max Loss</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--red);">10%</div></div>'
+            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Daily Loss</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--red);">5%</div></div>'
+            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Profit Split</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--purple);">90%</div></div>'
+            '</div>'
+            '<div style="font-size:.65rem;color:var(--dim);margin-bottom:.3rem;letter-spacing:1px;">ONE-TIME FEE FROM</div>'
+            '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:2.4rem;color:var(--text);letter-spacing:2px;">$49</div>'
+            '</div>',
+            unsafe_allow_html=True
+        )
+        if st.button("Get Two-Step", use_container_width=True, key="h_2p"):
+            st.session_state["selected_phase"] = "two"; goto("plans")
+
+    st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.2rem;letter-spacing:4px;color:var(--text);margin:3rem 0 .5rem;">LIVE INSTRUMENTS</div><div style="width:30px;height:1px;background:var(--cyan);margin-bottom:1.5rem;opacity:.5;box-shadow:0 0 8px var(--cyan);"></div>', unsafe_allow_html=True)
+    render_market_heatmap()
+
+    st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.2rem;letter-spacing:4px;color:var(--text);margin:3.5rem 0 .5rem;">HOW IT WORKS</div><div style="width:30px;height:1px;background:var(--cyan);margin-bottom:1.5rem;opacity:.5;"></div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="steps-grid">'
+        '<div class="step-card"><div class="step-num">01</div><div class="step-title">Choose a Plan</div><div class="step-desc">Instant Funded, One-Step, or Two-Step. Accounts from $5K to $100K.</div></div>'
+        '<div class="step-card"><div class="step-num">02</div><div class="step-title">Pass the Evaluation</div><div class="step-desc">Hit the profit target while respecting strict drawdown rules.</div></div>'
+        '<div class="step-card"><div class="step-num">03</div><div class="step-title">Get Funded</div><div class="step-desc">Complete verification and receive your funded account. 24-hour payouts.</div></div>'
+        '<div class="step-card"><div class="step-num">04</div><div class="step-title">Scale Up</div><div class="step-desc">Keep up to 90% of profits. Scale to $2,000,000 with consistent performance.</div></div>'
+        '</div>',
+        unsafe_allow_html=True
+    )
+
+    st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.2rem;letter-spacing:4px;color:var(--text);margin:2.5rem 0 .5rem;">FUNDED TRADERS</div><div style="width:30px;height:1px;background:var(--cyan);margin-bottom:1.5rem;opacity:.5;"></div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="testi-grid">'
+        '<div class="testi-card"><div class="testi-quote">Passed the $50K One-Step on XAUUSD in 4 days. The rules are clear and the platform is rock solid.</div><div class="testi-name">Rahul S.</div><div class="testi-meta">$50K Funded &nbsp;|&nbsp; +$4,000 payout &nbsp;|&nbsp; One-Step</div></div>'
+        '<div class="testi-card"><div class="testi-quote">Two-Step gave me 90% profit split at an affordable entry. Already on my third funded account.</div><div class="testi-name">Priya M.</div><div class="testi-meta">$25K Funded &nbsp;|&nbsp; +$2,250 payout &nbsp;|&nbsp; Two-Step</div></div>'
+        '<div class="testi-card"><div class="testi-quote">Instant Funded is worth every rupee. Got funded same day and started trading USOIL immediately.</div><div class="testi-name">Kiran T.</div><div class="testi-meta">$25K Instant Funded &nbsp;|&nbsp; 3 accounts completed</div></div>'
+        '</div>',
+        unsafe_allow_html=True
+    )
+
+    c1,c2,c3 = st.columns([2,1,2])
+    with c2:
+        if st.button("Start Now", use_container_width=True, key="cta2"): goto("plans")
 
 
     # ── 3D SECTION 3: 3D Feature Cards with perspective tilt ──
@@ -2679,131 +2620,9 @@ document.querySelectorAll('.card-orb').forEach((cv,idx)=>{
 </script>
 """, height=460)
 
-    # ── 3D SECTION 4: Animated 3D Price Candlestick Visualization ──
-    st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.2rem;letter-spacing:4px;color:var(--text);margin:3rem 0 .5rem;">XAUUSD — PRICE ACTION</div><div style="width:30px;height:1px;background:var(--cyan);margin-bottom:1.5rem;opacity:.5;box-shadow:0 0 8px var(--cyan);"></div>', unsafe_allow_html=True)
-    st.components.v1.html("""
-<style>
-  #candle-wrap { background:#080808; border:1px solid #1e1e1e; padding:1.2rem 1.5rem; position:relative; }
-  .candle-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; }
-  .candle-sym { font-family:'Courier New',monospace; font-size:1.1rem; font-weight:700; color:#D8D8D8; letter-spacing:3px; }
-  .candle-price { font-family:'Courier New',monospace; font-size:1.6rem; font-weight:700; color:#00B87A; }
-  .candle-chg { font-size:.72rem; color:#00B87A; letter-spacing:1px; margin-top:2px; }
-  .candle-info { display:flex; gap:2rem; }
-  .ci { font-size:.6rem; color:#505050; letter-spacing:1.5px; text-transform:uppercase; }
-  .ci span { display:block; font-family:'Courier New',monospace; color:#D8D8D8; font-size:.8rem; margin-top:2px; }
-  #candleCanvas { display:block; width:100%; }
-</style>
-<div id="candle-wrap">
-  <div class="candle-header">
-    <div>
-      <div class="candle-sym">XAUUSD <span style="font-size:.6rem;color:#505050;letter-spacing:2px;">GOLD / USD</span></div>
-      <div class="candle-price" id="cp">$2,345.80</div>
-      <div class="candle-chg" id="cc">▲ +0.42% today</div>
-    </div>
-    <div class="candle-info">
-      <div class="ci">Open<span>2,336.40</span></div>
-      <div class="ci">High<span id="ch">2,351.20</span></div>
-      <div class="ci">Low<span id="cl">2,330.90</span></div>
-      <div class="ci">Volume<span>HIGH</span></div>
-    </div>
-  </div>
-  <canvas id="candleCanvas" width="900" height="220"></canvas>
-</div>
-<script>
-(function(){
-  const canvas=document.getElementById('candleCanvas');
-  const ctx=canvas.getContext('2d');
-  canvas.width=canvas.parentElement.clientWidth-50||860;
-  const W=canvas.width, H=canvas.height;
-
-  // Generate OHLC data
-  function genCandles(n,start){
-    const out=[]; let p=start;
-    for(let i=0;i<n;i++){
-      const open=p;
-      const close=open+(Math.random()-0.45)*12;
-      const high=Math.max(open,close)+Math.random()*6;
-      const low=Math.min(open,close)-Math.random()*6;
-      out.push({open,high,low,close});
-      p=close;
-    }
-    return out;
-  }
-  let candles=genCandles(40,2320);
-  let tickTimer=0;
-
-  const minP=Math.min(...candles.map(c=>c.low))*0.9995;
-  const maxP=Math.max(...candles.map(c=>c.high))*1.0005;
-  const cw=Math.floor((W-30)/candles.length)-2;
-
-  function toY(v){ return H-8-((v-minP)/(maxP-minP))*(H-20); }
-
-  let frame=0;
-  function draw(){
-    ctx.clearRect(0,0,W,H);
-
-    // Grid
-    ctx.strokeStyle='rgba(255,255,255,0.04)'; ctx.lineWidth=0.5;
-    for(let i=0;i<5;i++){
-      const y=8+i*((H-16)/4);
-      ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke();
-    }
-
-    candles.forEach((c,i)=>{
-      const x=15+i*(cw+2);
-      const bull=c.close>=c.open;
-      const col=bull?'#00B87A':'#E03A52';
-      const bodyTop=toY(Math.max(c.open,c.close));
-      const bodyBot=toY(Math.min(c.open,c.close));
-      const bodyH=Math.max(bodyBot-bodyTop,1);
-
-      // 3D depth shadow
-      ctx.fillStyle=bull?'rgba(0,100,60,0.4)':'rgba(150,30,40,0.4)';
-      ctx.fillRect(x+2,bodyTop+2,cw,bodyH);
-
-      // Wick
-      ctx.strokeStyle=col+'99'; ctx.lineWidth=1;
-      ctx.beginPath();
-      ctx.moveTo(x+cw/2,toY(c.high));
-      ctx.lineTo(x+cw/2,toY(c.low));
-      ctx.stroke();
-
-      // Body
-      const grad=ctx.createLinearGradient(x,bodyTop,x+cw,bodyTop);
-      grad.addColorStop(0,bull?'rgba(0,184,122,0.9)':'rgba(224,58,82,0.9)');
-      grad.addColorStop(1,bull?'rgba(0,120,80,0.7)':'rgba(160,30,50,0.7)');
-      ctx.fillStyle=grad;
-      ctx.fillRect(x,bodyTop,cw,bodyH);
-
-      // Highlight (3D sheen)
-      ctx.fillStyle='rgba(255,255,255,0.08)';
-      ctx.fillRect(x,bodyTop,cw/3,bodyH);
-    });
-
-    // Animate: add a new candle every ~90 frames
-    frame++;
-    if(frame%90===0){
-      const last=candles[candles.length-1];
-      const nc={
-        open:last.close,
-        close:last.close+(Math.random()-0.45)*10,
-      };
-      nc.high=Math.max(nc.open,nc.close)+Math.random()*5;
-      nc.low=Math.min(nc.open,nc.close)-Math.random()*5;
-      candles.shift(); candles.push(nc);
-      document.getElementById('cp').textContent='$'+nc.close.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
-      const chgPct=((nc.close-candles[0].open)/candles[0].open*100).toFixed(2);
-      const cel=document.getElementById('cc');
-      cel.textContent=(chgPct>=0?'▲ +':'▼ ')+chgPct+'% today';
-      cel.style.color=chgPct>=0?'#00B87A':'#E03A52';
-    }
-
-    requestAnimationFrame(draw);
-  }
-  draw();
-})();
-</script>
-""", height=310)
+    # ── CUSTOM 3D ASSET SHOWCASE ──
+    st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.2rem;letter-spacing:4px;color:var(--text);margin:3rem 0 .5rem;">INTERACTIVE 3D SHOWCASE</div><div style="width:30px;height:1px;background:var(--cyan);margin-bottom:1.5rem;opacity:.5;box-shadow:0 0 8px var(--cyan);"></div>', unsafe_allow_html=True)
+    render_3d_model("3dsvg.glb")
 
 
     # ── CHALLENGE CALCULATOR ─────────────────────────────────
@@ -2893,6 +2712,45 @@ document.querySelectorAll('.card-orb').forEach((cv,idx)=>{
                 f'</div>',
                 unsafe_allow_html=True
             )
+
+    # ── AI CUSTOMER SUPPORT CHAT ──────────────────────────────
+    st.markdown(
+        '<div style="font-family:Bebas Neue,sans-serif;font-size:1.2rem;letter-spacing:4px;'
+        'color:var(--text);margin:3.5rem 0 .5rem;">AI CUSTOMER SUPPORT</div>'
+        '<div style="width:30px;height:1px;background:var(--cyan);margin-bottom:1.5rem;'
+        'opacity:.5;box-shadow:0 0 8px var(--cyan);"></div>',
+        unsafe_allow_html=True
+    )
+    
+    # Initialize basic support chat memory if missing
+    if "support_chat" not in st.session_state:
+        st.session_state.support_chat = [{"role": "assistant", "content": "Hi there! I am the AKFunded Support AI. Do you have any questions about our evaluation plans, rules, or platform features?"}]
+    
+    st.markdown('<div style="background:var(--s1);border:1px solid var(--border);padding:1rem;">', unsafe_allow_html=True)
+    
+    # Display message history using standard Streamlit chat
+    for msg in st.session_state.support_chat:
+        with st.chat_message(msg["role"]):
+            st.write(msg["content"])
+            
+    # Input for new questions
+    if user_msg := st.chat_input("Ask support a question..."):
+        st.session_state.support_chat.append({"role": "user", "content": user_msg})
+        with st.chat_message("user"):
+            st.write(user_msg)
+        
+        with st.chat_message("assistant"):
+            with st.spinner("Support AI is thinking..."):
+                sys_prompt = (
+                    "You are AKFunded's friendly AI customer support assistant. "
+                    "Your goal is to answer questions about the prop firm, the rules (Instant, 1-Step, 2-Step), "
+                    "payouts, and general platform capabilities. Keep your answers polite, helpful, and concise."
+                )
+                resp = call_ai(st.session_state.support_chat, sys_prompt)
+                st.write(resp)
+        st.session_state.support_chat.append({"role": "assistant", "content": resp})
+
+    st.markdown('</div>', unsafe_allow_html=True)
 
     footer()
 
@@ -3625,667 +3483,3 @@ elif st.session_state.page == "journal":
         j_note=st.text_area("Journal Note",placeholder="What did you observe? Why did you enter? What would you improve?",height=100,key="jnote")
         if st.button("Save Entry",use_container_width=True,key="jsave"):
             if j_note.strip():
-                try:
-                    supabase.table("journal_entries").insert({"user_id":uid,"challenge_id":challenge["id"] if challenge else None,"symbol":j_sym,"outcome":j_out.lower(),"setup":j_setup,"emotion":j_emo,"note":j_note,"created_at":datetime.utcnow().isoformat()}).execute()
-                    st.success("Entry saved."); time.sleep(1); st.rerun()
-                except Exception as e: st.error(f"Error: {e}")
-            else: st.warning("Write a note before saving.")
-    entries=db_get_journal(uid)
-    if entries:
-        for e in entries:
-            out=e.get("outcome",""); tc="win" if out=="win" else ("loss" if out=="loss" else "")
-            dt=e.get("created_at","")[:10]
-            setup_tag=f'<span class="je-tag">{e["setup"]}</span>' if e.get("setup") else ""
-            st.markdown(f'<div class="journal-entry"><div class="je-date">{dt} &nbsp;|&nbsp; {e.get("symbol","")} &nbsp;|&nbsp; {e.get("emotion","")}</div><div class="je-note">{e.get("note","")}</div><div class="je-tags"><span class="je-tag {tc}">{out.upper()}</span>{setup_tag}</div></div>', unsafe_allow_html=True)
-    else:
-        st.markdown('<div style="text-align:center;padding:3rem;color:var(--dim);background:var(--s1);border:1px solid var(--border);font-size:.8rem;">No entries yet.</div>', unsafe_allow_html=True)
-    footer()
-
-# ══════════════════════════════════════════════════════════════
-# HISTORY
-# ══════════════════════════════════════════════════════════════
-elif st.session_state.page == "history":
-    if not st.session_state.user: goto("auth")
-    nav()
-    uid=st.session_state.user["id"]
-    sec("Challenge History","All past and active challenge attempts")
-    all_ch=db_get_all_challenges(uid)
-    if not all_ch:
-        st.markdown('<div style="text-align:center;padding:4rem;color:var(--dim);background:var(--s1);border:1px solid var(--border);font-size:.8rem;">No challenges yet.</div>', unsafe_allow_html=True)
-        _,c,_=st.columns([2,1,2])
-        with c:
-            if st.button("Activate Plan",use_container_width=True): goto("plans")
-    else:
-        total=len(all_ch); passed=sum(1 for c in all_ch if c.get("status")=="passed")
-        failed=sum(1 for c in all_ch if c.get("status")=="failed"); active=sum(1 for c in all_ch if c.get("status")=="active")
-        st.markdown(f'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;margin-bottom:1.5rem;background:var(--border);"><div class="stat-box"><div class="sv w">{total}</div><div class="sl">Total</div></div><div class="stat-box"><div class="sv g">{passed}</div><div class="sl">Passed</div></div><div class="stat-box"><div class="sv r">{failed}</div><div class="sl">Failed</div></div><div class="stat-box"><div class="sv c">{active}</div><div class="sl">Active</div></div></div>', unsafe_allow_html=True)
-        for ch in all_ch:
-            acc=db_get_account(ch["id"]) or {}; cap=ch.get("capital",0); bal=acc.get("balance",cap)
-            p=bal-cap; pp=(p/cap*100) if cap else 0; status=ch.get("status","active"); d=acc.get("days_traded",0)
-            r=RULES.get(ch.get("plan",""),{}); phase=r.get("phase","1step")
-            cap_str=f"${cap//1000}K"; date_str=ch.get("started_at","")[:10]
-            pc="var(--green)" if p>=0 else "var(--red)"; ps="+" if p>=0 else ""
-            st.markdown(f'<div class="ch-card"><div><div class="ch-plan">{ch.get("plan","").upper()}</div><div style="font-size:.68rem;color:var(--dim);font-family:\'JetBrains Mono\',monospace;">{cap_str} &nbsp;|&nbsp; {date_str} &nbsp;|&nbsp; {phase.upper()}</div></div><div style="font-size:.8rem;">Balance: <b style="color:var(--text);">${bal:,.2f}</b></div><div style="font-size:.8rem;color:{pc};">P&L: <b>{ps}${p:,.2f} ({ps}{pp:.1f}%)</b></div><div style="font-size:.8rem;color:var(--dim);">Days: <b style="color:var(--text);">{d}</b></div><div class="ch-status {status}">{status.upper()}</div></div>', unsafe_allow_html=True)
-    footer()
-
-# ══════════════════════════════════════════════════════════════
-# LEADERBOARD
-# ══════════════════════════════════════════════════════════════
-elif st.session_state.page == "leaderboard":
-    nav()
-    sec("Leaderboard","Top traders ranked by profit")
-    data=db_get_leaderboard()
-    if not data:
-        data=[
-            {"name":"Rahul S.","country":"India","profit_pct":18.4,"status":"passed","plan":"1phase_50k"},
-            {"name":"Priya M.","country":"India","profit_pct":15.2,"status":"passed","plan":"2phase_25k"},
-            {"name":"Kiran T.","country":"India","profit_pct":12.7,"status":"active","plan":"instant_25k"},
-            {"name":"Arun K.","country":"UAE",  "profit_pct":11.1,"status":"passed","plan":"1phase_100k"},
-            {"name":"Sneha R.","country":"India","profit_pct":9.8, "status":"active","plan":"2phase_50k"},
-        ]
-    medals=["01","02","03"]
-    for i,t in enumerate(data):
-        rank=i+1; medal=medals[i] if i<3 else f"{rank:02d}"
-        rc="top" if rank<=3 else ""; funded=t.get("status")=="passed"
-        bc="funded-b" if funded else "active-b"; bt2="Funded" if funded else "Active"
-        profit=t.get("profit_pct",0)
-        r=RULES.get(t.get("plan",""),{}); phase=r.get("phase","1step")
-        st.markdown(f'<div class="lb-item"><div class="lb-rank {rc}">{medal}</div><div class="lb-info"><div class="lb-name">{t.get("name","Trader")}</div><div class="lb-country">{t.get("country","")} &nbsp;|&nbsp; {t.get("plan","").upper()} &nbsp;|&nbsp; {phase.upper()}</div></div><div class="lb-pnl">+{profit:.2f}%</div><div class="lb-badge {bc}">{bt2}</div></div>', unsafe_allow_html=True)
-    footer()
-
-# ══════════════════════════════════════════════════════════════
-# PROFILE
-# ══════════════════════════════════════════════════════════════
-elif st.session_state.page == "profile":
-    if not st.session_state.user: goto("auth")
-    nav()
-    uid=st.session_state.user["id"]; email=st.session_state.user.get("email","")
-    prof=db_get_profile(uid) or {}
-    name=prof.get("name",email.split("@")[0]); country=prof.get("country","India"); bio=prof.get("bio","")
-    all_challenges=db_get_all_challenges(uid); all_trades=db_get_trades(uid,limit=500)
-    wr,ap,bt,wt,tt=compute_stats(all_trades)
-    passed=sum(1 for c in all_challenges if c.get("status")=="passed")
-    failed=sum(1 for c in all_challenges if c.get("status")=="failed")
-    funded_badge=passed>0
-    initials="".join([w[0].upper() for w in name.split()[:2]])
-    sec("My Profile","Trader identity and performance summary")
-    badge_html='<div class="funded-badge-inline">&#10003; Funded Trader</div>' if funded_badge else ""
-    st.markdown(
-        f'<div class="profile-hero">'
-        f'<div class="profile-avatar">{initials}</div>'
-        f'<div><div class="profile-name">{name.upper()}</div>'
-        f'<div class="profile-email">{email}</div>'
-        f'<div style="font-size:.68rem;color:var(--dim);margin-top:4px;letter-spacing:.5px;">{country}</div>'
-        f'{badge_html}</div>'
-        f'<div style="margin-left:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:2rem;text-align:center;">'
-        f'<div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.6rem;color:var(--cyan);">{tt}</div><div style="font-size:.55rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-top:4px;">Trades</div></div>'
-        f'<div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.6rem;color:{"var(--green)" if wr>=50 else "var(--red)"};">{wr:.0f}%</div><div style="font-size:.55rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-top:4px;">Win Rate</div></div>'
-        f'<div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.6rem;color:var(--green);">{passed}</div><div style="font-size:.55rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-top:4px;">Passed</div></div>'
-        f'<div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.6rem;color:var(--red);">{failed}</div><div style="font-size:.55rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-top:4px;">Failed</div></div>'
-        f'</div></div>',
-        unsafe_allow_html=True
-    )
-    with st.form("edit_profile"):
-        c1,c2=st.columns(2)
-        with c1:
-            new_name=st.text_input("Full Name",value=name,key="pf_name")
-            new_country=st.text_input("Country",value=country,key="pf_country")
-        with c2:
-            new_bio=st.text_area("Bio",value=bio,placeholder="e.g. XAUUSD scalper.",height=100,key="pf_bio")
-        if st.form_submit_button("Save Profile",use_container_width=True):
-            if db_update_profile(uid,new_name,new_country,new_bio):
-                st.session_state.user["name"]=new_name
-                st.success("Profile saved."); time.sleep(1); st.rerun()
-            else: st.error("Save failed.")
-
-    # ── ACHIEVEMENTS ─────────────────────────────────────────
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown(
-        '<div style="font-size:.58rem;color:var(--dim);letter-spacing:2.5px;'
-        'text-transform:uppercase;margin-bottom:.8rem;font-weight:600;">Achievements</div>',
-        unsafe_allow_html=True
-    )
-    def _badge_html(icon, title, desc, earned):
-        _op   = "1" if earned else "0.22"
-        _bord = "rgba(0,212,255,.35)" if earned else "var(--border)"
-        _glow = "box-shadow:0 0 18px rgba(0,212,255,.12);" if earned else ""
-        _tag  = '<div style="font-size:.46rem;color:var(--cyan);letter-spacing:2px;margin-top:4px;">EARNED</div>' if earned else \
-                '<div style="font-size:.46rem;color:var(--dim);letter-spacing:2px;margin-top:4px;">LOCKED</div>'
-        return (
-            f'<div style="background:var(--s1);border:1px solid {_bord};{_glow}'
-            f'padding:1rem .8rem;text-align:center;opacity:{_op};">'
-            f'<div style="font-size:1.5rem;margin-bottom:.4rem;">{icon}</div>'
-            f'<div style="font-size:.6rem;font-weight:700;color:var(--text);letter-spacing:1px;">{title}</div>'
-            f'<div style="font-size:.5rem;color:var(--dim);margin-top:3px;line-height:1.4;">{desc}</div>'
-            f'{_tag}</div>'
-        )
-
-    _BADGES = [
-        ("⚡", "First Trade",  "Execute your first trade",       tt >= 1),
-        ("🔥", "Hot Streak",   "Win 3 trades in a row",           win_streak >= 3),
-        ("💰", "In Profit",    "Achieve positive total P&L",      ap > 0 and tt > 0),
-        ("🎯", "Sharp Eye",    "Reach 60%+ win rate (5+ trades)", wr >= 60 and tt >= 5),
-        ("🏆", "Funded",       "Pass an evaluation",              funded_badge),
-        ("💎", "Elite",        "10+ winning trades",              wt >= 10),
-        ("🚀", "Consistent",   "Trade 5+ different days",         days >= 5),
-        ("🌍", "Diversified",  "Trade 3+ instruments",            len(set(_t.get("symbol","") for _t in all_trades)) >= 3),
-    ]
-    _bcols = st.columns(8, gap="small")
-    for _bi, (_icon, _title, _desc, _earned) in enumerate(_BADGES):
-        with _bcols[_bi]:
-            st.markdown(_badge_html(_icon, _title, _desc, _earned), unsafe_allow_html=True)
-
-    # ── TRADING DNA ──────────────────────────────────────────
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown(
-        '<div style="font-size:.58rem;color:var(--dim);letter-spacing:2.5px;'
-        'text-transform:uppercase;margin-bottom:.8rem;font-weight:600;">Trading DNA</div>',
-        unsafe_allow_html=True
-    )
-    _dna1, _dna2, _dna3 = st.columns(3, gap="small")
-    _sym_count = {}
-    for _t4 in all_trades:
-        _sym_count[_t4.get("symbol","?")] = _sym_count.get(_t4.get("symbol","?"), 0) + 1
-    _fav_sym = max(_sym_count, key=_sym_count.get) if _sym_count else "N/A"
-    _buys    = sum(1 for _t4 in all_trades if _t4.get("type") == "BUY")
-    _sells   = sum(1 for _t4 in all_trades if _t4.get("type") == "SELL")
-    _tot_dir = max(_buys + _sells, 1)
-    _buy_pct  = _buys  / _tot_dir * 100
-    _sell_pct = _sells / _tot_dir * 100
-    _best_t  = max(all_trades, key=lambda x: x.get("pnl",0)) if all_trades else {}
-    _worst_t = min(all_trades, key=lambda x: x.get("pnl",0)) if all_trades else {}
-    _score   = min(int(wr*0.5 + (ap/5 if ap>0 else 0) + passed*8), 100)
-
-    with _dna1:
-        st.markdown(
-            f'<div style="background:var(--s1);border:1px solid var(--border);padding:1.2rem;">'
-            f'<div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;'
-            f'text-transform:uppercase;margin-bottom:.8rem;">Direction Bias</div>'
-            f'<div style="display:flex;height:8px;gap:2px;margin-bottom:.6rem;">'
-            f'<div style="width:{_buy_pct:.0f}%;background:var(--green);"></div>'
-            f'<div style="flex:1;background:var(--red);"></div></div>'
-            f'<div style="display:flex;justify-content:space-between;font-size:.65rem;">'
-            f'<span style="color:var(--green);">BUY {_buy_pct:.0f}%</span>'
-            f'<span style="color:var(--red);">SELL {_sell_pct:.0f}%</span></div>'
-            f'<div style="margin-top:1rem;font-size:.52rem;color:var(--dim);'
-            f'text-transform:uppercase;letter-spacing:2px;">Favourite Instrument</div>'
-            f'<div style="font-family:Bebas Neue,sans-serif;font-size:1.5rem;'
-            f'color:var(--cyan);letter-spacing:3px;">{_fav_sym}</div>'
-            f'</div>',
-            unsafe_allow_html=True
-        )
-    with _dna2:
-        _score_col = "var(--green)" if _score >= 50 else "var(--red)"
-        st.markdown(
-            f'<div style="background:var(--s1);border:1px solid var(--border);padding:1.2rem;">'
-            f'<div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;'
-            f'text-transform:uppercase;margin-bottom:.8rem;">Performance Score</div>'
-            f'<div style="font-family:Bebas Neue,sans-serif;font-size:3.2rem;'
-            f'color:{_score_col};letter-spacing:2px;line-height:1;">{_score}</div>'
-            f'<div style="font-size:.52rem;color:var(--dim);margin-top:.2rem;">/ 100 overall score</div>'
-            f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:1rem;">'
-            f'<div style="background:var(--s2);padding:.5rem;text-align:center;">'
-            f'<div style="font-size:.5rem;color:var(--dim);">Win Rate</div>'
-            f'<div style="font-size:.9rem;color:var(--green);font-weight:700;">{wr:.0f}%</div></div>'
-            f'<div style="background:var(--s2);padding:.5rem;text-align:center;">'
-            f'<div style="font-size:.5rem;color:var(--dim);">Challenges Passed</div>'
-            f'<div style="font-size:.9rem;color:var(--cyan);font-weight:700;">{passed}</div></div>'
-            f'</div></div>',
-            unsafe_allow_html=True
-        )
-    with _dna3:
-        _bp = _best_t.get("pnl",0);  _bsym = _best_t.get("symbol","—")
-        _wp = _worst_t.get("pnl",0); _wsym = _worst_t.get("symbol","—")
-        st.markdown(
-            f'<div style="background:var(--s1);border:1px solid var(--border);padding:1.2rem;">'
-            f'<div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;'
-            f'text-transform:uppercase;margin-bottom:.8rem;">Milestone Trades</div>'
-            f'<div style="border-left:2px solid var(--green);padding-left:.8rem;margin-bottom:.9rem;">'
-            f'<div style="font-size:.5rem;color:var(--dim);text-transform:uppercase;">Best Trade</div>'
-            f'<div style="font-weight:700;color:var(--text);font-size:.8rem;">{_bsym}</div>'
-            f'<div style="color:var(--green);font-family:JetBrains Mono,monospace;font-weight:700;">+${_bp:,.2f}</div></div>'
-            f'<div style="border-left:2px solid var(--red);padding-left:.8rem;">'
-            f'<div style="font-size:.5rem;color:var(--dim);text-transform:uppercase;">Worst Trade</div>'
-            f'<div style="font-weight:700;color:var(--text);font-size:.8rem;">{_wsym}</div>'
-            f'<div style="color:var(--red);font-family:JetBrains Mono,monospace;font-weight:700;">${_wp:,.2f}</div></div>'
-            f'</div>',
-            unsafe_allow_html=True
-        )
-
-    st.markdown("<br>", unsafe_allow_html=True)
-    c1,c2=st.columns(2)
-    with c1:
-        if st.button("Sign Out",use_container_width=True,key="profile_logout"):
-            supabase.auth.sign_out(); st.session_state.user=None; st.session_state.notifications=[]; goto("home")
-    with c2:
-        if st.button("Send Test Email",use_container_width=True,key="test_email"):
-            ok=send_email_html(email,"AKFunded — Email Test",f'<div style="font-family:Arial,sans-serif;background:#050505;color:#D8D8D8;padding:2rem;max-width:500px;"><h2 style="color:#00D4FF;">AKFUNDED</h2><p>Email working correctly, {name}.</p></div>')
-            if ok: st.success(f"Test email sent to {email}.")
-            else: st.error("Configure SMTP_EMAIL and SMTP_PASSWORD in secrets.")
-    footer()
-
-# ══════════════════════════════════════════════════════════════
-# NOTIFICATIONS
-# ══════════════════════════════════════════════════════════════
-elif st.session_state.page == "notifications":
-    if not st.session_state.user: goto("auth")
-    nav()
-    uid=st.session_state.user["id"]
-    sec("Notifications","Trade alerts, challenge updates and system messages")
-    notifs=[n for n in st.session_state.notifications if n.get("uid")==uid]
-    col_a,col_b=st.columns([4,1])
-    with col_b:
-        if st.button("Mark All Read",key="mark_read"):
-            for n in st.session_state.notifications: n["unread"]=False
-            st.rerun()
-    if not notifs:
-        st.markdown('<div style="text-align:center;padding:4rem;color:var(--dim);background:var(--s1);border:1px solid var(--border);font-size:.8rem;">No notifications yet.</div>', unsafe_allow_html=True)
-    else:
-        for n in notifs:
-            uc="unread" if n.get("unread") else ""
-            new_badge='<span class="notif-badge">NEW</span>' if n.get("unread") else ""
-            st.markdown(f'<div class="notif-item {uc}"><div class="notif-body"><div class="notif-title">{n.get("title","Notification")}{new_badge}</div><div class="notif-msg">{n.get("msg","")}</div><div class="notif-time">{n.get("time","")}</div></div></div>', unsafe_allow_html=True)
-    footer()
-
-# ══════════════════════════════════════════════════════════════
-# ADMIN
-# ══════════════════════════════════════════════════════════════
-elif st.session_state.page == "admin":
-    if not st.session_state.user: goto("auth")
-    if st.session_state.user.get("email","") != st.secrets.get("ADMIN_EMAIL","admin@akfunded.com"):
-        st.error("Access denied."); st.stop()
-    nav()
-    sec("Admin Panel","Platform overview — all traders and challenges")
-    all_data=db_get_all_accounts()
-    total_traders=len(set(r["user_id"] for r in all_data)); total_ch=len(all_data)
-    total_passed=sum(1 for r in all_data if r["status"]=="passed")
-    total_active=sum(1 for r in all_data if r["status"]=="active")
-    total_failed=sum(1 for r in all_data if r["status"]=="failed")
-    st.markdown(f'<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:1px;margin-bottom:1.5rem;background:var(--border);"><div class="stat-box"><div class="sv w">{total_traders}</div><div class="sl">Traders</div></div><div class="stat-box"><div class="sv w">{total_ch}</div><div class="sl">Challenges</div></div><div class="stat-box"><div class="sv c">{total_active}</div><div class="sl">Active</div></div><div class="stat-box"><div class="sv g">{total_passed}</div><div class="sl">Passed</div></div><div class="stat-box"><div class="sv r">{total_failed}</div><div class="sl">Failed</div></div></div>', unsafe_allow_html=True)
-    search=st.text_input("Search",placeholder="Filter by name or email...",key="admin_search")
-    status_filter=st.selectbox("Status",["All","active","passed","failed"],key="admin_status")
-    filtered=all_data
-    if search: filtered=[r for r in filtered if search.lower() in r["name"].lower() or search.lower() in r["email"].lower()]
-    if status_filter!="All": filtered=[r for r in filtered if r["status"]==status_filter]
-    st.markdown('<div style="background:var(--s1);border:1px solid var(--border);"><div class="admin-row header"><span>Trader</span><span>Plan</span><span>Balance</span><span>P&L %</span><span>Days</span><span>Status</span></div>', unsafe_allow_html=True)
-    for r in filtered[:50]:
-        pc="var(--green)" if r["pnl_pct"]>=0 else "var(--red)"; ps="+" if r["pnl_pct"]>=0 else ""
-        cap_str=f"${r['capital']//1000}K"
-        st.markdown(f'<div class="admin-row"><div><div style="font-weight:700;color:var(--text);">{r["name"]}</div><div style="font-size:.65rem;color:var(--dim);font-family:\'JetBrains Mono\',monospace;">{r["email"]}</div></div><div style="color:var(--cyan);font-size:.75rem;">{r["plan"].upper()} ({cap_str})</div><div style="font-family:\'JetBrains Mono\',monospace;font-size:.75rem;">${r["balance"]:,.2f}</div><div style="color:{pc};font-family:\'JetBrains Mono\',monospace;font-weight:700;">{ps}{r["pnl_pct"]:.2f}%</div><div style="color:var(--text);">{r["days_traded"]}</div><div class="admin-status {r["status"]}">{r["status"].upper()}</div></div>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-    footer()
-
-
-# ══════════════════════════════════════════════════════════════
-# DAILY CHALLENGE & XP (Gamification)
-# ══════════════════════════════════════════════════════════════
-elif st.session_state.page == "daily_challenge":
-    if not st.session_state.user: goto("auth")
-    nav()
-    _uid_g  = st.session_state.user["id"]
-    _name_g = st.session_state.user.get("name","Trader")
-    _ch_g   = db_get_active_challenge(_uid_g)
-    _acc_g  = db_get_account(_ch_g["id"]) if _ch_g else None
-    _at_g   = db_get_trades(_uid_g, _ch_g["id"] if _ch_g else None, limit=500) if _ch_g else []
-    _wr_g, _ap_g, _bt_g, _wt_g, _tt_g = compute_stats(_at_g)
-    _init_g = float(_acc_g.get("initial_capital",1)) if _acc_g else 100000
-
-    _xp    = _tt_g * 10 + int(_wr_g) * 2 + (_wt_g * 3)
-    _level = _xp // 100 + 1
-    _xp_in = _xp % 100
-
-    sec("Daily Challenge & XP", "Complete tasks. Earn XP. Level up.")
-
-    # XP Bar
-    st.markdown(
-        f'<div style="background:var(--s1);border:1px solid var(--border);padding:1.5rem;margin-bottom:1.5rem;">'
-        f'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem;">'
-        f'<div>'
-        f'<div style="font-family:Bebas Neue,sans-serif;font-size:1.4rem;letter-spacing:4px;color:var(--cyan);">LEVEL {_level}</div>'
-        f'<div style="font-size:.55rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;">{_name_g.upper()} — {_xp} XP total</div>'
-        f'</div>'
-        f'<div style="text-align:right;">'
-        f'<div style="font-size:.52rem;color:var(--dim);text-transform:uppercase;">Next Level</div>'
-        f'<div style="font-family:Bebas Neue,sans-serif;font-size:1.2rem;color:var(--gold);">{100 - _xp_in} XP away</div>'
-        f'</div></div>'
-        f'<div style="height:6px;background:var(--border3);border-radius:2px;overflow:hidden;">'
-        f'<div style="width:{_xp_in}%;height:100%;background:linear-gradient(90deg,var(--cyan),var(--green));'
-        f'box-shadow:0 0 10px rgba(0,212,255,.4);border-radius:2px;"></div></div>'
-        f'<div style="display:flex;justify-content:space-between;font-size:.5rem;color:var(--dim);margin-top:.4rem;">'
-        f'<span>Level {_level}</span><span>{_xp_in}/100 XP</span><span>Level {_level+1}</span>'
-        f'</div></div>',
-        unsafe_allow_html=True
-    )
-
-    # Daily Tasks
-    st.markdown(
-        '<div style="font-size:.58rem;color:var(--dim);letter-spacing:2.5px;'
-        'text-transform:uppercase;margin-bottom:.8rem;font-weight:600;">Daily Challenges</div>',
-        unsafe_allow_html=True
-    )
-    _dl_loss = abs(_acc_g.get("daily_loss", 0)) if _acc_g else 0
-    _tasks = [
-        ("⚡", "Execute 1 Trade",    "+10 XP", _tt_g >= 1,    "var(--cyan)"),
-        ("🎯", "Positive P&L",       "+20 XP", _ap_g > 0,     "var(--green)"),
-        ("🔥", "Win 2 in a Row",     "+15 XP", _wr_g >= 60,   "var(--gold)"),
-        ("📊", "Trade 2 Symbols",    "+10 XP", len(set(_t.get("symbol","") for _t in _at_g)) >= 2, "var(--purple)"),
-        ("💎", "Loss Under 1%",      "+25 XP", _dl_loss < _init_g * 0.01, "var(--cyan)"),
-    ]
-    _tcols = st.columns(5, gap="small")
-    for _ti, (_tic, _ttask, _trew, _tdone, _tcol) in enumerate(_tasks):
-        with _tcols[_ti]:
-            _tbord = _tcol if _tdone else "var(--border)"
-            _tbg   = "rgba(0,212,255,0.05)" if _tdone else "var(--s1)"
-            _tcheck = (
-                '<div style="font-size:.52rem;color:var(--green);letter-spacing:1px;margin-top:5px;">✓ COMPLETE</div>'
-                if _tdone else
-                '<div style="font-size:.52rem;color:var(--dim);letter-spacing:1px;margin-top:5px;">PENDING</div>'
-            )
-            st.markdown(
-                f'<div style="background:{_tbg};border:1px solid {_tbord};padding:1.2rem .8rem;'
-                f'text-align:center;height:100%;">'
-                f'<div style="font-size:1.8rem;margin-bottom:.5rem;">{_tic}</div>'
-                f'<div style="font-size:.65rem;font-weight:700;color:var(--text);line-height:1.3;margin-bottom:.3rem;">{_ttask}</div>'
-                f'<div style="font-family:Bebas Neue,sans-serif;font-size:1rem;color:{_tcol};">{_trew}</div>'
-                f'{_tcheck}</div>',
-                unsafe_allow_html=True
-            )
-
-    # XP History table
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown(
-        '<div style="font-size:.58rem;color:var(--dim);letter-spacing:2.5px;'
-        'text-transform:uppercase;margin-bottom:.8rem;font-weight:600;">XP Breakdown</div>',
-        unsafe_allow_html=True
-    )
-    _xp_rows = [
-        ("Trades Executed",    _tt_g,              "× 10 XP each",  _tt_g * 10),
-        ("Win Rate Bonus",     f"{_wr_g:.0f}%",    "× 2 XP per %",  int(_wr_g) * 2),
-        ("Winning Trades",     _wt_g,              "× 3 XP each",   _wt_g * 3),
-    ]
-    st.markdown(
-        '<div style="background:var(--s1);border:1px solid var(--border);">',
-        unsafe_allow_html=True
-    )
-    for _xr_label, _xr_val, _xr_formula, _xr_pts in _xp_rows:
-        st.markdown(
-            f'<div style="display:flex;align-items:center;justify-content:space-between;'
-            f'padding:.8rem 1.2rem;border-bottom:1px solid var(--border);">'
-            f'<span style="font-size:.78rem;color:var(--text);">{_xr_label}</span>'
-            f'<span style="font-size:.72rem;color:var(--dim);font-family:JetBrains Mono,monospace;">'
-            f'{_xr_val} {_xr_formula}</span>'
-            f'<span style="font-family:Bebas Neue,sans-serif;font-size:1rem;color:var(--gold);">'
-            f'+{_xr_pts} XP</span>'
-            f'</div>',
-            unsafe_allow_html=True
-        )
-    st.markdown(
-        f'<div style="display:flex;align-items:center;justify-content:space-between;'
-        f'padding:.8rem 1.2rem;background:rgba(0,212,255,0.04);">'
-        f'<span style="font-size:.78rem;font-weight:700;color:var(--text);">TOTAL XP</span>'
-        f'<span style="font-family:Bebas Neue,sans-serif;font-size:1.4rem;color:var(--cyan);">'
-        f'{_xp} XP — Level {_level}</span>'
-        f'</div></div>',
-        unsafe_allow_html=True
-    )
-    footer()
-
-# ══════════════════════════════════════════════════════════════
-# AI CHAT
-# ══════════════════════════════════════════════════════════════
-elif st.session_state.page == "ai_chat":
-    if not st.session_state.user: goto("auth")
-    nav()
-    uid=st.session_state.user["id"]; name=st.session_state.user.get("name","Trader")
-    challenge=db_get_active_challenge(uid); account=db_get_account(challenge["id"]) if challenge else None
-    trades=db_get_trades(uid,challenge["id"] if challenge else None,limit=10)
-    balance=account.get("balance",0) if account else 0; initial=account.get("initial_capital",1) if account else 1
-    pnl_pct=((balance-initial)/initial*100) if initial else 0; plan=challenge.get("plan","") if challenge else ""
-    r=RULES.get(plan,{}); phase=r.get("phase","1step")
-    SYSTEM=(
-        f"You are a professional AI trading coach for AKFunded, a forex prop trading simulator. "
-        f"Trader: {name}, {plan.upper()} ({phase}) challenge. P&L: {pnl_pct:.1f}%. Balance: ${balance:,.2f}. "
-        f"Instruments: Forex pairs, Metals (XAUUSD, XAGUSD), Crude Oil (USOIL, UKOIL). "
-        f"Rules: {r.get('daily_loss',5)}% daily loss limit, {r.get('total_loss',10)}% max loss, {r.get('target',8)}% target. "
-        f"Recent trades: {[t.get('symbol','')+' '+t.get('type','')+' $'+str(round(t.get('pnl',0),2)) for t in trades[:5]]}. "
-        f"Give concise professional forex/metals trading advice. Keep replies under 130 words."
-    )
-    sec("AI Trading Coach","Powered by Groq — LLaMA 3.3 70B")
-    st.markdown('<div class="chat-container"><div class="chat-header"><div class="chat-ai-dot"></div><div><div style="font-weight:700;font-size:.85rem;color:var(--text);">AK Trading Coach</div><div style="font-size:.65rem;color:var(--green);letter-spacing:1px;">Online — Forex &amp; Metals Specialist</div></div></div></div>', unsafe_allow_html=True)
-    chat=st.session_state.chat_history
-    if not chat:
-        st.markdown(f'<div class="chat-messages"><div class="chat-msg"><div class="chat-avatar ai">AI</div><div class="chat-bubble ai">Hello {name}. I specialise in Forex and metals trading. Ask me about XAUUSD setups, risk management, or how to pass your challenge efficiently.</div></div></div>', unsafe_allow_html=True)
-    else:
-        msgs_html=""
-        for m in chat[-10:]:
-            role=m["role"]; txt=m["content"]; cls="user" if role=="user" else "ai"
-            av=name[0].upper() if role=="user" else "AI"
-            msgs_html+=f'<div class="chat-msg {cls}"><div class="chat-avatar {cls}">{av}</div><div class="chat-bubble {cls}">{txt}</div></div>'
-        st.markdown(f'<div class="chat-messages">{msgs_html}</div>', unsafe_allow_html=True)
-    quick=["XAUUSD setup","EURUSD analysis","Risk management","Recovering drawdown","How to pass faster"]
-    qcols=st.columns(len(quick))
-    for i,q in enumerate(quick):
-        with qcols[i]:
-            if st.button(q,key=f"qp_{i}",use_container_width=True):
-                st.session_state.chat_history.append({"role":"user","content":q})
-                with st.spinner("Processing..."): resp=call_ai(st.session_state.chat_history,SYSTEM)
-                st.session_state.chat_history.append({"role":"assistant","content":resp}); st.rerun()
-    user_input=st.text_input("Message",placeholder="Ask about Forex, XAU, or crude oil...",key="chat_input",label_visibility="collapsed")
-    c1,c2=st.columns([5,1])
-    with c2: send=st.button("Send",use_container_width=True,key="chat_send")
-    if send and user_input.strip():
-        st.session_state.chat_history.append({"role":"user","content":user_input})
-        with st.spinner("Processing..."): resp=call_ai(st.session_state.chat_history,SYSTEM)
-        st.session_state.chat_history.append({"role":"assistant","content":resp}); st.rerun()
-    if st.button("Clear",key="clear_chat"):
-        st.session_state.chat_history=[]; st.rerun()
-    footer()
-
-# ══════════════════════════════════════════════════════════════
-# RISK CALCULATOR
-# ══════════════════════════════════════════════════════════════
-elif st.session_state.page == "risk_calc":
-    if not st.session_state.user: goto("auth")
-    nav()
-    uid=st.session_state.user["id"]
-    challenge=db_get_active_challenge(uid); account=db_get_account(challenge["id"]) if challenge else None
-    balance=float(account.get("balance",10000)) if account else 10000.0
-    sec("Risk Calculator","Forex position sizing, pip value and challenge limits")
-    col1,col2=st.columns(2)
-    with col1:
-        st.markdown('<div style="font-size:.58rem;color:var(--dim);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:.8rem;font-weight:600;">Position Size Calculator</div>', unsafe_allow_html=True)
-        acc_size=st.number_input("Account Balance ($)",value=balance,min_value=1000.0,step=1000.0,key="rc_bal")
-        risk_pct=st.slider("Risk per trade (%)",0.1,3.0,1.0,0.1,key="rc_risk")
-        sym_sel=st.selectbox("Symbol",[s for g in SYMBOLS.values() for s in g],key="rc_sym")
-        entry_p=st.number_input("Entry Price",value=float(MARKET_DATA.get(sym_sel,{}).get("price",1.0)),min_value=0.00001,format="%.5f",key="rc_entry")
-        stop_loss=st.number_input("Stop Loss",value=float(round(MARKET_DATA.get(sym_sel,{}).get("price",1.0)*0.995,5)),min_value=0.00001,format="%.5f",key="rc_sl")
-        target_p=st.number_input("Take Profit",value=float(round(MARKET_DATA.get(sym_sel,{}).get("price",1.0)*1.015,5)),min_value=0.00001,format="%.5f",key="rc_tp")
-        risk_amt=acc_size*risk_pct/100; sl_dist=abs(entry_p-stop_loss); tp_dist=abs(target_p-entry_p)
-        pip_val=10 if "JPY" not in sym_sel and "XAG" not in sym_sel and "OIL" not in sym_sel else 1
-        lots=round(risk_amt/(sl_dist*pip_val*1000),2) if sl_dist>0 else 0
-        reward_amt=lots*tp_dist*pip_val*1000; rr_ratio=tp_dist/sl_dist if sl_dist>0 else 0
-        rc="var(--green)" if rr_ratio>=2 else ("var(--gold)" if rr_ratio>=1 else "var(--red)")
-        st.markdown(
-            f'<div class="risk-card" style="margin-top:1rem;">'
-            f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);">'
-            f'<div class="risk-result"><div style="font-size:.55rem;color:var(--dim);letter-spacing:2px;margin-bottom:4px;text-transform:uppercase;">Lot Size</div><div class="risk-val" style="color:var(--cyan);">{lots}</div><div style="font-size:.65rem;color:var(--dim);">standard lots</div></div>'
-            f'<div class="risk-result"><div style="font-size:.55rem;color:var(--dim);letter-spacing:2px;margin-bottom:4px;text-transform:uppercase;">Risk Amount</div><div class="risk-val" style="color:var(--red);">${risk_amt:,.2f}</div><div style="font-size:.65rem;color:var(--dim);">{risk_pct}% of account</div></div>'
-            f'<div class="risk-result"><div style="font-size:.55rem;color:var(--dim);letter-spacing:2px;margin-bottom:4px;text-transform:uppercase;">Reward</div><div class="risk-val" style="color:var(--green);">${reward_amt:,.2f}</div><div style="font-size:.65rem;color:var(--dim);">if TP hit</div></div>'
-            f'<div class="risk-result"><div style="font-size:.55rem;color:var(--dim);letter-spacing:2px;margin-bottom:4px;text-transform:uppercase;">R:R Ratio</div><div class="risk-val" style="color:{rc};">1:{rr_ratio:.1f}</div><div style="font-size:.65rem;color:var(--dim);">{"Good" if rr_ratio>=2 else "Marginal" if rr_ratio>=1 else "Poor"}</div></div>'
-            f'</div></div>',
-            unsafe_allow_html=True
-        )
-    with col2:
-        st.markdown('<div style="font-size:.58rem;color:var(--dim);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:.8rem;font-weight:600;">Challenge Risk Limits</div>', unsafe_allow_html=True)
-        if challenge and account:
-            r=RULES.get(challenge["plan"],{}); init=float(account.get("initial_capital",1))
-            daily_lim=init*r.get("daily_loss",5)/100; total_lim=init*r.get("total_loss",10)/100
-            daily_rem=daily_lim-abs(account.get("daily_loss",0)); total_rem=total_lim-abs(account.get("total_loss",0))
-            st.markdown(
-                f'<div class="risk-card">'
-                f'<div style="margin-bottom:1.2rem;"><div class="m-label">Daily Loss Remaining</div>'
-                f'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.8rem;color:{"var(--green)" if daily_rem>daily_lim*0.5 else "var(--red)"};">${daily_rem:,.2f}</div>'
-                f'<div style="font-size:.65rem;color:var(--dim);font-family:\'JetBrains Mono\',monospace;">of ${daily_lim:,.2f} ({r.get("daily_loss",5)}%)</div></div>'
-                f'<div style="margin-bottom:1.2rem;"><div class="m-label">Total Loss Remaining</div>'
-                f'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.8rem;color:{"var(--green)" if total_rem>total_lim*0.5 else "var(--red)"};">${total_rem:,.2f}</div>'
-                f'<div style="font-size:.65rem;color:var(--dim);font-family:\'JetBrains Mono\',monospace;">of ${total_lim:,.2f} ({r.get("total_loss",10)}%)</div></div>'
-                f'<div style="background:var(--s2);border:1px solid var(--border);border-left:2px solid var(--green);padding:1rem;margin-top:1px;">'
-                f'<div class="m-label">Recommended Max Risk / Trade</div>'
-                f'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.8rem;color:var(--green);">${min(daily_rem*0.25,total_rem*0.1):,.2f}</div>'
-                f'<div style="font-size:.65rem;color:var(--dim);">Protects daily &amp; total loss limits</div>'
-                f'</div></div>',
-                unsafe_allow_html=True
-            )
-        else:
-            st.markdown('<div style="color:var(--dim);padding:2rem;text-align:center;background:var(--s1);border:1px solid var(--border);font-size:.8rem;">Activate a challenge to see your limits.</div>', unsafe_allow_html=True)
-    footer()
-
-# ══════════════════════════════════════════════════════════════
-# CERTIFICATE  ← KEY FIX: email uses table-based HTML, PDF download added
-# ══════════════════════════════════════════════════════════════
-elif st.session_state.page == "certificate":
-    if not st.session_state.user: goto("auth")
-    nav()
-    uid  = st.session_state.user["id"]
-    name = st.session_state.user.get("name", "Trader")
-    sec("Achievement Certificate", "Official AKFunded funded trader certificate")
-
-    all_ch    = db_get_all_challenges(uid)
-    passed_ch = [c for c in all_ch if c.get("status") == "passed"]
-
-    if not passed_ch:
-        st.markdown(
-            '<div style="text-align:center;padding:5rem;background:var(--s1);border:1px solid var(--border);">'
-            '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.5rem;letter-spacing:4px;color:var(--dim);margin-bottom:.5rem;">No Certificate Yet</div>'
-            '<div style="font-size:.8rem;color:var(--dim);font-weight:300;">Pass a challenge to earn your funded trader certificate.</div>'
-            '</div>',
-            unsafe_allow_html=True
-        )
-        _, c, _ = st.columns([2, 1, 2])
-        with c:
-            if st.button("Activate Challenge", use_container_width=True): goto("plans")
-    else:
-        if len(passed_ch) > 1:
-            ch_options = [f"{c['plan'].upper()} — {c.get('started_at','')[:10]}" for c in passed_ch]
-            selected   = st.selectbox("Select Challenge", ch_options, key="cert_sel")
-            ch         = passed_ch[ch_options.index(selected)]
-        else:
-            ch = passed_ch[0]
-
-        acc      = db_get_account(ch["id"]) or {}
-        cap      = ch.get("capital", 0)
-        bal      = acc.get("balance", cap)
-        pnl_pct  = (bal - cap) / cap * 100 if cap else 0
-        days     = acc.get("days_traded", 0)
-        date_str = ch.get("started_at", "")[:10]
-
-        # ── On-screen certificate (browser flex/grid — looks great) ──
-        cert_html = build_certificate_html(name, ch["plan"], cap, pnl_pct, days, date_str, ch["id"])
-        st.markdown(f'<div style="overflow-x:auto;padding:1rem 0;">{cert_html}</div>', unsafe_allow_html=True)
-
-        st.markdown("<br>", unsafe_allow_html=True)
-        col1, col2, col3, col4 = st.columns(4)
-
-        # ── Email Certificate — uses Gmail-safe table HTML ──
-        with col1:
-            if st.button("Email Certificate", use_container_width=True, key="email_cert"):
-                email_addr = st.session_state.user.get("email", "")
-                # Use table-based email version, NOT the flex/grid browser version
-                email_html = build_certificate_email_html(name, ch["plan"], cap, pnl_pct, days, date_str)
-                ok = send_email_html(email_addr, "AKFunded — Certificate of Achievement", email_html)
-                if ok:
-                    st.success(f"Certificate emailed to {email_addr}.")
-                else:
-                    st.info("Configure SMTP_EMAIL and SMTP_PASSWORD in secrets to send emails.")
-
-        # ── Download PDF ──
-        with col2:
-            with st.spinner("Generating PDF..."):
-                pdf_bytes = build_certificate_pdf(name, ch["plan"], cap, pnl_pct, days, date_str)
-            if pdf_bytes:
-                st.download_button(
-                    label="Download PDF",
-                    data=pdf_bytes,
-                    file_name=f"AKFunded_Certificate_{name.replace(' ','_')}_{date_str}.pdf",
-                    mime="application/pdf",
-                    use_container_width=True,
-                    key="dl_cert_pdf"
-                )
-            else:
-                st.info("Install reportlab to enable PDF: pip install reportlab")
-
-        # ── Copy share text ──
-        with col3:
-            if st.button("Copy Share Text", use_container_width=True, key="share_cert"):
-                cap_str = f"${cap // 1000}K"
-                share = (
-                    f"I passed the AKFunded {ch['plan'].upper()} Challenge ({cap_str}) "
-                    f"with +{pnl_pct:.1f}% profit in {days} trading days! "
-                    f"Trading Forex & XAUUSD. @akfunded #AKFunded #PropTrading #Forex"
-                )
-                st.code(share, language=None)
-
-        # ── Instagram ──
-        with col4:
-            if st.button("Share on Instagram", use_container_width=True, key="ig_cert"):
-                st.markdown(
-                    f'<a href="{IG_URL}" target="_blank" style="color:var(--cyan);">Open @akfunded on Instagram</a>',
-                    unsafe_allow_html=True
-                )
-
-        st.markdown(
-            '<div style="background:var(--s2);border:1px solid var(--border);border-left:2px solid rgba(0,184,122,.4);padding:1rem 1.4rem;margin-top:1rem;">'
-            '<div style="font-size:.72rem;color:var(--dim);line-height:1.7;">'
-            'Tag <b style="color:var(--cyan);">@akfunded</b> on Instagram when you share your achievement. '
-            'The emailed certificate is formatted for Gmail &amp; Outlook. Download the PDF for the best print quality.'
-            '</div></div>',
-            unsafe_allow_html=True
-        )
-    footer()
-
-# ══════════════════════════════════════════════════════════════
-# REFERRAL
-# ══════════════════════════════════════════════════════════════
-elif st.session_state.page == "referral":
-    if not st.session_state.user: goto("auth")
-    nav()
-    uid=st.session_state.user["id"]; name=st.session_state.user.get("name","Trader"); email=st.session_state.user.get("email","")
-    sec("Refer & Earn","Invite traders — earn rewards when they join")
-    ref=db_get_referral(uid)
-    if not ref:
-        code=generate_referral_code(name); db_create_referral(uid,code)
-        ref=db_get_referral(uid) or {"code":code,"uses":0}
-    code=ref.get("code",""); uses=ref.get("uses",0); earnings=uses*50
-    share_url=f"{PLATFORM_URL}/?ref={code}"
-    st.markdown(
-        f'<div style="background:var(--s1);border:1px solid rgba(0,212,255,.15);border-left:2px solid var(--cyan);padding:2rem;margin-bottom:1.5rem;">'
-        f'<div style="font-size:.58rem;color:var(--dim);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:.8rem;font-weight:600;">Your Referral Code</div>'
-        f'<div class="ref-code-box"><div class="ref-code">{code}</div><div style="font-size:.65rem;color:var(--dim);">Unique code</div></div>'
-        f'<div class="ref-stats">'
-        f'<div class="stat-box"><div class="sv c">{uses}</div><div class="sl">Referrals</div></div>'
-        f'<div class="stat-box"><div class="sv g">&#8377;{earnings}</div><div class="sl">Earned</div></div>'
-        f'<div class="stat-box"><div class="sv w">&#8377;50</div><div class="sl">Per Referral</div></div>'
-        f'</div></div>',
-        unsafe_allow_html=True
-    )
-    st.code(share_url, language=None)
-    c1,c2=st.columns(2)
-    with c1:
-        wa=f"https://wa.me/?text=Join%20AKFunded%20-%20Forex%20Prop%20Trading%20Simulator.%20Use%20code%20{code}.%20{share_url}"
-        st.markdown(f'<a href="{wa}" target="_blank"><button style="width:100%;background:rgba(0,212,255,.1);color:var(--cyan);font-weight:700;border:1px solid rgba(0,212,255,.3);padding:.55rem;font-family:\'Rajdhani\',sans-serif;cursor:pointer;letter-spacing:2px;font-size:.78rem;text-transform:uppercase;">Share on WhatsApp</button></a>', unsafe_allow_html=True)
-    with c2:
-        if st.button("Email Invite",use_container_width=True,key="email_invite"):
-            html_invite=(
-                f'<div style="font-family:Arial,sans-serif;max-width:580px;background:#050505;color:#D8D8D8;padding:2rem;">'
-                f'<h2 style="color:#00D4FF;letter-spacing:4px;">AKFUNDED</h2>'
-                f'<p>{name} has invited you to AKFunded — Forex Prop Trading.</p>'
-                f'<div style="background:#0d0d0d;border-left:2px solid #00D4FF;padding:1rem;margin:1rem 0;">'
-                f'<div style="font-size:1.4rem;font-weight:700;color:#00D4FF;letter-spacing:4px;">{code}</div>'
-                f'</div>'
-                f'<p><a href="{share_url}" style="color:#00D4FF;">Join here — akfunded.streamlit.app</a></p>'
-                f'</div>'
-            )
-            ok=send_email_html(email,f"{name} invited you to AKFunded",html_invite)
-            if ok: st.success("Invite sent.")
-            else: st.info("Configure SMTP settings.")
-    footer()
