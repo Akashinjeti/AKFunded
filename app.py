@@ -3482,8 +3482,7 @@ elif st.session_state.page == "journal":
             j_emo=st.selectbox("Emotional State",["Calm","Confident","Anxious","Greedy","Fearful","FOMO"],key="jemo")
         j_note=st.text_area("Journal Note",placeholder="What did you observe? Why did you enter? What would you improve?",height=100,key="jnote")
         if st.button("Save Entry",use_container_width=True,key="jsave"):
-            if j_note.strip():
-            try:
+            if j_note.strip():try:
                     supabase.table("journal_entries").insert({"user_id":uid,"challenge_id":challenge["id"] if challenge else None,"symbol":j_sym,"outcome":j_out.lower(),"setup":j_setup,"emotion":j_emo,"note":j_note,"created_at":datetime.utcnow().isoformat()}).execute()
                     st.success("Entry saved."); time.sleep(1); st.rerun()
                 except Exception as e: st.error(f"Error: {e}")
@@ -4147,3 +4146,11 @@ elif st.session_state.page == "referral":
             if ok: st.success("Invite sent.")
             else: st.info("Configure SMTP settings.")
     footer()
+
+
+
+
+
+
+
+       
