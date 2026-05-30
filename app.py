@@ -1678,177 +1678,229 @@ def pbar(pct, col):
     return f'<div class="prog"><div class="prog-fill" style="width:{pct:.1f}%;background:{col};box-shadow:0 0 4px {col};"></div></div>'
 
 
-# ─── AI SUPPORT CHATBOT (floating widget — appears on all pages) ──
+
+# ─── AI SUPPORT CHATBOT — Groq-powered ───────────────────────
+# We use a hidden st.form to relay user messages to Groq and
+# write the response into session state, then JS picks it up.
+if "chat_support_msgs" not in st.session_state:
+    st.session_state.chat_support_msgs = []
+if "chat_support_input" not in st.session_state:
+    st.session_state.chat_support_input = ""
+
+_chat_q = st.session_state.get("_chatbot_query","")
+if _chat_q:
+    _support_system = (
+        "You are AKFunded's friendly AI support assistant. "
+        "AKFunded is a prop trading firm offering Instant Funded, One-Step (80% split), "
+        "and Two-Step (90% split) challenge accounts up to $100K. "
+        "Payouts within 24hr. News trading allowed. No time limits. "
+        "Instruments: XAUUSD, Forex, USOIL, XAGUSD. "
+        "Answer concisely in 2-4 sentences. Be helpful and encouraging."
+    )
+    _support_history = [{"role":m["role"],"content":m["content"]} for m in st.session_state.chat_support_msgs[-6:]]
+    _support_history.append({"role":"user","content":_chat_q})
+    _reply = call_ai(_support_history, _support_system)
+    st.session_state.chat_support_msgs.append({"role":"user","content":_chat_q})
+    st.session_state.chat_support_msgs.append({"role":"assistant","content":_reply})
+    st.session_state["_chatbot_query"] = ""
+    st.session_state["_chatbot_reply"] = _reply
+
+_latest_reply = st.session_state.get("_chatbot_reply","")
+
 st.markdown(
-    r"""
+    f"""
 <style>
-#ak-chat-btn {
-  position:fixed; bottom:28px; right:28px; z-index:99998;
-  width:52px; height:52px; border-radius:50%;
+#ak-fab {{
+  position:fixed;bottom:28px;right:28px;z-index:99998;
+  width:54px;height:54px;border-radius:50%;
   background:linear-gradient(135deg,#00D4FF,#00B87A);
-  border:none; cursor:pointer;
-  display:flex; align-items:center; justify-content:center;
-  box-shadow:0 4px 24px rgba(0,212,255,.35);
-  transition:transform .2s, box-shadow .2s;
-  font-size:1.3rem;
-}
-#ak-chat-btn:hover { transform:scale(1.1); box-shadow:0 6px 32px rgba(0,212,255,.5); }
-#ak-chat-btn.open { background:linear-gradient(135deg,#E03A52,#b02a3f); }
-#ak-chat-window {
-  position:fixed; bottom:92px; right:28px; z-index:99997;
-  width:360px; height:500px;
-  background:#0a0a0a; border:1px solid #1e1e1e;
-  border-radius:4px; display:none; flex-direction:column;
-  overflow:hidden;
-  box-shadow:0 20px 60px rgba(0,0,0,.7), 0 0 0 1px rgba(0,212,255,.1);
-  font-family:'Rajdhani',sans-serif;
-}
-#ak-chat-window.open { display:flex; }
-#ak-chat-head {
-  background:#050505; border-bottom:1px solid #1a1a1a;
-  padding:.85rem 1rem;
-  display:flex; align-items:center; gap:.7rem; flex-shrink:0;
-}
-.ak-chat-dot { width:6px; height:6px; background:#00B87A; border-radius:50%;
-  box-shadow:0 0 6px #00B87A; animation:chatBlink 2s infinite; }
-@keyframes chatBlink { 0%,100%{opacity:1;} 50%{opacity:.3;} }
-#ak-chat-head-title {
-  font-family:'Bebas Neue',sans-serif; font-size:.95rem;
-  letter-spacing:3px; color:#D8D8D8;
-}
-#ak-chat-head-sub { font-size:.52rem; color:#3a3a3a; letter-spacing:1.5px; text-transform:uppercase; margin-top:1px; }
-#ak-chat-msgs {
-  flex:1; overflow-y:auto; padding:.8rem;
-  display:flex; flex-direction:column; gap:.6rem;
-  scrollbar-width:thin; scrollbar-color:#1e1e1e transparent;
-}
-.ak-msg { max-width:82%; padding:.6rem .9rem;
-  font-size:.75rem; line-height:1.55; letter-spacing:.2px; border-radius:2px; }
-.ak-msg.bot { background:#111; border:1px solid #1e1e1e; border-left:2px solid #00D4FF;
-  color:#D8D8D8; align-self:flex-start; }
-.ak-msg.user { background:rgba(0,212,255,.1); border:1px solid rgba(0,212,255,.2);
-  color:#D8D8D8; align-self:flex-end; text-align:right; }
-.ak-msg.typing { color:#3a3a3a; font-style:italic; }
-#ak-chat-quick { padding:.5rem .8rem; display:flex; flex-wrap:wrap; gap:4px; flex-shrink:0;
-  border-top:1px solid #111; }
-.ak-quick-btn { background:#0d0d0d; border:1px solid #1e1e1e;
-  color:#505050; font-size:.55rem; letter-spacing:1.5px;
-  padding:3px 10px; cursor:pointer; border-radius:2px;
-  transition:border-color .15s, color .15s; font-family:'Rajdhani',sans-serif;
-  text-transform:uppercase; }
-.ak-quick-btn:hover { border-color:rgba(0,212,255,.4); color:#00D4FF; }
-#ak-chat-input-row { display:flex; gap:6px; padding:.6rem .8rem;
-  border-top:1px solid #1a1a1a; flex-shrink:0; background:#050505; }
-#ak-chat-input { flex:1; background:#0d0d0d; border:1px solid #1e1e1e;
-  color:#D8D8D8; font-size:.72rem; padding:.5rem .8rem;
-  outline:none; font-family:'Rajdhani',sans-serif;
-  letter-spacing:.3px; border-radius:2px; }
-#ak-chat-input:focus { border-color:rgba(0,212,255,.35); }
-#ak-chat-input::placeholder { color:#2a2a2a; }
-#ak-chat-send { background:linear-gradient(135deg,#00D4FF,#00B87A);
-  border:none; color:#000; font-size:.65rem; font-weight:700;
-  padding:.5rem .9rem; cursor:pointer; letter-spacing:1.5px;
-  font-family:'Rajdhani',sans-serif; border-radius:2px; }
+  border:none;cursor:pointer;font-size:1.4rem;
+  box-shadow:0 4px 24px rgba(0,212,255,.4);
+  transition:transform .2s,box-shadow .2s;display:flex;
+  align-items:center;justify-content:center;
+}}
+#ak-fab:hover{{transform:scale(1.1);box-shadow:0 8px 32px rgba(0,212,255,.55);}}
+#ak-fab.is-open{{background:linear-gradient(135deg,#555,#333);}}
+#ak-win{{
+  position:fixed;bottom:96px;right:28px;z-index:99997;
+  width:370px;height:520px;background:#090909;
+  border:1px solid #1c1c1c;border-radius:6px;
+  display:none;flex-direction:column;overflow:hidden;
+  box-shadow:0 24px 64px rgba(0,0,0,.8),0 0 0 1px rgba(0,212,255,.08);
+  font-family:Rajdhani,sans-serif;
+}}
+#ak-win.is-open{{display:flex;}}
+#ak-hd{{background:#050505;border-bottom:1px solid #181818;
+  padding:.9rem 1rem;display:flex;align-items:center;gap:.7rem;flex-shrink:0;}}
+.ak-pulse{{width:7px;height:7px;background:#00B87A;border-radius:50%;
+  box-shadow:0 0 8px #00B87A;animation:akPulse 2s infinite;}}
+@keyframes akPulse{{0%,100%{{opacity:1;transform:scale(1);}}50%{{opacity:.4;transform:scale(.8);}}}}
+#ak-hd-title{{font-family:"Bebas Neue",sans-serif;font-size:1rem;
+  letter-spacing:3px;color:#d8d8d8;}}
+#ak-hd-sub{{font-size:.5rem;color:#2e2e2e;letter-spacing:2px;text-transform:uppercase;margin-top:2px;}}
+#ak-msgs{{flex:1;overflow-y:auto;padding:.9rem;
+  display:flex;flex-direction:column;gap:.65rem;
+  scrollbar-width:thin;scrollbar-color:#1e1e1e transparent;}}
+#ak-msgs::-webkit-scrollbar{{width:3px;}}
+#ak-msgs::-webkit-scrollbar-thumb{{background:#1e1e1e;}}
+.ak-m{{max-width:85%;padding:.65rem .9rem;font-size:.76rem;
+  line-height:1.6;border-radius:3px;word-break:break-word;}}
+.ak-m.b{{background:#111;border:1px solid #1e1e1e;
+  border-left:2px solid #00D4FF;color:#d0d0d0;align-self:flex-start;}}
+.ak-m.u{{background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);
+  color:#d0d0d0;align-self:flex-end;text-align:right;}}
+.ak-m.t{{color:#2e2e2e;font-style:italic;font-size:.7rem;}}
+#ak-qs{{padding:.5rem .8rem;display:flex;flex-wrap:wrap;gap:4px;
+  border-top:1px solid #111;flex-shrink:0;}}
+.ak-q{{background:#0d0d0d;border:1px solid #1c1c1c;color:#444;
+  font-size:.54rem;letter-spacing:1.5px;padding:3px 9px;cursor:pointer;
+  border-radius:2px;transition:all .15s;font-family:Rajdhani,sans-serif;
+  text-transform:uppercase;}}
+.ak-q:hover{{border-color:rgba(0,212,255,.4);color:#00D4FF;}}
+#ak-ir{{display:flex;gap:5px;padding:.65rem .8rem;
+  border-top:1px solid #181818;flex-shrink:0;background:#050505;}}
+#ak-inp{{flex:1;background:#0d0d0d;border:1px solid #1c1c1c;
+  color:#d8d8d8;font-size:.73rem;padding:.5rem .8rem;
+  outline:none;font-family:Rajdhani,sans-serif;border-radius:2px;}}
+#ak-inp:focus{{border-color:rgba(0,212,255,.35);}}
+#ak-inp::placeholder{{color:#252525;}}
+#ak-btn{{background:linear-gradient(135deg,#00D4FF,#00B87A);
+  border:none;color:#000;font-size:.62rem;font-weight:700;
+  padding:.5rem 1rem;cursor:pointer;letter-spacing:1.5px;
+  font-family:Rajdhani,sans-serif;border-radius:2px;white-space:nowrap;}}
+#ak-btn:disabled{{opacity:.5;cursor:not-allowed;}}
+#ak-reply-store{{display:none;}}
 </style>
 
-<button id="ak-chat-btn" onclick="akToggleChat()" title="AK Support">&#x1F4AC;</button>
+<button id="ak-fab" onclick="akToggle()">&#x1F4AC;</button>
 
-<div id="ak-chat-window">
-  <div id="ak-chat-head">
-    <div class="ak-chat-dot"></div>
+<div id="ak-win">
+  <div id="ak-hd">
+    <div class="ak-pulse"></div>
     <div>
-      <div id="ak-chat-head-title">AK SUPPORT</div>
-      <div id="ak-chat-head-sub">AI Assistant &middot; Online 24/7</div>
+      <div id="ak-hd-title">AK SUPPORT</div>
+      <div id="ak-hd-sub">AI Assistant &middot; Powered by Groq</div>
     </div>
-    <div style="margin-left:auto;cursor:pointer;color:#3a3a3a;font-size:.8rem;" onclick="akToggleChat()">&#x2715;</div>
+    <div style="margin-left:auto;cursor:pointer;color:#333;font-size:.9rem;padding:4px;"
+         onclick="akToggle()">&#x2715;</div>
   </div>
-  <div id="ak-chat-msgs">
-    <div class="ak-msg bot">Hey! &#x1F44B; Welcome to <strong>AKFunded</strong>.<br><br>Ask me about challenges, payouts, trading rules, or how to get funded.</div>
+  <div id="ak-msgs">
+    <div class="ak-m b">Hey &#x1F44B; I&apos;m your <strong>AKFunded</strong> AI assistant, powered by Groq.<br><br>Ask me anything about challenges, payouts, rules, or instruments.</div>
   </div>
-  <div id="ak-chat-quick">
-    <button class="ak-quick-btn" onclick="akQuick('How do payouts work?')">Payouts</button>
-    <button class="ak-quick-btn" onclick="akQuick('What are the trading rules?')">Rules</button>
-    <button class="ak-quick-btn" onclick="akQuick('How do I pass the challenge?')">Pass Tips</button>
-    <button class="ak-quick-btn" onclick="akQuick('What plans are available?')">Plans</button>
-    <button class="ak-quick-btn" onclick="akQuick('Can I trade news events?')">News OK?</button>
-    <button class="ak-quick-btn" onclick="akQuick('What instruments can I trade?')">Instruments</button>
+  <div id="ak-qs">
+    <button class="ak-q" onclick="akQ('How do payouts work?')">Payouts</button>
+    <button class="ak-q" onclick="akQ('What are the trading rules?')">Rules</button>
+    <button class="ak-q" onclick="akQ('Tips to pass the challenge')">Pass Tips</button>
+    <button class="ak-q" onclick="akQ('What plans are available?')">Plans</button>
+    <button class="ak-q" onclick="akQ('Is news trading allowed?')">News OK?</button>
+    <button class="ak-q" onclick="akQ('What instruments can I trade?')">Instruments</button>
   </div>
-  <div id="ak-chat-input-row">
-    <input id="ak-chat-input" placeholder="Ask anything..." onkeydown="if(event.key==='Enter')akSend()"/>
-    <button id="ak-chat-send" onclick="akSend()">SEND</button>
+  <div id="ak-ir">
+    <input id="ak-inp" placeholder="Ask anything..." onkeydown="if(event.key==='Enter'&&!event.shiftKey)akSend()"/>
+    <button id="ak-btn" onclick="akSend()">SEND</button>
   </div>
 </div>
 
+<!-- Hidden reply injected by Python/Streamlit -->
+<div id="ak-reply-store">{_latest_reply}</div>
+
 <script>
-(function(){
-  const KB = [
-    {q:['payout','withdrawal','money','withdraw','paid'],
-     a:'Payouts are processed within <strong>24 hours</strong>. We support bank transfer and crypto. Submit a payout request from your dashboard once your challenge is passed.'},
-    {q:['rule','rules','limit','loss','daily loss','drawdown'],
-     a:'Key rules:<br>&bull; <strong>Daily Loss</strong>: max 3-5% per day<br>&bull; <strong>Total Loss</strong>: max 6-10%<br>&bull; <strong>Profit Target</strong>: 8-10%<br>No time limit to pass.'},
-    {q:['pass','tip','strategy','how to','advice'],
-     a:'Tips to pass:<br>1. Risk max 0.5-1% per trade<br>2. Trade with the trend<br>3. Avoid overleveraging<br>4. Stick to one session<br>5. Journal every trade.'},
-    {q:['plan','program','account','size','instant','one-step','two-step'],
-     a:'Our 3 plans:<br>&bull; <strong>Instant Funded</strong> - No evaluation, 70-75% split<br>&bull; <strong>One-Step</strong> - Single target, 80% split<br>&bull; <strong>Two-Step</strong> - Two phases, 90% split'},
-    {q:['news','nfp','fomc','cpi','event','economic'],
-     a:'<strong>Yes! News trading is allowed.</strong> You can trade during NFP, FOMC, CPI and all major economic events. No news restrictions.'},
-    {q:['instrument','symbol','forex','gold','xauusd','oil','trade what'],
-     a:'Available:<br>&bull; Forex (EURUSD, GBPUSD, USDJPY...)<br>&bull; Gold (XAUUSD)<br>&bull; Silver (XAGUSD)<br>&bull; WTI Oil (USOIL)<br>&bull; Brent (UKOIL)<br>&bull; Natural Gas'},
-    {q:['overnight','weekend','hold','swap'],
-     a:'<strong>Overnight and weekend holding is fully allowed</strong> on all plans. No restrictions.'},
-    {q:['time','deadline','expire','minimum days'],
-     a:'<strong>No time limit</strong> to pass any challenge. Trade at your own pace. Some plans require a minimum of 5 trading days.'},
-    {q:['scale','scaling','bigger','more capital'],
-     a:'Once funded and consistently profitable, you can scale up to <strong>$2,000,000</strong>. Contact support once you hit the scaling criteria.'},
-    {q:['refund','reset','restart','breach'],
-     a:'Challenge fees are non-refundable. After a breach you can start fresh anytime. Promotional resets may be available - check the plans page.'},
-    {q:['start','begin','sign up','register','how'],
-     a:'Getting started:<br>1. Create an account<br>2. Choose a plan<br>3. Pay one-time fee<br>4. Start trading immediately!'},
-    {q:['split','percentage','profit','earnings','cut'],
-     a:'Profit splits:<br>&bull; Instant: <strong>70-75%</strong><br>&bull; One-Step: <strong>80%</strong><br>&bull; Two-Step: <strong>90%</strong>'},
-  ];
+(function(){{
+  const REPLY_ID = 'ak-reply-store';
+  let lastReply = '';
+  let waiting = false;
 
-  function akReply(msg){
-    const m=msg.toLowerCase();
-    for(const e of KB){ if(e.q.some(k=>m.includes(k))) return e.a; }
-    if(m.includes('hello')||m.includes('hi')||m.includes('hey')) return 'Hey! How can I help you today?';
-    if(m.includes('thank')) return 'Happy to help! Good luck with your trading! 🏆';
-    return 'I may not have a direct answer for that. Try asking about: payouts, rules, plans, instruments, or news trading. Or contact our support team!';
-  }
+  function akToggle(){{
+    const w=document.getElementById('ak-win');
+    const b=document.getElementById('ak-fab');
+    const open=w.classList.toggle('is-open');
+    b.classList.toggle('is-open');
+    b.innerHTML=open?'&#x2715;':'&#x1F4AC;';
+    if(open) setTimeout(()=>document.getElementById('ak-inp').focus(),120);
+  }}
 
-  window.akToggleChat=function(){
-    const w=document.getElementById('ak-chat-window');
-    const b=document.getElementById('ak-chat-btn');
-    const open=w.classList.contains('open');
-    w.classList.toggle('open'); b.classList.toggle('open');
-    b.innerHTML=open?'&#x1F4AC;':'&#x2715;';
-    if(!open) setTimeout(()=>document.getElementById('ak-chat-input').focus(),100);
-  };
-
-  function akAdd(text,role){
-    const d=document.getElementById('ak-chat-msgs');
+  function addMsg(text,cls){{
+    const d=document.getElementById('ak-msgs');
     const el=document.createElement('div');
-    el.className='ak-msg '+role; el.innerHTML=text;
-    d.appendChild(el); d.scrollTop=d.scrollHeight; return el;
-  }
+    el.className='ak-m '+cls;
+    el.innerHTML=text;
+    d.appendChild(el);
+    d.scrollTop=d.scrollHeight;
+    return el;
+  }}
 
-  window.akSend=function(){
-    const inp=document.getElementById('ak-chat-input');
-    const t=inp.value.trim(); if(!t) return;
-    inp.value=''; akAdd(t,'user');
-    const typing=akAdd('Thinking...','bot typing');
-    setTimeout(()=>{ typing.remove();
-      akAdd(akReply(t),'bot'); },650+Math.random()*350);
-  };
+  function akSend(){{
+    if(waiting) return;
+    const inp=document.getElementById('ak-inp');
+    const txt=inp.value.trim();
+    if(!txt) return;
+    inp.value='';
+    addMsg(txt,'u');
+    waiting=true;
+    document.getElementById('ak-btn').disabled=true;
+    const typing=addMsg('&#x2022;&#x2022;&#x2022;','b t');
 
-  window.akQuick=function(q){
-    document.getElementById('ak-chat-input').value=q; akSend();
-  };
-})();
+    // Send to Streamlit via hidden text input simulation
+    // We inject into the hidden Streamlit text_input for _chatbot_query
+    // by dispatching an input event on the stTextInput element
+    const allInputs=window.parent.document.querySelectorAll('input[type=text],input[aria-label="_chatbot_query_hidden"]');
+    let targetInput=null;
+    allInputs.forEach(el=>{{
+      if(el.closest('[data-testid="stTextInput"]') &&
+         (el.getAttribute('aria-label')||'').includes('_chatbot_query')) targetInput=el;
+    }});
+    if(targetInput){{
+      const nativeInputValueSetter=Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,'value').set;
+      nativeInputValueSetter.call(targetInput,txt);
+      targetInput.dispatchEvent(new Event('input',{{bubbles:true}}));
+      setTimeout(()=>targetInput.dispatchEvent(new KeyboardEvent('keydown',{{key:'Enter',bubbles:true}})),100);
+    }}
+
+    // Poll for reply update
+    let polls=0;
+    const poll=setInterval(()=>{{
+      const store=document.getElementById(REPLY_ID);
+      if(store){{
+        const current=store.textContent.trim();
+        if(current && current!==lastReply){{
+          clearInterval(poll);
+          lastReply=current;
+          typing.remove();
+          addMsg(current,'b');
+          waiting=false;
+          document.getElementById('ak-btn').disabled=false;
+        }}
+      }}
+      polls++;
+      if(polls>120){{ // 30s timeout
+        clearInterval(poll);
+        typing.remove();
+        addMsg('Please try again — Groq is taking a moment.','b');
+        waiting=false;
+        document.getElementById('ak-btn').disabled=false;
+      }}
+    }},250);
+  }}
+
+  window.akToggle=akToggle;
+  window.akQ=function(q){{
+    document.getElementById('ak-inp').value=q;
+    akSend();
+  }};
+
+  // Init last reply
+  const store=document.getElementById(REPLY_ID);
+  if(store) lastReply=store.textContent.trim();
+}})();
 </script>
 """,
     unsafe_allow_html=True
 )
+
+# Hidden input to receive chatbot query from JS → Groq
+with st.container():
+    _q_val = st.text_input("_chatbot_query_hidden", value="", label_visibility="collapsed", key="_chatbot_query")
+
 
 # ══════════════════════════════════════════════════════════════
 # HOME
@@ -2471,104 +2523,6 @@ if st.session_state.page == "home":
     with c2:
         if st.button("Start Challenge", use_container_width=True): goto("plans")
 
-    st.markdown(
-        '<div class="hstats" style="margin-top:2.5rem;">'
-        '<div class="hstat"><span class="n">$2M+</span><span class="l">Total Payouts</span></div>'
-        '<div class="hstat"><span class="n">3,500+</span><span class="l">Funded Traders</span></div>'
-        '<div class="hstat"><span class="n">180+</span><span class="l">Countries</span></div>'
-        '<div class="hstat"><span class="n">90%</span><span class="l">Profit Split</span></div>'
-        '<div class="hstat"><span class="n">24hr</span><span class="l">Payouts</span></div>'
-        '</div>',
-        unsafe_allow_html=True
-    )
-
-    st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.2rem;letter-spacing:4px;color:var(--text);margin:3rem 0 .5rem;">LIVE INSTRUMENTS</div><div style="width:30px;height:1px;background:var(--cyan);margin-bottom:1.5rem;opacity:.5;box-shadow:0 0 8px var(--cyan);"></div>', unsafe_allow_html=True)
-    render_market_heatmap()
-
-    st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.2rem;letter-spacing:4px;color:var(--text);margin:3.5rem 0 .5rem;">CHOOSE YOUR PROGRAM</div><div style="width:30px;height:1px;background:var(--cyan);margin-bottom:1.5rem;opacity:.5;box-shadow:0 0 8px var(--cyan);"></div>', unsafe_allow_html=True)
-
-    col1, col2, col3 = st.columns(3, gap="small")
-    with col1:
-        st.markdown(
-            '<div style="background:linear-gradient(135deg,rgba(212,168,67,.08),rgba(212,168,67,.02));border:1px solid rgba(212,168,67,.3);padding:2rem;position:relative;">'
-            '<div style="position:absolute;top:.8rem;right:.8rem;background:var(--gold);color:#000;font-size:.52rem;font-weight:700;padding:2px 10px;letter-spacing:1.5px;">INSTANT</div>'
-            '<div style="font-size:.58rem;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem;">INSTANT FUNDED</div>'
-            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(212,168,67,.1);margin-bottom:1.5rem;">'
-            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Daily Loss</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--red);">3%</div></div>'
-            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Max Loss</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--red);">6%</div></div>'
-            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Challenge</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--green);">NONE</div></div>'
-            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Profit Split</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--gold);">70-75%</div></div>'
-            '</div>'
-            '<div style="font-size:.65rem;color:var(--dim);margin-bottom:.3rem;letter-spacing:1px;">ONE-TIME FEE FROM</div>'
-            '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:2.4rem;color:var(--gold);letter-spacing:2px;">$299</div>'
-            '</div>',
-            unsafe_allow_html=True
-        )
-        if st.button("Get Instant Funded", use_container_width=True, key="h_inst"):
-            st.session_state["selected_phase"] = "instant"; goto("plans")
-
-    with col2:
-        st.markdown(
-            '<div style="background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.25);padding:2rem;position:relative;">'
-            '<div style="font-size:.58rem;color:var(--cyan);letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem;">ONE-STEP</div>'
-            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);margin-bottom:1.5rem;">'
-            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Profit Target</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--green);">8%</div></div>'
-            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Max Loss</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--red);">10%</div></div>'
-            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Daily Loss</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--red);">5%</div></div>'
-            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Profit Split</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--cyan);">80%</div></div>'
-            '</div>'
-            '<div style="font-size:.65rem;color:var(--dim);margin-bottom:.3rem;letter-spacing:1px;">ONE-TIME FEE FROM</div>'
-            '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:2.4rem;color:var(--text);letter-spacing:2px;">$79</div>'
-            '</div>',
-            unsafe_allow_html=True
-        )
-        if st.button("Get One-Step", use_container_width=True, key="h_1p"):
-            st.session_state["selected_phase"] = "one"; goto("plans")
-
-    with col3:
-        st.markdown(
-            '<div style="background:rgba(123,110,246,.05);border:1px solid rgba(123,110,246,.25);padding:2rem;position:relative;">'
-            '<div style="position:absolute;top:.8rem;right:.8rem;background:var(--purple);color:#fff;font-size:.52rem;font-weight:700;padding:2px 8px;letter-spacing:1.5px;">BEST VALUE</div>'
-            '<div style="font-size:.58rem;color:var(--purple);letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem;">TWO-STEP</div>'
-            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);margin-bottom:1.5rem;">'
-            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Phase 1</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--green);">8%</div></div>'
-            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Max Loss</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--red);">10%</div></div>'
-            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Daily Loss</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--red);">5%</div></div>'
-            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Profit Split</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--purple);">90%</div></div>'
-            '</div>'
-            '<div style="font-size:.65rem;color:var(--dim);margin-bottom:.3rem;letter-spacing:1px;">ONE-TIME FEE FROM</div>'
-            '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:2.4rem;color:var(--text);letter-spacing:2px;">$49</div>'
-            '</div>',
-            unsafe_allow_html=True
-        )
-        if st.button("Get Two-Step", use_container_width=True, key="h_2p"):
-            st.session_state["selected_phase"] = "two"; goto("plans")
-
-    st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.2rem;letter-spacing:4px;color:var(--text);margin:3.5rem 0 .5rem;">HOW IT WORKS</div><div style="width:30px;height:1px;background:var(--cyan);margin-bottom:1.5rem;opacity:.5;"></div>', unsafe_allow_html=True)
-    st.markdown(
-        '<div class="steps-grid">'
-        '<div class="step-card"><div class="step-num">01</div><div class="step-title">Choose a Plan</div><div class="step-desc">Instant Funded, One-Step, or Two-Step. Accounts from $5K to $100K.</div></div>'
-        '<div class="step-card"><div class="step-num">02</div><div class="step-title">Pass the Evaluation</div><div class="step-desc">Hit the profit target while respecting strict drawdown rules.</div></div>'
-        '<div class="step-card"><div class="step-num">03</div><div class="step-title">Get Funded</div><div class="step-desc">Complete verification and receive your funded account. 24-hour payouts.</div></div>'
-        '<div class="step-card"><div class="step-num">04</div><div class="step-title">Scale Up</div><div class="step-desc">Keep up to 90% of profits. Scale to $2,000,000 with consistent performance.</div></div>'
-        '</div>',
-        unsafe_allow_html=True
-    )
-
-    st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.2rem;letter-spacing:4px;color:var(--text);margin:2.5rem 0 .5rem;">FUNDED TRADERS</div><div style="width:30px;height:1px;background:var(--cyan);margin-bottom:1.5rem;opacity:.5;"></div>', unsafe_allow_html=True)
-    st.markdown(
-        '<div class="testi-grid">'
-        '<div class="testi-card"><div class="testi-quote">Passed the $50K One-Step on XAUUSD in 4 days. The rules are clear and the platform is rock solid.</div><div class="testi-name">Rahul S.</div><div class="testi-meta">$50K Funded &nbsp;|&nbsp; +$4,000 payout &nbsp;|&nbsp; One-Step</div></div>'
-        '<div class="testi-card"><div class="testi-quote">Two-Step gave me 90% profit split at an affordable entry. Already on my third funded account.</div><div class="testi-name">Priya M.</div><div class="testi-meta">$25K Funded &nbsp;|&nbsp; +$2,250 payout &nbsp;|&nbsp; Two-Step</div></div>'
-        '<div class="testi-card"><div class="testi-quote">Instant Funded is worth every rupee. Got funded same day and started trading USOIL immediately.</div><div class="testi-name">Kiran T.</div><div class="testi-meta">$25K Instant Funded &nbsp;|&nbsp; 3 accounts completed</div></div>'
-        '</div>',
-        unsafe_allow_html=True
-    )
-
-    c1,c2,c3 = st.columns([2,1,2])
-    with c2:
-        if st.button("Start Now", use_container_width=True, key="cta2"): goto("plans")
-
     # ── 3D SECTION 1: Rotating Globe / Sphere with trader nodes ──
     st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.2rem;letter-spacing:4px;color:var(--text);margin:3.5rem 0 .5rem;">GLOBAL TRADING NETWORK</div><div style="width:30px;height:1px;background:var(--cyan);margin-bottom:1.5rem;opacity:.5;box-shadow:0 0 8px var(--cyan);"></div>', unsafe_allow_html=True)
     st.components.v1.html("""
@@ -2585,10 +2539,10 @@ if st.session_state.page == "home":
 <div id="globe-wrap">
   <canvas id="globeCanvas" width="340" height="340"></canvas>
   <div class="globe-stats">
-    <div class="gstat"><div class="gstat-val">3,500+</div><div class="gstat-lbl">Active Traders Worldwide</div></div>
-    <div class="gstat"><div class="gstat-val g">$2M+</div><div class="gstat-lbl">Total Payouts Processed</div></div>
-    <div class="gstat"><div class="gstat-val o">180+</div><div class="gstat-lbl">Countries Represented</div></div>
     <div class="gstat"><div class="gstat-val">24hr</div><div class="gstat-lbl">Average Payout Time</div></div>
+    <div class="gstat"><div class="gstat-val g">90%</div><div class="gstat-lbl">Max Profit Split</div></div>
+    <div class="gstat"><div class="gstat-val o">$100K</div><div class="gstat-lbl">Max Account Size</div></div>
+    <div class="gstat"><div class="gstat-val">0</div><div class="gstat-lbl">Time Limit to Pass</div></div>
   </div>
 </div>
 <script>
@@ -2692,6 +2646,91 @@ if st.session_state.page == "home":
 })();
 </script>
 """, height=380)
+
+
+    st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.2rem;letter-spacing:4px;color:var(--text);margin:3.5rem 0 .5rem;">CHOOSE YOUR PROGRAM</div><div style="width:30px;height:1px;background:var(--cyan);margin-bottom:1.5rem;opacity:.5;box-shadow:0 0 8px var(--cyan);"></div>', unsafe_allow_html=True)
+
+    col1, col2, col3 = st.columns(3, gap="small")
+    with col1:
+        st.markdown(
+            '<div style="background:linear-gradient(135deg,rgba(212,168,67,.08),rgba(212,168,67,.02));border:1px solid rgba(212,168,67,.3);padding:2rem;position:relative;">'
+            '<div style="position:absolute;top:.8rem;right:.8rem;background:var(--gold);color:#000;font-size:.52rem;font-weight:700;padding:2px 10px;letter-spacing:1.5px;">INSTANT</div>'
+            '<div style="font-size:.58rem;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem;">INSTANT FUNDED</div>'
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(212,168,67,.1);margin-bottom:1.5rem;">'
+            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Daily Loss</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--red);">3%</div></div>'
+            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Max Loss</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--red);">6%</div></div>'
+            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Challenge</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--green);">NONE</div></div>'
+            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Profit Split</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--gold);">70-75%</div></div>'
+            '</div>'
+            '<div style="font-size:.65rem;color:var(--dim);margin-bottom:.3rem;letter-spacing:1px;">ONE-TIME FEE FROM</div>'
+            '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:2.4rem;color:var(--gold);letter-spacing:2px;">$299</div>'
+            '</div>',
+            unsafe_allow_html=True
+        )
+        if st.button("Get Instant Funded", use_container_width=True, key="h_inst"):
+            st.session_state["selected_phase"] = "instant"; goto("plans")
+
+    with col2:
+        st.markdown(
+            '<div style="background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.25);padding:2rem;position:relative;">'
+            '<div style="font-size:.58rem;color:var(--cyan);letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem;">ONE-STEP</div>'
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);margin-bottom:1.5rem;">'
+            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Profit Target</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--green);">8%</div></div>'
+            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Max Loss</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--red);">10%</div></div>'
+            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Daily Loss</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--red);">5%</div></div>'
+            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Profit Split</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--cyan);">80%</div></div>'
+            '</div>'
+            '<div style="font-size:.65rem;color:var(--dim);margin-bottom:.3rem;letter-spacing:1px;">ONE-TIME FEE FROM</div>'
+            '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:2.4rem;color:var(--text);letter-spacing:2px;">$79</div>'
+            '</div>',
+            unsafe_allow_html=True
+        )
+        if st.button("Get One-Step", use_container_width=True, key="h_1p"):
+            st.session_state["selected_phase"] = "one"; goto("plans")
+
+    with col3:
+        st.markdown(
+            '<div style="background:rgba(123,110,246,.05);border:1px solid rgba(123,110,246,.25);padding:2rem;position:relative;">'
+            '<div style="position:absolute;top:.8rem;right:.8rem;background:var(--purple);color:#fff;font-size:.52rem;font-weight:700;padding:2px 8px;letter-spacing:1.5px;">BEST VALUE</div>'
+            '<div style="font-size:.58rem;color:var(--purple);letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem;">TWO-STEP</div>'
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);margin-bottom:1.5rem;">'
+            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Phase 1</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--green);">8%</div></div>'
+            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Max Loss</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--red);">10%</div></div>'
+            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Daily Loss</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--red);">5%</div></div>'
+            '<div style="background:var(--s2);padding:.8rem;"><div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Profit Split</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--purple);">90%</div></div>'
+            '</div>'
+            '<div style="font-size:.65rem;color:var(--dim);margin-bottom:.3rem;letter-spacing:1px;">ONE-TIME FEE FROM</div>'
+            '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:2.4rem;color:var(--text);letter-spacing:2px;">$49</div>'
+            '</div>',
+            unsafe_allow_html=True
+        )
+        if st.button("Get Two-Step", use_container_width=True, key="h_2p"):
+            st.session_state["selected_phase"] = "two"; goto("plans")
+
+    st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.2rem;letter-spacing:4px;color:var(--text);margin:3rem 0 .5rem;">LIVE INSTRUMENTS</div><div style="width:30px;height:1px;background:var(--cyan);margin-bottom:1.5rem;opacity:.5;box-shadow:0 0 8px var(--cyan);"></div>', unsafe_allow_html=True)
+    render_market_heatmap()
+
+    st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.2rem;letter-spacing:4px;color:var(--text);margin:3.5rem 0 .5rem;">HOW IT WORKS</div><div style="width:30px;height:1px;background:var(--cyan);margin-bottom:1.5rem;opacity:.5;"></div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="steps-grid">'
+        '<div class="step-card"><div class="step-num">01</div><div class="step-title">Choose a Plan</div><div class="step-desc">Instant Funded, One-Step, or Two-Step. Accounts from $5K to $100K.</div></div>'
+        '<div class="step-card"><div class="step-num">02</div><div class="step-title">Pass the Evaluation</div><div class="step-desc">Hit the profit target while respecting strict drawdown rules.</div></div>'
+        '<div class="step-card"><div class="step-num">03</div><div class="step-title">Get Funded</div><div class="step-desc">Complete verification and receive your funded account. 24-hour payouts.</div></div>'
+        '<div class="step-card"><div class="step-num">04</div><div class="step-title">Scale Up</div><div class="step-desc">Keep up to 90% of profits. Scale to $2,000,000 with consistent performance.</div></div>'
+        '</div>',
+        unsafe_allow_html=True
+    )
+
+    st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.2rem;letter-spacing:4px;color:var(--text);margin:2.5rem 0 .5rem;">FUNDED TRADERS</div><div style="width:30px;height:1px;background:var(--cyan);margin-bottom:1.5rem;opacity:.5;"></div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="testi-grid">'
+        '<div class="testi-card"><div class="testi-quote">Passed the $50K One-Step on XAUUSD in 4 days. The rules are clear and the platform is rock solid.</div><div class="testi-name">Rahul S.</div><div class="testi-meta">$50K Funded &nbsp;|&nbsp; +$4,000 payout &nbsp;|&nbsp; One-Step</div></div>'
+        '<div class="testi-card"><div class="testi-quote">Two-Step gave me 90% profit split at an affordable entry. Already on my third funded account.</div><div class="testi-name">Priya M.</div><div class="testi-meta">$25K Funded &nbsp;|&nbsp; +$2,250 payout &nbsp;|&nbsp; Two-Step</div></div>'
+        '<div class="testi-card"><div class="testi-quote">Instant Funded is worth every rupee. Got funded same day and started trading USOIL immediately.</div><div class="testi-name">Kiran T.</div><div class="testi-meta">$25K Instant Funded &nbsp;|&nbsp; 3 accounts completed</div></div>'
+        '</div>',
+        unsafe_allow_html=True
+    )
+
 
 
     # ── 3D SECTION 3: 3D Feature Cards with perspective tilt ──
@@ -2852,131 +2891,6 @@ document.querySelectorAll('.card-orb').forEach((cv,idx)=>{
 </script>
 """, height=460)
 
-    # ── 3D SECTION 4: Animated 3D Price Candlestick Visualization ──
-    st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.2rem;letter-spacing:4px;color:var(--text);margin:3rem 0 .5rem;">XAUUSD — PRICE ACTION</div><div style="width:30px;height:1px;background:var(--cyan);margin-bottom:1.5rem;opacity:.5;box-shadow:0 0 8px var(--cyan);"></div>', unsafe_allow_html=True)
-    st.components.v1.html("""
-<style>
-  #candle-wrap { background:#080808; border:1px solid #1e1e1e; padding:1.2rem 1.5rem; position:relative; }
-  .candle-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; }
-  .candle-sym { font-family:'Courier New',monospace; font-size:1.1rem; font-weight:700; color:#D8D8D8; letter-spacing:3px; }
-  .candle-price { font-family:'Courier New',monospace; font-size:1.6rem; font-weight:700; color:#00B87A; }
-  .candle-chg { font-size:.72rem; color:#00B87A; letter-spacing:1px; margin-top:2px; }
-  .candle-info { display:flex; gap:2rem; }
-  .ci { font-size:.6rem; color:#505050; letter-spacing:1.5px; text-transform:uppercase; }
-  .ci span { display:block; font-family:'Courier New',monospace; color:#D8D8D8; font-size:.8rem; margin-top:2px; }
-  #candleCanvas { display:block; width:100%; }
-</style>
-<div id="candle-wrap">
-  <div class="candle-header">
-    <div>
-      <div class="candle-sym">XAUUSD <span style="font-size:.6rem;color:#505050;letter-spacing:2px;">GOLD / USD</span></div>
-      <div class="candle-price" id="cp">$2,345.80</div>
-      <div class="candle-chg" id="cc">▲ +0.42% today</div>
-    </div>
-    <div class="candle-info">
-      <div class="ci">Open<span>2,336.40</span></div>
-      <div class="ci">High<span id="ch">2,351.20</span></div>
-      <div class="ci">Low<span id="cl">2,330.90</span></div>
-      <div class="ci">Volume<span>HIGH</span></div>
-    </div>
-  </div>
-  <canvas id="candleCanvas" width="900" height="220"></canvas>
-</div>
-<script>
-(function(){
-  const canvas=document.getElementById('candleCanvas');
-  const ctx=canvas.getContext('2d');
-  canvas.width=canvas.parentElement.clientWidth-50||860;
-  const W=canvas.width, H=canvas.height;
-
-  // Generate OHLC data
-  function genCandles(n,start){
-    const out=[]; let p=start;
-    for(let i=0;i<n;i++){
-      const open=p;
-      const close=open+(Math.random()-0.45)*12;
-      const high=Math.max(open,close)+Math.random()*6;
-      const low=Math.min(open,close)-Math.random()*6;
-      out.push({open,high,low,close});
-      p=close;
-    }
-    return out;
-  }
-  let candles=genCandles(40,2320);
-  let tickTimer=0;
-
-  const minP=Math.min(...candles.map(c=>c.low))*0.9995;
-  const maxP=Math.max(...candles.map(c=>c.high))*1.0005;
-  const cw=Math.floor((W-30)/candles.length)-2;
-
-  function toY(v){ return H-8-((v-minP)/(maxP-minP))*(H-20); }
-
-  let frame=0;
-  function draw(){
-    ctx.clearRect(0,0,W,H);
-
-    // Grid
-    ctx.strokeStyle='rgba(255,255,255,0.04)'; ctx.lineWidth=0.5;
-    for(let i=0;i<5;i++){
-      const y=8+i*((H-16)/4);
-      ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke();
-    }
-
-    candles.forEach((c,i)=>{
-      const x=15+i*(cw+2);
-      const bull=c.close>=c.open;
-      const col=bull?'#00B87A':'#E03A52';
-      const bodyTop=toY(Math.max(c.open,c.close));
-      const bodyBot=toY(Math.min(c.open,c.close));
-      const bodyH=Math.max(bodyBot-bodyTop,1);
-
-      // 3D depth shadow
-      ctx.fillStyle=bull?'rgba(0,100,60,0.4)':'rgba(150,30,40,0.4)';
-      ctx.fillRect(x+2,bodyTop+2,cw,bodyH);
-
-      // Wick
-      ctx.strokeStyle=col+'99'; ctx.lineWidth=1;
-      ctx.beginPath();
-      ctx.moveTo(x+cw/2,toY(c.high));
-      ctx.lineTo(x+cw/2,toY(c.low));
-      ctx.stroke();
-
-      // Body
-      const grad=ctx.createLinearGradient(x,bodyTop,x+cw,bodyTop);
-      grad.addColorStop(0,bull?'rgba(0,184,122,0.9)':'rgba(224,58,82,0.9)');
-      grad.addColorStop(1,bull?'rgba(0,120,80,0.7)':'rgba(160,30,50,0.7)');
-      ctx.fillStyle=grad;
-      ctx.fillRect(x,bodyTop,cw,bodyH);
-
-      // Highlight (3D sheen)
-      ctx.fillStyle='rgba(255,255,255,0.08)';
-      ctx.fillRect(x,bodyTop,cw/3,bodyH);
-    });
-
-    // Animate: add a new candle every ~90 frames
-    frame++;
-    if(frame%90===0){
-      const last=candles[candles.length-1];
-      const nc={
-        open:last.close,
-        close:last.close+(Math.random()-0.45)*10,
-      };
-      nc.high=Math.max(nc.open,nc.close)+Math.random()*5;
-      nc.low=Math.min(nc.open,nc.close)-Math.random()*5;
-      candles.shift(); candles.push(nc);
-      document.getElementById('cp').textContent='$'+nc.close.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
-      const chgPct=((nc.close-candles[0].open)/candles[0].open*100).toFixed(2);
-      const cel=document.getElementById('cc');
-      cel.textContent=(chgPct>=0?'▲ +':'▼ ')+chgPct+'% today';
-      cel.style.color=chgPct>=0?'#00B87A':'#E03A52';
-    }
-
-    requestAnimationFrame(draw);
-  }
-  draw();
-})();
-</script>
-""", height=310)
 
 
     # ── CHALLENGE CALCULATOR ─────────────────────────────────
