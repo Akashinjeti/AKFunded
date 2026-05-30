@@ -2602,6 +2602,82 @@ if st.session_state.page == "home":
     requestAnimationFrame(drawGlobe);
   }}
   drawGlobe();
+
+  // ── GLB model rendered via Three.js in center ──
+  const glbB64="{glb_b64}";
+  const glbBytes=Uint8Array.from(atob(glbB64),c=>c.charCodeAt(0));
+  const glbBlob=new Blob([glbBytes],{{type:"model/gltf-binary"}});
+  const glbUrl=URL.createObjectURL(glbBlob);
+
+  const THREE_CDN="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js";
+  const s=document.createElement("script"); s.src=THREE_CDN;
+  s.onload=function(){{
+    const GLTFScript=document.createElement("script");
+    GLTFScript.src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js";
+    GLTFScript.onload=function(){{
+      const glbCv=document.getElementById("gn-glb");
+      glbCv.width=260; glbCv.height=260;
+      const renderer=new THREE.WebGLRenderer({{canvas:glbCv,alpha:true,antialias:true}});
+      renderer.setSize(260,260);
+      renderer.setClearColor(0x000000,0);
+      renderer.setPixelRatio(window.devicePixelRatio||1);
+      renderer.toneMapping=THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure=0.35;
+      const scene=new THREE.Scene();
+      const camera=new THREE.PerspectiveCamera(45,1,0.1,100);
+      camera.position.set(0,0,4);
+      // very dim cyan ambient
+      const ambient=new THREE.AmbientLight(0x00D4FF,0.18);
+      scene.add(ambient);
+      const dirL=new THREE.DirectionalLight(0x00D4FF,0.25);
+      dirL.position.set(2,3,2);
+      scene.add(dirL);
+      const dirL2=new THREE.DirectionalLight(0x00B87A,0.12);
+      dirL2.position.set(-2,-1,1);
+      scene.add(dirL2);
+      const loader=new THREE.GLTFLoader();
+      loader.load(glbUrl,function(gltf){{
+        const model=gltf.scene;
+        // center & scale
+        const box=new THREE.Box3().setFromObject(model);
+        const size=box.getSize(new THREE.Vector3());
+        const maxDim=Math.max(size.x,size.y,size.z);
+        model.scale.setScalar(2.2/maxDim);
+        const center=box.getCenter(new THREE.Vector3());
+        model.position.set(-center.x*(2.2/maxDim),-center.y*(2.2/maxDim),-center.z*(2.2/maxDim));
+        // make all materials very dim/dark
+        model.traverse(child=>{{
+          if(child.isMesh && child.material){{
+            const mats=Array.isArray(child.material)?child.material:[child.material];
+            mats.forEach(m=>{{
+              m.transparent=true; m.opacity=0.28;
+              if(m.color) m.color.setHex(0x00D4FF);
+              m.emissive=new THREE.Color(0x001a22);
+              m.emissiveIntensity=0.08;
+            }});
+          }}
+        }});
+        scene.add(model);
+        let rot=0;
+        function animGLB(){{
+          rot+=0.004;
+          model.rotation.y=rot;
+          model.rotation.x=Math.sin(rot*0.3)*0.15;
+          renderer.render(scene,camera);
+          requestAnimationFrame(animGLB);
+        }}
+        animGLB();
+      }},undefined,function(err){{console.warn("GLB load err",err);}});
+    }};
+    document.head.appendChild(GLTFScript);
+  }};
+  document.head.appendChild(s);
+}})();
+</script>
+""", height=450)
+
+
+
     st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.2rem;letter-spacing:4px;color:var(--text);margin:3.5rem 0 .5rem;">CHOOSE YOUR PROGRAM</div><div style="width:30px;height:1px;background:var(--cyan);margin-bottom:1.5rem;opacity:.5;box-shadow:0 0 8px var(--cyan);"></div>', unsafe_allow_html=True)
 
     col1, col2, col3 = st.columns(3, gap="small")
