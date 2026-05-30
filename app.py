@@ -584,6 +584,9 @@ body::after {
 .testi-name { font-weight:700;font-size:.8rem;color:var(--cyan);letter-spacing:.5px; }
 .testi-meta { font-size:.68rem;color:var(--dim);margin-top:3px; }
 
+.xp-bar { height:6px; background:var(--border3); border-radius:2px; overflow:hidden; }
+.xp-fill { height:100%; background:linear-gradient(90deg,var(--cyan),var(--green)); border-radius:2px; }
+.badge-locked { opacity:.22 !important; }
 .ak-footer {
   text-align:center;
   padding:2.5rem 0 1.5rem;
@@ -755,6 +758,7 @@ RULES = {
 for k, v in [
     ("user",None),("page","home"),("notifications",[]),
     ("chat_history",[]),("watchlist",["XAUUSD","EURUSD","GBPUSD","USOIL"]),
+    ("xp_points", 0), ("badges_earned", []),
 ]:
     if k not in st.session_state:
         st.session_state[k] = v
@@ -2801,6 +2805,95 @@ document.querySelectorAll('.card-orb').forEach((cv,idx)=>{
 </script>
 """, height=310)
 
+
+    # ── CHALLENGE CALCULATOR ─────────────────────────────────
+    st.markdown(
+        '<div style="font-family:Bebas Neue,sans-serif;font-size:1.2rem;letter-spacing:4px;'
+        'color:var(--text);margin:3.5rem 0 .5rem;">PROFIT CHALLENGE CALCULATOR</div>'
+        '<div style="width:30px;height:1px;background:var(--cyan);margin-bottom:1.5rem;'
+        'opacity:.5;box-shadow:0 0 8px var(--cyan);"></div>',
+        unsafe_allow_html=True
+    )
+    cc1, cc2, cc3 = st.columns(3, gap="small")
+    with cc1:
+        calc_size = st.selectbox("Account Size", [5000,10000,25000,50000,100000],
+                                  format_func=lambda x: f"${x:,}", key="calc_sz")
+        calc_plan = st.selectbox("Plan",
+                                  ["Two-Step (90%)", "One-Step (80%)", "Instant (75%)"],
+                                  key="calc_plan")
+    with cc2:
+        calc_pct  = st.slider("Profit Target %", 1.0, 20.0, 8.0, 0.5, key="calc_pct")
+        calc_days = st.slider("Trading Days", 1, 30, 10, key="calc_days")
+    with cc3:
+        split_map  = {"Two-Step (90%)": 0.90, "One-Step (80%)": 0.80, "Instant (75%)": 0.75}
+        fee_map    = {"Two-Step (90%)": 49,   "One-Step (80%)": 79,   "Instant (75%)": 299}
+        split      = split_map[calc_plan]
+        gross_pnl  = calc_size * (calc_pct / 100)
+        net_payout = gross_pnl * split
+        daily_avg  = gross_pnl / max(calc_days, 1)
+        fee        = fee_map[calc_plan]
+        roi_fee    = (net_payout / fee) * 100
+        st.markdown(
+            f'<div style="background:var(--s1);border:1px solid rgba(0,212,255,.15);'
+            f'border-left:2px solid var(--cyan);padding:1.5rem;">'
+            f'<div style="font-size:.52rem;color:var(--dim);letter-spacing:2.5px;'
+            f'text-transform:uppercase;margin-bottom:1rem;">Estimated Returns</div>'
+            f'<div style="margin-bottom:.8rem;">'
+            f'<div style="font-size:.55rem;color:var(--dim);">Gross Profit</div>'
+            f'<div style="font-size:1.8rem;font-family:Bebas Neue,sans-serif;'
+            f'color:var(--green);letter-spacing:2px;">${gross_pnl:,.0f}</div></div>'
+            f'<div style="margin-bottom:.8rem;">'
+            f'<div style="font-size:.55rem;color:var(--dim);">Your Payout ({int(split*100)}% split)</div>'
+            f'<div style="font-size:1.8rem;font-family:Bebas Neue,sans-serif;'
+            f'color:var(--cyan);letter-spacing:2px;">${net_payout:,.0f}</div></div>'
+            f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;'
+            f'background:var(--border);margin-top:1rem;">'
+            f'<div style="background:var(--s2);padding:.7rem;">'
+            f'<div style="font-size:.52rem;color:var(--dim);">Daily Avg</div>'
+            f'<div style="font-size:1.2rem;font-family:Bebas Neue,sans-serif;'
+            f'color:var(--gold);">${daily_avg:,.0f}</div></div>'
+            f'<div style="background:var(--s2);padding:.7rem;">'
+            f'<div style="font-size:.52rem;color:var(--dim);">ROI on Fee</div>'
+            f'<div style="font-size:1.2rem;font-family:Bebas Neue,sans-serif;'
+            f'color:var(--green);">{roi_fee:.0f}%</div></div>'
+            f'</div></div>',
+            unsafe_allow_html=True
+        )
+
+    # ── FAQ ──────────────────────────────────────────────────
+    st.markdown(
+        '<div style="font-family:Bebas Neue,sans-serif;font-size:1.2rem;letter-spacing:4px;'
+        'color:var(--text);margin:3.5rem 0 .5rem;">FREQUENTLY ASKED QUESTIONS</div>'
+        '<div style="width:30px;height:1px;background:var(--cyan);margin-bottom:1.5rem;'
+        'opacity:.5;box-shadow:0 0 8px var(--cyan);"></div>',
+        unsafe_allow_html=True
+    )
+    faqs = [
+        ("How do payouts work?",
+         "Once you pass your evaluation, submit a payout request. We process within 24 hours via bank transfer or crypto."),
+        ("Can I trade news events?",
+         "Yes. We allow trading during NFP, FOMC, CPI and all major news events. No trading restrictions."),
+        ("What happens if I breach a rule?",
+         "Your account is flagged immediately. You receive a breach email and can restart a new challenge anytime."),
+        ("Is there a time limit to pass?",
+         "No time limit. Trade at your own pace — just respect the daily and total loss rules."),
+        ("Can I hold trades overnight?",
+         "Yes, overnight and weekend holding is permitted on all plans."),
+        ("What instruments can I trade?",
+         "Forex majors/minors, XAUUSD, XAGUSD, WTI Crude Oil, Brent Crude, and Natural Gas."),
+    ]
+    faq_c = st.columns(2, gap="small")
+    for idx_f, (fq, fa) in enumerate(faqs):
+        with faq_c[idx_f % 2]:
+            st.markdown(
+                f'<div style="background:var(--s1);border:1px solid var(--border);'
+                f'border-left:2px solid rgba(0,212,255,.3);padding:1.2rem 1.4rem;margin-bottom:2px;">'
+                f'<div style="font-size:.8rem;font-weight:700;color:var(--text);margin-bottom:.5rem;">{fq}</div>'
+                f'<div style="font-size:.75rem;color:var(--dim);line-height:1.7;">{fa}</div>'
+                f'</div>',
+                unsafe_allow_html=True
+            )
+
     footer()
 
 # ══════════════════════════════════════════════════════════════
@@ -3233,8 +3326,119 @@ elif st.session_state.page == "dashboard":
     else:
         st.markdown('<div style="text-align:center;padding:2.5rem;color:var(--dim);background:var(--s1);border:1px solid var(--border);font-size:.8rem;letter-spacing:.5px;">No trades yet. Execute your first trade above.</div>', unsafe_allow_html=True)
 
+
+    # ── P&L HEATMAP CALENDAR ────────────────────────────────
     st.markdown("<br>", unsafe_allow_html=True)
-    tc1,tc2,tc3,tc4,tc5,tc6 = st.columns(6)
+    st.markdown(
+        '<div style="font-size:.58rem;color:var(--dim);letter-spacing:2.5px;'
+        'text-transform:uppercase;margin-bottom:.8rem;font-weight:600;">P&L Calendar — Last 30 Days</div>',
+        unsafe_allow_html=True
+    )
+    from datetime import date as _dt_date
+    _today = _dt_date.today()
+    _trade_by_day = {}
+    for _t in all_trades:
+        _d = _t.get("closed_at","")[:10]
+        if _d:
+            _trade_by_day[_d] = _trade_by_day.get(_d, 0) + _t.get("pnl", 0)
+    _days_30 = [_today - timedelta(days=_i) for _i in range(29, -1, -1)]
+    _cal_cells = ""
+    for _day in _days_30:
+        _ds = _day.strftime("%Y-%m-%d")
+        _p  = _trade_by_day.get(_ds, None)
+        _lbl = _day.strftime("%d")
+        if _p is None:
+            _bg = "#0d0d0d"; _bord = "#1e1e1e"
+            _txt = '<span style="color:#2a2a2a;font-size:.52rem;">—</span>'
+        elif _p >= 0:
+            _iv = min(_p / max(initial * 0.02, 1), 1.0)
+            _g  = int(100 + _iv * 84)
+            _bg = "rgba(0," + str(_g) + ",80," + str(round(0.08 + _iv * 0.22, 2)) + ")"
+            _bord = "rgba(0,184,122,0.3)"
+            _txt = '<span style="color:#00B87A;font-size:.52rem;">+$' + f'{_p:,.0f}' + '</span>'
+        else:
+            _iv = min(abs(_p) / max(initial * 0.02, 1), 1.0)
+            _bg = "rgba(224,58,82," + str(round(0.08 + _iv * 0.22, 2)) + ")"
+            _bord = "rgba(224,58,82,0.3)"
+            _txt = '<span style="color:#E03A52;font-size:.52rem;">$' + f'{_p:,.0f}' + '</span>'
+        _cal_cells += (
+            '<div style="background:' + _bg + ';border:1px solid ' + _bord + ';'
+            'padding:.5rem .3rem;text-align:center;min-height:52px;">'
+            '<div style="font-size:.44rem;color:#3a3a3a;margin-bottom:3px;">' + _lbl + '</div>'
+            + _txt + '</div>'
+        )
+    st.markdown(
+        '<div style="display:grid;grid-template-columns:repeat(10,1fr);gap:1px;'
+        'background:var(--border);margin-bottom:1.5rem;">' + _cal_cells + '</div>',
+        unsafe_allow_html=True
+    )
+
+    # ── TRADE BREAKDOWN ──────────────────────────────────────
+    _hm1, _hm2 = st.columns(2, gap="small")
+    with _hm1:
+        st.markdown(
+            '<div style="font-size:.58rem;color:var(--dim);letter-spacing:2.5px;'
+            'text-transform:uppercase;margin-bottom:.8rem;font-weight:600;">Symbol Breakdown</div>',
+            unsafe_allow_html=True
+        )
+        _sym_pnl = {}
+        for _t2 in all_trades:
+            _s2 = _t2.get("symbol","?")
+            _sym_pnl[_s2] = _sym_pnl.get(_s2, 0) + _t2.get("pnl", 0)
+        _sorted_syms = sorted(_sym_pnl.items(), key=lambda x: abs(x[1]), reverse=True)[:6]
+        _max_abs = max((abs(_v) for _, _v in _sorted_syms), default=1)
+        for _sn, _sp in _sorted_syms:
+            _bw  = abs(_sp) / _max_abs * 100
+            _sc  = "var(--green)" if _sp >= 0 else "var(--red)"
+            _ss  = "+" if _sp >= 0 else ""
+            st.markdown(
+                f'<div style="display:flex;align-items:center;gap:.8rem;margin-bottom:6px;">'
+                f'<div style="font-weight:700;font-size:.75rem;width:72px;color:var(--text);">{_sn}</div>'
+                f'<div style="flex:1;height:6px;background:var(--border3);border-radius:1px;">'
+                f'<div style="width:{_bw:.1f}%;height:100%;background:{_sc};border-radius:1px;"></div></div>'
+                f'<div style="font-size:.7rem;color:{_sc};width:72px;text-align:right;'
+                f'font-family:JetBrains Mono,monospace;">{_ss}${_sp:,.2f}</div>'
+                f'</div>',
+                unsafe_allow_html=True
+            )
+    with _hm2:
+        st.markdown(
+            '<div style="font-size:.58rem;color:var(--dim);letter-spacing:2.5px;'
+            'text-transform:uppercase;margin-bottom:.8rem;font-weight:600;">Best vs Worst Trades</div>',
+            unsafe_allow_html=True
+        )
+        if all_trades:
+            _sorted_t = sorted(all_trades, key=lambda x: x.get("pnl", 0))
+            for _label, _tlist, _col in [
+                ("BEST",  _sorted_t[-3:][::-1], "var(--green)"),
+                ("WORST", _sorted_t[:3],         "var(--red)")
+            ]:
+                st.markdown(
+                    f'<div style="font-size:.52rem;color:{_col};letter-spacing:2px;'
+                    f'text-transform:uppercase;margin:.5rem 0 4px;">{_label}</div>',
+                    unsafe_allow_html=True
+                )
+                for _t3 in _tlist:
+                    _p3 = _t3.get("pnl", 0)
+                    _ps3 = "+" if _p3 >= 0 else ""
+                    _pc3 = "var(--green)" if _p3 >= 0 else "var(--red)"
+                    st.markdown(
+                        f'<div style="display:flex;justify-content:space-between;background:var(--s1);'
+                        f'border:1px solid var(--border);border-left:2px solid {_pc3};'
+                        f'padding:.5rem 1rem;margin-bottom:1px;">'
+                        f'<span style="font-size:.72rem;font-weight:700;">{_t3.get("symbol","?")} '
+                        f'<span style="color:var(--dim);font-weight:400;">{_t3.get("type","")}</span></span>'
+                        f'<span style="color:{_pc3};font-size:.72rem;font-family:JetBrains Mono,monospace;'
+                        f'font-weight:700;">{_ps3}${_p3:,.2f}</span>'
+                        f'</div>',
+                        unsafe_allow_html=True
+                    )
+        else:
+            st.markdown('<div style="color:var(--dim);font-size:.78rem;padding:1rem;">No trades yet.</div>',
+                        unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    tc1,tc2,tc3,tc4,tc5,tc6,tc7 = st.columns(7)
     with tc1:
         if st.button("AI Coach",     use_container_width=True, key="qt_ai"):   goto("ai_chat")
     with tc2:
@@ -3247,6 +3451,8 @@ elif st.session_state.page == "dashboard":
         if st.button("Markets",      use_container_width=True, key="qt_mkt"):  goto("markets")
     with tc6:
         if st.button("Analytics",    use_container_width=True, key="qt_an"):   goto("analytics")
+    with tc7:
+        if st.button("Daily XP",     use_container_width=True, key="qt_dc"):   goto("daily_challenge")
     footer()
 
 # ══════════════════════════════════════════════════════════════
@@ -3531,6 +3737,122 @@ elif st.session_state.page == "profile":
                 st.session_state.user["name"]=new_name
                 st.success("Profile saved."); time.sleep(1); st.rerun()
             else: st.error("Save failed.")
+
+    # ── ACHIEVEMENTS ─────────────────────────────────────────
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown(
+        '<div style="font-size:.58rem;color:var(--dim);letter-spacing:2.5px;'
+        'text-transform:uppercase;margin-bottom:.8rem;font-weight:600;">Achievements</div>',
+        unsafe_allow_html=True
+    )
+    def _badge_html(icon, title, desc, earned):
+        _op   = "1" if earned else "0.22"
+        _bord = "rgba(0,212,255,.35)" if earned else "var(--border)"
+        _glow = "box-shadow:0 0 18px rgba(0,212,255,.12);" if earned else ""
+        _tag  = '<div style="font-size:.46rem;color:var(--cyan);letter-spacing:2px;margin-top:4px;">EARNED</div>' if earned else \
+                '<div style="font-size:.46rem;color:var(--dim);letter-spacing:2px;margin-top:4px;">LOCKED</div>'
+        return (
+            f'<div style="background:var(--s1);border:1px solid {_bord};{_glow}'
+            f'padding:1rem .8rem;text-align:center;opacity:{_op};">'
+            f'<div style="font-size:1.5rem;margin-bottom:.4rem;">{icon}</div>'
+            f'<div style="font-size:.6rem;font-weight:700;color:var(--text);letter-spacing:1px;">{title}</div>'
+            f'<div style="font-size:.5rem;color:var(--dim);margin-top:3px;line-height:1.4;">{desc}</div>'
+            f'{_tag}</div>'
+        )
+
+    _BADGES = [
+        ("⚡", "First Trade",  "Execute your first trade",       tt >= 1),
+        ("🔥", "Hot Streak",   "Win 3 trades in a row",           win_streak >= 3),
+        ("💰", "In Profit",    "Achieve positive total P&L",      ap > 0 and tt > 0),
+        ("🎯", "Sharp Eye",    "Reach 60%+ win rate (5+ trades)", wr >= 60 and tt >= 5),
+        ("🏆", "Funded",       "Pass an evaluation",              funded_badge),
+        ("💎", "Elite",        "10+ winning trades",              wt >= 10),
+        ("🚀", "Consistent",   "Trade 5+ different days",         days >= 5),
+        ("🌍", "Diversified",  "Trade 3+ instruments",            len(set(_t.get("symbol","") for _t in all_trades)) >= 3),
+    ]
+    _bcols = st.columns(8, gap="small")
+    for _bi, (_icon, _title, _desc, _earned) in enumerate(_BADGES):
+        with _bcols[_bi]:
+            st.markdown(_badge_html(_icon, _title, _desc, _earned), unsafe_allow_html=True)
+
+    # ── TRADING DNA ──────────────────────────────────────────
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown(
+        '<div style="font-size:.58rem;color:var(--dim);letter-spacing:2.5px;'
+        'text-transform:uppercase;margin-bottom:.8rem;font-weight:600;">Trading DNA</div>',
+        unsafe_allow_html=True
+    )
+    _dna1, _dna2, _dna3 = st.columns(3, gap="small")
+    _sym_count = {}
+    for _t4 in all_trades:
+        _sym_count[_t4.get("symbol","?")] = _sym_count.get(_t4.get("symbol","?"), 0) + 1
+    _fav_sym = max(_sym_count, key=_sym_count.get) if _sym_count else "N/A"
+    _buys    = sum(1 for _t4 in all_trades if _t4.get("type") == "BUY")
+    _sells   = sum(1 for _t4 in all_trades if _t4.get("type") == "SELL")
+    _tot_dir = max(_buys + _sells, 1)
+    _buy_pct  = _buys  / _tot_dir * 100
+    _sell_pct = _sells / _tot_dir * 100
+    _best_t  = max(all_trades, key=lambda x: x.get("pnl",0)) if all_trades else {}
+    _worst_t = min(all_trades, key=lambda x: x.get("pnl",0)) if all_trades else {}
+    _score   = min(int(wr*0.5 + (ap/5 if ap>0 else 0) + passed*8), 100)
+
+    with _dna1:
+        st.markdown(
+            f'<div style="background:var(--s1);border:1px solid var(--border);padding:1.2rem;">'
+            f'<div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;'
+            f'text-transform:uppercase;margin-bottom:.8rem;">Direction Bias</div>'
+            f'<div style="display:flex;height:8px;gap:2px;margin-bottom:.6rem;">'
+            f'<div style="width:{_buy_pct:.0f}%;background:var(--green);"></div>'
+            f'<div style="flex:1;background:var(--red);"></div></div>'
+            f'<div style="display:flex;justify-content:space-between;font-size:.65rem;">'
+            f'<span style="color:var(--green);">BUY {_buy_pct:.0f}%</span>'
+            f'<span style="color:var(--red);">SELL {_sell_pct:.0f}%</span></div>'
+            f'<div style="margin-top:1rem;font-size:.52rem;color:var(--dim);'
+            f'text-transform:uppercase;letter-spacing:2px;">Favourite Instrument</div>'
+            f'<div style="font-family:Bebas Neue,sans-serif;font-size:1.5rem;'
+            f'color:var(--cyan);letter-spacing:3px;">{_fav_sym}</div>'
+            f'</div>',
+            unsafe_allow_html=True
+        )
+    with _dna2:
+        _score_col = "var(--green)" if _score >= 50 else "var(--red)"
+        st.markdown(
+            f'<div style="background:var(--s1);border:1px solid var(--border);padding:1.2rem;">'
+            f'<div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;'
+            f'text-transform:uppercase;margin-bottom:.8rem;">Performance Score</div>'
+            f'<div style="font-family:Bebas Neue,sans-serif;font-size:3.2rem;'
+            f'color:{_score_col};letter-spacing:2px;line-height:1;">{_score}</div>'
+            f'<div style="font-size:.52rem;color:var(--dim);margin-top:.2rem;">/ 100 overall score</div>'
+            f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:1rem;">'
+            f'<div style="background:var(--s2);padding:.5rem;text-align:center;">'
+            f'<div style="font-size:.5rem;color:var(--dim);">Win Rate</div>'
+            f'<div style="font-size:.9rem;color:var(--green);font-weight:700;">{wr:.0f}%</div></div>'
+            f'<div style="background:var(--s2);padding:.5rem;text-align:center;">'
+            f'<div style="font-size:.5rem;color:var(--dim);">Challenges Passed</div>'
+            f'<div style="font-size:.9rem;color:var(--cyan);font-weight:700;">{passed}</div></div>'
+            f'</div></div>',
+            unsafe_allow_html=True
+        )
+    with _dna3:
+        _bp = _best_t.get("pnl",0);  _bsym = _best_t.get("symbol","—")
+        _wp = _worst_t.get("pnl",0); _wsym = _worst_t.get("symbol","—")
+        st.markdown(
+            f'<div style="background:var(--s1);border:1px solid var(--border);padding:1.2rem;">'
+            f'<div style="font-size:.52rem;color:var(--dim);letter-spacing:2px;'
+            f'text-transform:uppercase;margin-bottom:.8rem;">Milestone Trades</div>'
+            f'<div style="border-left:2px solid var(--green);padding-left:.8rem;margin-bottom:.9rem;">'
+            f'<div style="font-size:.5rem;color:var(--dim);text-transform:uppercase;">Best Trade</div>'
+            f'<div style="font-weight:700;color:var(--text);font-size:.8rem;">{_bsym}</div>'
+            f'<div style="color:var(--green);font-family:JetBrains Mono,monospace;font-weight:700;">+${_bp:,.2f}</div></div>'
+            f'<div style="border-left:2px solid var(--red);padding-left:.8rem;">'
+            f'<div style="font-size:.5rem;color:var(--dim);text-transform:uppercase;">Worst Trade</div>'
+            f'<div style="font-weight:700;color:var(--text);font-size:.8rem;">{_wsym}</div>'
+            f'<div style="color:var(--red);font-family:JetBrains Mono,monospace;font-weight:700;">${_wp:,.2f}</div></div>'
+            f'</div>',
+            unsafe_allow_html=True
+        )
+
+    st.markdown("<br>", unsafe_allow_html=True)
     c1,c2=st.columns(2)
     with c1:
         if st.button("Sign Out",use_container_width=True,key="profile_logout"):
@@ -3591,6 +3913,121 @@ elif st.session_state.page == "admin":
         cap_str=f"${r['capital']//1000}K"
         st.markdown(f'<div class="admin-row"><div><div style="font-weight:700;color:var(--text);">{r["name"]}</div><div style="font-size:.65rem;color:var(--dim);font-family:\'JetBrains Mono\',monospace;">{r["email"]}</div></div><div style="color:var(--cyan);font-size:.75rem;">{r["plan"].upper()} ({cap_str})</div><div style="font-family:\'JetBrains Mono\',monospace;font-size:.75rem;">${r["balance"]:,.2f}</div><div style="color:{pc};font-family:\'JetBrains Mono\',monospace;font-weight:700;">{ps}{r["pnl_pct"]:.2f}%</div><div style="color:var(--text);">{r["days_traded"]}</div><div class="admin-status {r["status"]}">{r["status"].upper()}</div></div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
+    footer()
+
+
+# ══════════════════════════════════════════════════════════════
+# DAILY CHALLENGE & XP (Gamification)
+# ══════════════════════════════════════════════════════════════
+elif st.session_state.page == "daily_challenge":
+    if not st.session_state.user: goto("auth")
+    nav()
+    _uid_g  = st.session_state.user["id"]
+    _name_g = st.session_state.user.get("name","Trader")
+    _ch_g   = db_get_active_challenge(_uid_g)
+    _acc_g  = db_get_account(_ch_g["id"]) if _ch_g else None
+    _at_g   = db_get_trades(_uid_g, _ch_g["id"] if _ch_g else None, limit=500) if _ch_g else []
+    _wr_g, _ap_g, _bt_g, _wt_g, _tt_g = compute_stats(_at_g)
+    _init_g = float(_acc_g.get("initial_capital",1)) if _acc_g else 100000
+
+    _xp    = _tt_g * 10 + int(_wr_g) * 2 + (_wt_g * 3)
+    _level = _xp // 100 + 1
+    _xp_in = _xp % 100
+
+    sec("Daily Challenge & XP", "Complete tasks. Earn XP. Level up.")
+
+    # XP Bar
+    st.markdown(
+        f'<div style="background:var(--s1);border:1px solid var(--border);padding:1.5rem;margin-bottom:1.5rem;">'
+        f'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem;">'
+        f'<div>'
+        f'<div style="font-family:Bebas Neue,sans-serif;font-size:1.4rem;letter-spacing:4px;color:var(--cyan);">LEVEL {_level}</div>'
+        f'<div style="font-size:.55rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;">{_name_g.upper()} — {_xp} XP total</div>'
+        f'</div>'
+        f'<div style="text-align:right;">'
+        f'<div style="font-size:.52rem;color:var(--dim);text-transform:uppercase;">Next Level</div>'
+        f'<div style="font-family:Bebas Neue,sans-serif;font-size:1.2rem;color:var(--gold);">{100 - _xp_in} XP away</div>'
+        f'</div></div>'
+        f'<div style="height:6px;background:var(--border3);border-radius:2px;overflow:hidden;">'
+        f'<div style="width:{_xp_in}%;height:100%;background:linear-gradient(90deg,var(--cyan),var(--green));'
+        f'box-shadow:0 0 10px rgba(0,212,255,.4);border-radius:2px;"></div></div>'
+        f'<div style="display:flex;justify-content:space-between;font-size:.5rem;color:var(--dim);margin-top:.4rem;">'
+        f'<span>Level {_level}</span><span>{_xp_in}/100 XP</span><span>Level {_level+1}</span>'
+        f'</div></div>',
+        unsafe_allow_html=True
+    )
+
+    # Daily Tasks
+    st.markdown(
+        '<div style="font-size:.58rem;color:var(--dim);letter-spacing:2.5px;'
+        'text-transform:uppercase;margin-bottom:.8rem;font-weight:600;">Daily Challenges</div>',
+        unsafe_allow_html=True
+    )
+    _dl_loss = abs(_acc_g.get("daily_loss", 0)) if _acc_g else 0
+    _tasks = [
+        ("⚡", "Execute 1 Trade",    "+10 XP", _tt_g >= 1,    "var(--cyan)"),
+        ("🎯", "Positive P&L",       "+20 XP", _ap_g > 0,     "var(--green)"),
+        ("🔥", "Win 2 in a Row",     "+15 XP", _wr_g >= 60,   "var(--gold)"),
+        ("📊", "Trade 2 Symbols",    "+10 XP", len(set(_t.get("symbol","") for _t in _at_g)) >= 2, "var(--purple)"),
+        ("💎", "Loss Under 1%",      "+25 XP", _dl_loss < _init_g * 0.01, "var(--cyan)"),
+    ]
+    _tcols = st.columns(5, gap="small")
+    for _ti, (_tic, _ttask, _trew, _tdone, _tcol) in enumerate(_tasks):
+        with _tcols[_ti]:
+            _tbord = _tcol if _tdone else "var(--border)"
+            _tbg   = "rgba(0,212,255,0.05)" if _tdone else "var(--s1)"
+            _tcheck = (
+                '<div style="font-size:.52rem;color:var(--green);letter-spacing:1px;margin-top:5px;">✓ COMPLETE</div>'
+                if _tdone else
+                '<div style="font-size:.52rem;color:var(--dim);letter-spacing:1px;margin-top:5px;">PENDING</div>'
+            )
+            st.markdown(
+                f'<div style="background:{_tbg};border:1px solid {_tbord};padding:1.2rem .8rem;'
+                f'text-align:center;height:100%;">'
+                f'<div style="font-size:1.8rem;margin-bottom:.5rem;">{_tic}</div>'
+                f'<div style="font-size:.65rem;font-weight:700;color:var(--text);line-height:1.3;margin-bottom:.3rem;">{_ttask}</div>'
+                f'<div style="font-family:Bebas Neue,sans-serif;font-size:1rem;color:{_tcol};">{_trew}</div>'
+                f'{_tcheck}</div>',
+                unsafe_allow_html=True
+            )
+
+    # XP History table
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown(
+        '<div style="font-size:.58rem;color:var(--dim);letter-spacing:2.5px;'
+        'text-transform:uppercase;margin-bottom:.8rem;font-weight:600;">XP Breakdown</div>',
+        unsafe_allow_html=True
+    )
+    _xp_rows = [
+        ("Trades Executed",    _tt_g,              "× 10 XP each",  _tt_g * 10),
+        ("Win Rate Bonus",     f"{_wr_g:.0f}%",    "× 2 XP per %",  int(_wr_g) * 2),
+        ("Winning Trades",     _wt_g,              "× 3 XP each",   _wt_g * 3),
+    ]
+    st.markdown(
+        '<div style="background:var(--s1);border:1px solid var(--border);">',
+        unsafe_allow_html=True
+    )
+    for _xr_label, _xr_val, _xr_formula, _xr_pts in _xp_rows:
+        st.markdown(
+            f'<div style="display:flex;align-items:center;justify-content:space-between;'
+            f'padding:.8rem 1.2rem;border-bottom:1px solid var(--border);">'
+            f'<span style="font-size:.78rem;color:var(--text);">{_xr_label}</span>'
+            f'<span style="font-size:.72rem;color:var(--dim);font-family:JetBrains Mono,monospace;">'
+            f'{_xr_val} {_xr_formula}</span>'
+            f'<span style="font-family:Bebas Neue,sans-serif;font-size:1rem;color:var(--gold);">'
+            f'+{_xr_pts} XP</span>'
+            f'</div>',
+            unsafe_allow_html=True
+        )
+    st.markdown(
+        f'<div style="display:flex;align-items:center;justify-content:space-between;'
+        f'padding:.8rem 1.2rem;background:rgba(0,212,255,0.04);">'
+        f'<span style="font-size:.78rem;font-weight:700;color:var(--text);">TOTAL XP</span>'
+        f'<span style="font-family:Bebas Neue,sans-serif;font-size:1.4rem;color:var(--cyan);">'
+        f'{_xp} XP — Level {_level}</span>'
+        f'</div></div>',
+        unsafe_allow_html=True
+    )
     footer()
 
 # ══════════════════════════════════════════════════════════════
