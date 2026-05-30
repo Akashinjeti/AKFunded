@@ -1677,6 +1677,179 @@ def render_signal_scanner():
 def pbar(pct, col):
     return f'<div class="prog"><div class="prog-fill" style="width:{pct:.1f}%;background:{col};box-shadow:0 0 4px {col};"></div></div>'
 
+
+# ─── AI SUPPORT CHATBOT (floating widget — appears on all pages) ──
+st.markdown(
+    r"""
+<style>
+#ak-chat-btn {
+  position:fixed; bottom:28px; right:28px; z-index:99998;
+  width:52px; height:52px; border-radius:50%;
+  background:linear-gradient(135deg,#00D4FF,#00B87A);
+  border:none; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 4px 24px rgba(0,212,255,.35);
+  transition:transform .2s, box-shadow .2s;
+  font-size:1.3rem;
+}
+#ak-chat-btn:hover { transform:scale(1.1); box-shadow:0 6px 32px rgba(0,212,255,.5); }
+#ak-chat-btn.open { background:linear-gradient(135deg,#E03A52,#b02a3f); }
+#ak-chat-window {
+  position:fixed; bottom:92px; right:28px; z-index:99997;
+  width:360px; height:500px;
+  background:#0a0a0a; border:1px solid #1e1e1e;
+  border-radius:4px; display:none; flex-direction:column;
+  overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.7), 0 0 0 1px rgba(0,212,255,.1);
+  font-family:'Rajdhani',sans-serif;
+}
+#ak-chat-window.open { display:flex; }
+#ak-chat-head {
+  background:#050505; border-bottom:1px solid #1a1a1a;
+  padding:.85rem 1rem;
+  display:flex; align-items:center; gap:.7rem; flex-shrink:0;
+}
+.ak-chat-dot { width:6px; height:6px; background:#00B87A; border-radius:50%;
+  box-shadow:0 0 6px #00B87A; animation:chatBlink 2s infinite; }
+@keyframes chatBlink { 0%,100%{opacity:1;} 50%{opacity:.3;} }
+#ak-chat-head-title {
+  font-family:'Bebas Neue',sans-serif; font-size:.95rem;
+  letter-spacing:3px; color:#D8D8D8;
+}
+#ak-chat-head-sub { font-size:.52rem; color:#3a3a3a; letter-spacing:1.5px; text-transform:uppercase; margin-top:1px; }
+#ak-chat-msgs {
+  flex:1; overflow-y:auto; padding:.8rem;
+  display:flex; flex-direction:column; gap:.6rem;
+  scrollbar-width:thin; scrollbar-color:#1e1e1e transparent;
+}
+.ak-msg { max-width:82%; padding:.6rem .9rem;
+  font-size:.75rem; line-height:1.55; letter-spacing:.2px; border-radius:2px; }
+.ak-msg.bot { background:#111; border:1px solid #1e1e1e; border-left:2px solid #00D4FF;
+  color:#D8D8D8; align-self:flex-start; }
+.ak-msg.user { background:rgba(0,212,255,.1); border:1px solid rgba(0,212,255,.2);
+  color:#D8D8D8; align-self:flex-end; text-align:right; }
+.ak-msg.typing { color:#3a3a3a; font-style:italic; }
+#ak-chat-quick { padding:.5rem .8rem; display:flex; flex-wrap:wrap; gap:4px; flex-shrink:0;
+  border-top:1px solid #111; }
+.ak-quick-btn { background:#0d0d0d; border:1px solid #1e1e1e;
+  color:#505050; font-size:.55rem; letter-spacing:1.5px;
+  padding:3px 10px; cursor:pointer; border-radius:2px;
+  transition:border-color .15s, color .15s; font-family:'Rajdhani',sans-serif;
+  text-transform:uppercase; }
+.ak-quick-btn:hover { border-color:rgba(0,212,255,.4); color:#00D4FF; }
+#ak-chat-input-row { display:flex; gap:6px; padding:.6rem .8rem;
+  border-top:1px solid #1a1a1a; flex-shrink:0; background:#050505; }
+#ak-chat-input { flex:1; background:#0d0d0d; border:1px solid #1e1e1e;
+  color:#D8D8D8; font-size:.72rem; padding:.5rem .8rem;
+  outline:none; font-family:'Rajdhani',sans-serif;
+  letter-spacing:.3px; border-radius:2px; }
+#ak-chat-input:focus { border-color:rgba(0,212,255,.35); }
+#ak-chat-input::placeholder { color:#2a2a2a; }
+#ak-chat-send { background:linear-gradient(135deg,#00D4FF,#00B87A);
+  border:none; color:#000; font-size:.65rem; font-weight:700;
+  padding:.5rem .9rem; cursor:pointer; letter-spacing:1.5px;
+  font-family:'Rajdhani',sans-serif; border-radius:2px; }
+</style>
+
+<button id="ak-chat-btn" onclick="akToggleChat()" title="AK Support">&#x1F4AC;</button>
+
+<div id="ak-chat-window">
+  <div id="ak-chat-head">
+    <div class="ak-chat-dot"></div>
+    <div>
+      <div id="ak-chat-head-title">AK SUPPORT</div>
+      <div id="ak-chat-head-sub">AI Assistant &middot; Online 24/7</div>
+    </div>
+    <div style="margin-left:auto;cursor:pointer;color:#3a3a3a;font-size:.8rem;" onclick="akToggleChat()">&#x2715;</div>
+  </div>
+  <div id="ak-chat-msgs">
+    <div class="ak-msg bot">Hey! &#x1F44B; Welcome to <strong>AKFunded</strong>.<br><br>Ask me about challenges, payouts, trading rules, or how to get funded.</div>
+  </div>
+  <div id="ak-chat-quick">
+    <button class="ak-quick-btn" onclick="akQuick('How do payouts work?')">Payouts</button>
+    <button class="ak-quick-btn" onclick="akQuick('What are the trading rules?')">Rules</button>
+    <button class="ak-quick-btn" onclick="akQuick('How do I pass the challenge?')">Pass Tips</button>
+    <button class="ak-quick-btn" onclick="akQuick('What plans are available?')">Plans</button>
+    <button class="ak-quick-btn" onclick="akQuick('Can I trade news events?')">News OK?</button>
+    <button class="ak-quick-btn" onclick="akQuick('What instruments can I trade?')">Instruments</button>
+  </div>
+  <div id="ak-chat-input-row">
+    <input id="ak-chat-input" placeholder="Ask anything..." onkeydown="if(event.key==='Enter')akSend()"/>
+    <button id="ak-chat-send" onclick="akSend()">SEND</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  const KB = [
+    {q:['payout','withdrawal','money','withdraw','paid'],
+     a:'Payouts are processed within <strong>24 hours</strong>. We support bank transfer and crypto. Submit a payout request from your dashboard once your challenge is passed.'},
+    {q:['rule','rules','limit','loss','daily loss','drawdown'],
+     a:'Key rules:<br>&bull; <strong>Daily Loss</strong>: max 3-5% per day<br>&bull; <strong>Total Loss</strong>: max 6-10%<br>&bull; <strong>Profit Target</strong>: 8-10%<br>No time limit to pass.'},
+    {q:['pass','tip','strategy','how to','advice'],
+     a:'Tips to pass:<br>1. Risk max 0.5-1% per trade<br>2. Trade with the trend<br>3. Avoid overleveraging<br>4. Stick to one session<br>5. Journal every trade.'},
+    {q:['plan','program','account','size','instant','one-step','two-step'],
+     a:'Our 3 plans:<br>&bull; <strong>Instant Funded</strong> - No evaluation, 70-75% split<br>&bull; <strong>One-Step</strong> - Single target, 80% split<br>&bull; <strong>Two-Step</strong> - Two phases, 90% split'},
+    {q:['news','nfp','fomc','cpi','event','economic'],
+     a:'<strong>Yes! News trading is allowed.</strong> You can trade during NFP, FOMC, CPI and all major economic events. No news restrictions.'},
+    {q:['instrument','symbol','forex','gold','xauusd','oil','trade what'],
+     a:'Available:<br>&bull; Forex (EURUSD, GBPUSD, USDJPY...)<br>&bull; Gold (XAUUSD)<br>&bull; Silver (XAGUSD)<br>&bull; WTI Oil (USOIL)<br>&bull; Brent (UKOIL)<br>&bull; Natural Gas'},
+    {q:['overnight','weekend','hold','swap'],
+     a:'<strong>Overnight and weekend holding is fully allowed</strong> on all plans. No restrictions.'},
+    {q:['time','deadline','expire','minimum days'],
+     a:'<strong>No time limit</strong> to pass any challenge. Trade at your own pace. Some plans require a minimum of 5 trading days.'},
+    {q:['scale','scaling','bigger','more capital'],
+     a:'Once funded and consistently profitable, you can scale up to <strong>$2,000,000</strong>. Contact support once you hit the scaling criteria.'},
+    {q:['refund','reset','restart','breach'],
+     a:'Challenge fees are non-refundable. After a breach you can start fresh anytime. Promotional resets may be available - check the plans page.'},
+    {q:['start','begin','sign up','register','how'],
+     a:'Getting started:<br>1. Create an account<br>2. Choose a plan<br>3. Pay one-time fee<br>4. Start trading immediately!'},
+    {q:['split','percentage','profit','earnings','cut'],
+     a:'Profit splits:<br>&bull; Instant: <strong>70-75%</strong><br>&bull; One-Step: <strong>80%</strong><br>&bull; Two-Step: <strong>90%</strong>'},
+  ];
+
+  function akReply(msg){
+    const m=msg.toLowerCase();
+    for(const e of KB){ if(e.q.some(k=>m.includes(k))) return e.a; }
+    if(m.includes('hello')||m.includes('hi')||m.includes('hey')) return 'Hey! How can I help you today?';
+    if(m.includes('thank')) return 'Happy to help! Good luck with your trading! 🏆';
+    return 'I may not have a direct answer for that. Try asking about: payouts, rules, plans, instruments, or news trading. Or contact our support team!';
+  }
+
+  window.akToggleChat=function(){
+    const w=document.getElementById('ak-chat-window');
+    const b=document.getElementById('ak-chat-btn');
+    const open=w.classList.contains('open');
+    w.classList.toggle('open'); b.classList.toggle('open');
+    b.innerHTML=open?'&#x1F4AC;':'&#x2715;';
+    if(!open) setTimeout(()=>document.getElementById('ak-chat-input').focus(),100);
+  };
+
+  function akAdd(text,role){
+    const d=document.getElementById('ak-chat-msgs');
+    const el=document.createElement('div');
+    el.className='ak-msg '+role; el.innerHTML=text;
+    d.appendChild(el); d.scrollTop=d.scrollHeight; return el;
+  }
+
+  window.akSend=function(){
+    const inp=document.getElementById('ak-chat-input');
+    const t=inp.value.trim(); if(!t) return;
+    inp.value=''; akAdd(t,'user');
+    const typing=akAdd('Thinking...','bot typing');
+    setTimeout(()=>{ typing.remove();
+      akAdd(akReply(t),'bot'); },650+Math.random()*350);
+  };
+
+  window.akQuick=function(q){
+    document.getElementById('ak-chat-input').value=q; akSend();
+  };
+})();
+</script>
+""",
+    unsafe_allow_html=True
+)
+
 # ══════════════════════════════════════════════════════════════
 # HOME
 # ══════════════════════════════════════════════════════════════
@@ -4289,11 +4462,3 @@ elif st.session_state.page == "referral":
             if ok: st.success("Invite sent.")
             else: st.info("Configure SMTP settings.")
     footer()
-
-
-
-
-
-
-
-       
