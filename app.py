@@ -460,6 +460,218 @@ div.element-container,div.stMarkdown { background:transparent!important; }
 }
 .plan-rules li b { color:var(--text);font-weight:500; }
 .plan-rules li:last-child { border-bottom:none; }
+
+/* ══ LEADERBOARD ══ */
+.lb-item {
+  display:grid;grid-template-columns:52px 1fr auto auto;align-items:center;
+  gap:1rem;padding:1rem 1.2rem;
+  background:var(--s1);border:1px solid var(--border);
+  border-left:2px solid transparent;
+  margin-bottom:2px;transition:all .2s;border-radius:0 8px 8px 0;
+}
+.lb-item:hover { background:var(--s2);border-left-color:var(--cyan); }
+.lb-rank {
+  font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:2px;
+  text-align:center;color:var(--dim);
+}
+.lb-rank.gold { color:var(--gold);text-shadow:0 0 16px rgba(201,168,76,.4); }
+.lb-rank.silver { color:#94A3B8; }
+.lb-rank.bronze { color:#CD7F32; }
+.lb-info { min-width:0; }
+.lb-name { font-weight:700;font-size:.9rem;color:var(--text);letter-spacing:.3px;margin-bottom:3px; }
+.lb-country { font-size:.62rem;color:var(--dim);letter-spacing:1px; }
+.lb-pnl { font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:var(--green);text-align:right; }
+.lb-badge {
+  font-size:.52rem;font-weight:700;letter-spacing:2px;padding:4px 12px;
+  border-radius:100px;text-transform:uppercase;white-space:nowrap;
+}
+.lb-badge.funded { background:rgba(0,200,240,.1);color:var(--cyan);border:1px solid rgba(0,200,240,.25); }
+.lb-badge.passed { background:rgba(16,212,138,.1);color:var(--green);border:1px solid rgba(16,212,138,.25); }
+.lb-badge.active { background:rgba(139,124,248,.1);color:var(--purple);border:1px solid rgba(139,124,248,.25); }
+
+/* ══ CHALLENGE HISTORY ══ */
+.ch-card {
+  background:var(--s1);border:1px solid var(--border);
+  border-left:3px solid var(--border2);
+  padding:1.2rem 1.4rem;margin-bottom:3px;
+  display:grid;grid-template-columns:1fr auto auto auto auto;align-items:center;
+  gap:1.5rem;transition:all .2s;border-radius:0 8px 8px 0;
+}
+.ch-card:hover { background:var(--s2);border-left-color:var(--cyan); }
+.ch-plan { font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:3px;color:var(--text);margin-bottom:4px; }
+.ch-status {
+  font-size:.52rem;font-weight:700;letter-spacing:2px;padding:4px 14px;
+  border-radius:100px;text-transform:uppercase;white-space:nowrap;
+}
+.ch-status.passed { background:rgba(16,212,138,.1);color:var(--green);border:1px solid rgba(16,212,138,.25); }
+.ch-status.failed { background:rgba(240,78,101,.1);color:var(--red);border:1px solid rgba(240,78,101,.25); }
+.ch-status.active { background:rgba(0,200,240,.1);color:var(--cyan);border:1px solid rgba(0,200,240,.25); }
+.ch-status.pending { background:rgba(245,158,11,.1);color:var(--orange);border:1px solid rgba(245,158,11,.25); }
+
+/* ══ PORTFOLIO ══ */
+.portfolio-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);margin-bottom:2rem; }
+.port-stat {
+  background:var(--s1);padding:1.5rem 1.8rem;position:relative;overflow:hidden;
+  transition:background .2s;
+}
+.port-stat:hover { background:var(--s2); }
+.port-stat::before {
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,200,240,.2),transparent);
+}
+.port-val { font-family:'JetBrains Mono',monospace;font-size:1.8rem;font-weight:700;line-height:1;color:var(--text);margin-bottom:.4rem; }
+.port-lbl { font-size:.55rem;color:var(--dim);letter-spacing:3px;text-transform:uppercase;font-weight:500; }
+
+/* ══ PROFILE ══ */
+.profile-hero {
+  display:flex;align-items:center;gap:2rem;padding:2rem;
+  background:linear-gradient(135deg,var(--s1),var(--s2));
+  border:1px solid var(--border);border-radius:12px;
+  margin-bottom:2rem;position:relative;overflow:hidden;
+}
+.profile-hero::before {
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,200,240,.3),rgba(139,124,248,.2),transparent);
+}
+.profile-avatar {
+  width:72px;height:72px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,var(--cyan),var(--purple));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:#000;
+  box-shadow:0 0 24px rgba(0,200,240,.25);
+}
+.profile-name { font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:4px;color:#fff;margin-bottom:4px; }
+.profile-email { font-size:.72rem;color:var(--dim);letter-spacing:.5px; }
+.funded-badge-inline {
+  display:inline-flex;align-items:center;gap:5px;
+  background:rgba(0,200,240,.1);border:1px solid rgba(0,200,240,.25);
+  color:var(--cyan);font-size:.55rem;font-weight:700;letter-spacing:2px;
+  padding:3px 12px;border-radius:100px;margin-top:8px;text-transform:uppercase;
+}
+
+/* ══ PROG BARS ══ */
+.prog { height:4px;background:var(--border);border-radius:100px;overflow:hidden;margin-top:.5rem; }
+.prog-fill { height:100%;border-radius:100px;background:linear-gradient(90deg,var(--cyan),var(--purple)); }
+
+/* ══ FEAT CARDS ══ */
+.feat-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);margin:2rem 0; }
+.feat-card {
+  background:var(--s1);padding:2rem 1.8rem;position:relative;overflow:hidden;
+  transition:all .3s;cursor:default;
+}
+.feat-card:hover { background:var(--s2);transform:translateY(-2px); }
+.feat-card::before {
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--cyan),var(--purple),transparent);opacity:.3;
+}
+.feat-icon { font-size:1.8rem;margin-bottom:1rem; }
+.feat-tag { font-size:.52rem;font-weight:700;letter-spacing:2px;color:var(--cyan);text-transform:uppercase;margin-bottom:.5rem; }
+.feat-title { font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:3px;color:var(--text);margin-bottom:.6rem; }
+.feat-desc { font-size:.78rem;color:var(--dim);line-height:1.8; }
+
+/* ══ TRADE TABLE ══ */
+.t-header,.t-row {
+  display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr 1fr;gap:.5rem;
+  padding:.7rem 1rem;align-items:center;
+}
+.t-header { font-size:.55rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;border-bottom:1px solid var(--border);font-weight:600; }
+.t-row { border-bottom:1px solid var(--border);font-size:.8rem;transition:background .15s; }
+.t-row:hover { background:var(--s2); }
+.t-row:last-child { border-bottom:none; }
+
+/* ══ RULES BOX ══ */
+.rules-box { background:var(--s1);border:1px solid var(--border);padding:1.4rem;border-radius:8px;margin-bottom:1rem; }
+.r-row { display:flex;justify-content:space-between;align-items:center;padding:.55rem 0;border-bottom:1px solid var(--border); }
+.r-row:last-child { border-bottom:none; }
+.r-name { font-size:.78rem;color:var(--dim); }
+.r-val { font-size:.78rem;font-weight:600;color:var(--text);font-family:'JetBrains Mono',monospace; }
+
+/* ══ JOURNAL ══ */
+.journal-entry { background:var(--s1);border:1px solid var(--border);padding:1.2rem;margin-bottom:4px;border-radius:6px;transition:background .2s; }
+.journal-entry:hover { background:var(--s2); }
+.je-date { font-size:.6rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:.4rem; }
+.je-note { font-size:.82rem;color:var(--text2);line-height:1.7; }
+.je-tags { display:flex;gap:5px;margin-top:.6rem;flex-wrap:wrap; }
+.je-tag { font-size:.52rem;padding:2px 9px;border-radius:100px;background:rgba(0,200,240,.08);color:var(--cyan);border:1px solid rgba(0,200,240,.2);letter-spacing:1.5px;text-transform:uppercase; }
+
+/* ══ NOTIF ══ */
+.notif-item { display:flex;align-items:flex-start;gap:.8rem;padding:.9rem 1rem;border-bottom:1px solid var(--border);transition:background .15s; }
+.notif-item:hover { background:var(--s2); }
+.notif-item.unread { border-left:2px solid var(--cyan); }
+.notif-title { font-size:.8rem;font-weight:600;color:var(--text);margin-bottom:3px; }
+.notif-msg { font-size:.73rem;color:var(--dim);line-height:1.5; }
+.notif-time { font-size:.58rem;color:var(--dim2);margin-top:4px;letter-spacing:.5px; }
+.notif-badge { background:linear-gradient(135deg,var(--cyan),var(--purple));color:#000;font-size:.45rem;font-weight:800;padding:2px 7px;border-radius:100px;margin-left:6px;letter-spacing:1px; }
+
+/* ══ GLOBE STATS ══ */
+.gn-stats { display:flex;flex-direction:column;gap:1rem; }
+.gs { background:var(--s1);border:1px solid var(--border);border-left:3px solid var(--cyan);padding:1rem 1.5rem;min-width:220px;position:relative;overflow:hidden;border-radius:0 8px 8px 0; }
+.gs-val { font-family:'JetBrains Mono',monospace;font-size:1.7rem;font-weight:700;color:var(--cyan);letter-spacing:2px;line-height:1; }
+.gs-val.gr { color:var(--green); }
+.gs-val.go { color:var(--orange); }
+.gs-val.gp { color:var(--purple); }
+.gs-lbl { font-size:.55rem;color:var(--dim);letter-spacing:3px;text-transform:uppercase;margin-top:5px;font-weight:500; }
+.gs-sub { font-size:.5rem;color:var(--dim2);letter-spacing:1.5px;margin-top:2px; }
+
+/* ══ STAT BOX (dashboard) ══ */
+.sv { font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:700;line-height:1;color:var(--text); }
+.sv.g { color:var(--green); }
+.sv.r { color:var(--red); }
+.sv.c { color:var(--cyan); }
+.sl { font-size:.55rem;color:var(--dim);letter-spacing:2.5px;text-transform:uppercase;margin-top:.4rem;font-weight:500; }
+.stat-box { background:var(--s1);border:1px solid var(--border);padding:1.2rem 1.4rem;border-radius:8px;position:relative;overflow:hidden; }
+.stat-box::before { content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,200,240,.2),transparent); }
+
+/* ══ M CARD ALIASES (g/r colors) ══ */
+.m-val.g { color:var(--green); }
+.m-val.r { color:var(--red); }
+.m-val.c { color:var(--cyan); }
+
+/* ══ MISC TAG CLASSES ══ */
+.tag-b { background:rgba(0,200,240,.08);color:var(--cyan);border:1px solid rgba(0,200,240,.2);font-size:.52rem;padding:2px 8px;border-radius:100px;letter-spacing:1.5px;font-weight:700;text-transform:uppercase; }
+.tag-s { background:rgba(139,124,248,.08);color:var(--purple);border:1px solid rgba(139,124,248,.2);font-size:.52rem;padding:2px 8px;border-radius:100px;letter-spacing:1.5px;font-weight:700;text-transform:uppercase; }
+
+/* ══ HERO CANVAS BG ══ */
+.hero-content { position:relative;z-index:2; }
+.hero-h1 { font-family:'Bebas Neue',sans-serif;font-size:clamp(4rem,10vw,11rem);line-height:.86;letter-spacing:4px;margin:0 0 2rem;color:#fff; }
+.hero-sub { font-size:.95rem;color:var(--dim);max-width:500px;margin:0 auto 3.5rem;line-height:2; }
+
+/* ══ FEAT CARD ORB ══ */
+.card-orb { position:absolute;width:120px;height:120px;border-radius:50%;filter:blur(40px);opacity:.08;pointer-events:none; }
+
+/* ══ LOGO WRAP ══ */
+.ak-logo-wrap { display:flex;align-items:center;gap:.8rem; }
+.ak-logo-img { height:40px;width:40px;object-fit:contain;border-radius:6px; }
+.ak-brand { display:flex;flex-direction:column; }
+.ak-brand-ak { font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:6px;color:var(--cyan);text-shadow:0 0 24px rgba(0,200,240,.4);line-height:1; }
+.ak-brand-funded { font-family:'Bebas Neue',sans-serif;font-size:.7rem;letter-spacing:6px;color:var(--dim);line-height:1; }
+
+/* ══ AK STATUS ══ */
+.ak-status { display:inline-flex;align-items:center;gap:5px;font-size:.55rem;color:var(--green);letter-spacing:2px;text-transform:uppercase;font-weight:600; }
+
+/* ══ AK INNER / BARS ══ */
+.ak-inner { position:relative;overflow:hidden; }
+.ak-bar-wrap { position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--border); }
+.ak-bar { height:100%;background:linear-gradient(90deg,var(--cyan),var(--purple));border-radius:100px; }
+.ak-scanline { position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,200,240,.01) 3px,rgba(0,200,240,.01) 4px); }
+
+/* ══ AK CORNER DECORATORS ══ */
+.ak-corner { position:absolute;width:12px;height:12px; }
+.ak-corner-tl { top:0;left:0;border-top:2px solid var(--cyan);border-left:2px solid var(--cyan);opacity:.4; }
+.ak-corner-tr { top:0;right:0;border-top:2px solid var(--cyan);border-right:2px solid var(--cyan);opacity:.4; }
+.ak-corner-bl { bottom:0;left:0;border-bottom:2px solid var(--cyan);border-left:2px solid var(--cyan);opacity:.4; }
+.ak-corner-br { bottom:0;right:0;border-bottom:2px solid var(--cyan);border-right:2px solid var(--cyan);opacity:.4; }
+
+/* ══ AK ORBIT (splash/logo) ══ */
+.ak-orbit1,.ak-orbit2 { position:absolute;border-radius:50%;border:1px solid rgba(0,200,240,.2); }
+.ak-orbit1 { width:90px;height:90px;top:50%;left:50%;transform:translate(-50%,-50%);animation:orb1 4s linear infinite; }
+.ak-orbit2 { width:130px;height:130px;top:50%;left:50%;transform:translate(-50%,-50%);animation:orb2 6s linear infinite reverse; }
+@keyframes orb1 { to{transform:translate(-50%,-50%) rotate(360deg);} }
+@keyframes orb2 { to{transform:translate(-50%,-50%) rotate(360deg);} }
+
+/* ══ AK WELCOME ══ */
+.ak-welcome { font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:4px;color:var(--text);margin-bottom:.3rem; }
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -2606,7 +2818,7 @@ if st.session_state.page == "home":
     <canvas class="card-orb" width="100" height="100"></canvas>
     <span class="feat-icon">🌍</span>
     <div class="feat-title">Global Leaderboard</div>
-    <div class="feat-desc">Compete with 10,500+ traders worldwide. Real-time rankings updated every trading session.</div>
+    <div class="feat-desc">Compete with 3,500+ traders worldwide. Real-time rankings updated every trading session.</div>
     <span class="feat-tag">Competitive</span>
   </div>
 </div>
