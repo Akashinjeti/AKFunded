@@ -2516,8 +2516,9 @@ if st.session_state.page == "home":
     }}
     setTimeout(()=>{{ el.style.opacity=1; requestAnimationFrame(step); }},300);
   }}
-  animCount("cnt-traders",10000,"","",1800);
+  animCount("cnt-traders",10500,"","",1800);
   animCount("cnt-payouts",6500,"$","",2000);
+  setTimeout(()=>document.getElementById("cnt-traders").textContent="10.5K+",2200);
   setTimeout(()=>document.getElementById("cnt-payouts").textContent="$6.5M",2400);
   setTimeout(()=>{{ document.getElementById("cnt-split").textContent="90%"; document.getElementById("cnt-split").style.opacity=1; }},600);
   setTimeout(()=>{{ document.getElementById("cnt-payout").textContent="24hr"; document.getElementById("cnt-payout").style.opacity=1; }},900);
