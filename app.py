@@ -2311,7 +2311,7 @@ if st.session_state.page == "home":
     }}
     setTimeout(()=>{{ el.style.opacity=1; requestAnimationFrame(step); }},300);
   }}
-  animCount("cnt-traders",10500,"","",1800);
+  animCount("cnt-traders",10500+,"","",1800);
   animCount("cnt-payouts",6500,"$","",2000);
   setTimeout(()=>document.getElementById("cnt-payouts").textContent="$6.5M",2400);
   setTimeout(()=>{{ document.getElementById("cnt-split").textContent="90%"; document.getElementById("cnt-split").style.opacity=1; }},600);
@@ -2606,7 +2606,7 @@ if st.session_state.page == "home":
     <canvas class="card-orb" width="100" height="100"></canvas>
     <span class="feat-icon">🌍</span>
     <div class="feat-title">Global Leaderboard</div>
-    <div class="feat-desc">Compete with 3,500+ traders worldwide. Real-time rankings updated every trading session.</div>
+    <div class="feat-desc">Compete with 10,500+ traders worldwide. Real-time rankings updated every trading session.</div>
     <span class="feat-tag">Competitive</span>
   </div>
 </div>
