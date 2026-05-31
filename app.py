@@ -9,7 +9,7 @@ from email.mime.multipart import MIMEMultipart
 # ─── PAGE CONFIG ───────────────────────────────────────────────
 st.set_page_config(
     page_title="AKFunded — Prove Your Edge",
-    page_icon="⚡",
+    page_icon="https://raw.githubusercontent.com/Akashinjeti/akfunded/main/logo.PNG",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
@@ -1465,233 +1465,179 @@ def pbar(pct, col):
 
 
 
-# ─── AI SUPPORT CHATBOT ── injected into parent page via components ──
+# ─── AI SUPPORT CHATBOT ── injected into parent window via script ──
 if "chat_support_msgs" not in st.session_state:
     st.session_state.chat_support_msgs = []
-if "chatbot_open" not in st.session_state:
-    st.session_state.chatbot_open = False
 
 _groq_key = st.secrets.get("GROQ_API_KEY","")
-_stc.html(f"""
-<style>
-*{{margin:0;padding:0;box-sizing:border-box;}}
-@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Bebas+Neue&display=swap');
-
-#chat-fab{{
-  position:fixed;bottom:28px;right:28px;z-index:2147483647;
-  width:62px;height:62px;border-radius:50%;border:none;cursor:pointer;
-  background:linear-gradient(135deg,#00D4FF 0%,#7B6EF6 50%,#00B87A 100%);
-  background-size:200% 200%;
-  animation:fabGrad 4s ease infinite;
-  display:flex;align-items:center;justify-content:center;
-  box-shadow:0 0 0 0 rgba(0,212,255,.4);
-  animation:fabGrad 4s ease infinite, fabPulse 2.5s ease-out infinite;
-  font-size:1.5rem;transition:transform .3s cubic-bezier(.34,1.56,.64,1);
-}}
-#chat-fab:hover{{transform:scale(1.12) rotate(-10deg);}}
-@keyframes fabGrad{{0%,100%{{background-position:0% 50%;}}50%{{background-position:100% 50%;}}}}
-@keyframes fabPulse{{0%{{box-shadow:0 0 0 0 rgba(0,212,255,.5);}}70%{{box-shadow:0 0 0 18px rgba(0,212,255,0);}}100%{{box-shadow:0 0 0 0 rgba(0,212,255,0);}}}}
-
-#chat-win{{
-  position:fixed;bottom:106px;right:28px;z-index:2147483646;
-  width:400px;height:580px;
-  background:linear-gradient(145deg,#07080a 0%,#0b0d10 100%);
-  border:1px solid rgba(0,212,255,.18);border-radius:16px;
-  display:none;flex-direction:column;overflow:hidden;
-  box-shadow:0 32px 80px rgba(0,0,0,.9),0 0 60px rgba(0,212,255,.06),inset 0 1px 0 rgba(255,255,255,.04);
-  font-family:'Rajdhani',sans-serif;
-  animation:winSlide .3s cubic-bezier(.34,1.56,.64,1);
-}}
-@keyframes winSlide{{from{{opacity:0;transform:translateY(20px) scale(.95);}}to{{opacity:1;transform:translateY(0) scale(1);}}}}
-#chat-win.open{{display:flex;}}
-
-#chat-hd{{
-  padding:1.1rem 1.2rem;
-  background:linear-gradient(135deg,rgba(0,212,255,.08),rgba(123,110,246,.06));
-  border-bottom:1px solid rgba(0,212,255,.12);
-  display:flex;align-items:center;gap:.8rem;flex-shrink:0;
-  position:relative;overflow:hidden;
-}}
-#chat-hd::before{{
-  content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(0,212,255,.4),rgba(123,110,246,.4),transparent);
-}}
-.hd-avatar{{
-  width:38px;height:38px;border-radius:50%;
-  background:linear-gradient(135deg,#00D4FF,#7B6EF6);
-  display:flex;align-items:center;justify-content:center;
-  font-size:1.1rem;flex-shrink:0;
-  box-shadow:0 0 16px rgba(0,212,255,.3);
-}}
-.hd-info{{flex:1;}}
-.hd-name{{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:3px;color:#fff;line-height:1;}}
-.hd-status{{font-size:.55rem;letter-spacing:2px;color:#00B87A;text-transform:uppercase;margin-top:3px;display:flex;align-items:center;gap:4px;}}
-.hd-dot{{width:5px;height:5px;background:#00B87A;border-radius:50%;box-shadow:0 0 6px #00B87A;animation:blink 2s infinite;}}
-@keyframes blink{{0%,100%{{opacity:1;}}50%{{opacity:.3;}}}}
-#chat-close{{background:none;border:none;color:rgba(255,255,255,.3);font-size:1.2rem;cursor:pointer;padding:4px;border-radius:6px;transition:all .2s;}}
-#chat-close:hover{{background:rgba(255,255,255,.08);color:#fff;}}
-
-#chat-msgs{{
-  flex:1;overflow-y:auto;padding:1rem;
-  display:flex;flex-direction:column;gap:.75rem;
-  scrollbar-width:thin;scrollbar-color:rgba(0,212,255,.2) transparent;
-}}
-#chat-msgs::-webkit-scrollbar{{width:3px;}}
-#chat-msgs::-webkit-scrollbar-thumb{{background:rgba(0,212,255,.2);border-radius:2px;}}
-
-.msg{{max-width:88%;padding:.7rem 1rem;font-size:.8rem;line-height:1.65;word-break:break-word;border-radius:12px;}}
-.msg.bot{{
-  background:rgba(255,255,255,.04);
-  border:1px solid rgba(255,255,255,.08);
-  color:#c8c8c8;align-self:flex-start;
-  border-radius:4px 12px 12px 12px;
-}}
-.msg.user{{
-  background:linear-gradient(135deg,rgba(0,212,255,.15),rgba(123,110,246,.15));
-  border:1px solid rgba(0,212,255,.2);
-  color:#e8e8e8;align-self:flex-end;text-align:right;
-  border-radius:12px 12px 4px 12px;
-}}
-.msg.typing{{color:rgba(255,255,255,.3);font-style:italic;}}
-
-.quick-wrap{{padding:.6rem .9rem;border-top:1px solid rgba(255,255,255,.05);flex-shrink:0;display:flex;flex-wrap:wrap;gap:5px;}}
-.qbtn{{
-  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);
-  color:rgba(200,200,200,.7);font-size:.55rem;letter-spacing:1.5px;
-  padding:4px 10px;cursor:pointer;border-radius:20px;
-  transition:all .2s;font-family:'Rajdhani',sans-serif;text-transform:uppercase;
-}}
-.qbtn:hover{{border-color:rgba(0,212,255,.5);color:#00D4FF;background:rgba(0,212,255,.08);transform:translateY(-1px);}}
-
-#chat-input-row{{
-  display:flex;gap:8px;padding:.8rem 1rem;
-  border-top:1px solid rgba(255,255,255,.05);
-  flex-shrink:0;background:rgba(0,0,0,.3);
-}}
-#chat-inp{{
-  flex:1;background:rgba(255,255,255,.05);
-  border:1px solid rgba(255,255,255,.1);color:#e8e8e8;
-  font-size:.8rem;padding:.6rem .9rem;outline:none;
-  font-family:'Rajdhani',sans-serif;border-radius:8px;
-  transition:border-color .2s;
-}}
-#chat-inp:focus{{border-color:rgba(0,212,255,.4);background:rgba(0,212,255,.04);}}
-#chat-inp::placeholder{{color:rgba(255,255,255,.2);}}
-#chat-send{{
-  background:linear-gradient(135deg,#00D4FF,#7B6EF6);
-  border:none;color:#000;font-size:.7rem;font-weight:700;
-  padding:.6rem 1.1rem;cursor:pointer;letter-spacing:1px;
-  font-family:'Rajdhani',sans-serif;border-radius:8px;white-space:nowrap;
-  transition:opacity .2s,transform .15s;
-}}
-#chat-send:hover{{transform:scale(1.03);}}
-#chat-send:disabled{{opacity:.4;cursor:not-allowed;transform:none;}}
-</style>
-
-<button id="chat-fab" title="Chat with AK AI" onclick="chatToggle()">💬</button>
-
-<div id="chat-win">
-  <div id="chat-hd">
-    <div class="hd-avatar">🤖</div>
-    <div class="hd-info">
-      <div class="hd-name">AK AI SUPPORT</div>
-      <div class="hd-status"><span class="hd-dot"></span>Online — Powered by Groq</div>
-    </div>
-    <button id="chat-close" onclick="chatToggle()">✕</button>
-  </div>
-  <div id="chat-msgs">
-    <div class="msg bot">Hey 👋 I'm <strong>AK AI</strong>, your personal trading assistant.<br><br>Ask me anything about challenges, payouts, rules, or how to get funded!</div>
-  </div>
-  <div class="quick-wrap">
-    <button class="qbtn" onclick="chatAsk('How do payouts work?')">💰 Payouts</button>
-    <button class="qbtn" onclick="chatAsk('What are the trading rules?')">📋 Rules</button>
-    <button class="qbtn" onclick="chatAsk('Tips to pass the challenge?')">🏆 Pass Tips</button>
-    <button class="qbtn" onclick="chatAsk('What plans are available?')">📦 Plans</button>
-    <button class="qbtn" onclick="chatAsk('Is news trading allowed?')">📰 News OK?</button>
-    <button class="qbtn" onclick="chatAsk('What instruments can I trade?')">📊 Instruments</button>
-  </div>
-  <div id="chat-input-row">
-    <input id="chat-inp" placeholder="Ask anything about AKFunded…" 
-      onkeydown="if(event.key==='Enter'){{event.preventDefault();chatSend();}}"/>
-    <button id="chat-send" onclick="chatSend()">SEND →</button>
-  </div>
-</div>
-
+_chat_html = '''
 <script>
-(function(){{
-  const KEY = "{_groq_key}";
-  const URL = "https://api.groq.com/openai/v1/chat/completions";
-  const SYS = "You are AKFunded AI — a warm, expert prop trading assistant. AKFunded offers: Instant Funded (70-75% split, no challenge), One-Step (8% target, 80% split, from $79), Two-Step (8%+5% targets, 90% split). Accounts $5K-$100K. Payouts in 24hrs. News trading allowed. No time limits. Instruments: XAUUSD, EURUSD, GBPUSD, USOIL, XAGUSD. Daily drawdown 3-5%, max 6-10%. Answer in 2-4 sentences. Be encouraging and professional.";
-  let hist = [], busy = false;
-  let isOpen = false;
+(function(){
+  // Remove existing if already injected
+  var old = document.getElementById("ak-chat-root");
+  if(old) return;
 
-  window.chatToggle = function(){{
-    isOpen = !isOpen;
-    const w = document.getElementById('chat-win');
-    const f = document.getElementById('chat-fab');
-    if(isOpen){{
-      w.style.display = 'flex';
-      f.innerHTML = '✕';
-      f.style.background = 'linear-gradient(135deg,#1a1a1a,#111)';
-      setTimeout(()=>document.getElementById('chat-inp').focus(), 150);
-    }} else {{
-      w.style.display = 'none';
-      f.innerHTML = '💬';
-      f.style.background = '';
-    }}
-  }};
+  var GROQ_KEY = "___GROQ_KEY___";
+  var GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
+  var SYS = "You are AKFunded AI — a warm, expert prop trading assistant. AKFunded offers: Instant Funded (70-75% split, no challenge), One-Step (8% target, 80% split), Two-Step (8%+5% targets, 90% split). Accounts $5K-$100K. Payouts in 24hrs. News trading allowed. No time limits. Instruments: XAUUSD, EURUSD, GBPUSD, USOIL, XAGUSD. Daily drawdown 3-5%, max 6-10%. Answer in 2-4 sentences. Be encouraging and professional.";
+  var hist = [], busy = false, isOpen = false;
 
-  window.chatAsk = function(q){{
-    document.getElementById('chat-inp').value = q;
-    chatSend();
-  }};
+  // Inject CSS
+  var css = document.createElement("style");
+  css.textContent = `
+  #ak-chat-root * { box-sizing:border-box; font-family:"Inter","Rajdhani",sans-serif; }
+  #ak-fab {
+    position:fixed;bottom:28px;right:28px;z-index:2147483647;
+    width:60px;height:60px;border-radius:50%;border:none;cursor:pointer;
+    background:linear-gradient(135deg,#00C8F0,#8B7CF8);
+    display:flex;align-items:center;justify-content:center;font-size:1.4rem;
+    box-shadow:0 4px 24px rgba(0,200,240,.4),0 0 0 0 rgba(0,200,240,.3);
+    animation:akFabPulse 2.5s ease-out infinite;
+    transition:transform .3s cubic-bezier(.34,1.56,.64,1),background .3s;
+  }
+  #ak-fab:hover { transform:scale(1.12) rotate(-8deg); }
+  #ak-fab.open { background:linear-gradient(135deg,#1a1f28,#111); animation:none; box-shadow:0 4px 20px rgba(0,0,0,.5); }
+  @keyframes akFabPulse { 0%{box-shadow:0 4px 24px rgba(0,200,240,.4),0 0 0 0 rgba(0,200,240,.3);} 70%{box-shadow:0 4px 24px rgba(0,200,240,.4),0 0 0 16px rgba(0,200,240,0);} 100%{box-shadow:0 4px 24px rgba(0,200,240,.4),0 0 0 0 rgba(0,200,240,0);} }
+  #ak-win {
+    position:fixed;bottom:102px;right:28px;z-index:2147483646;
+    width:390px;height:560px;
+    background:linear-gradient(145deg,#07080a,#0c0e13);
+    border:1px solid rgba(0,200,240,.2);border-radius:16px;
+    display:none;flex-direction:column;overflow:hidden;
+    box-shadow:0 32px 80px rgba(0,0,0,.9),0 0 80px rgba(0,200,240,.06),inset 0 1px 0 rgba(255,255,255,.05);
+    transform-origin:bottom right;
+  }
+  #ak-win.open { display:flex;animation:winPop .35s cubic-bezier(.34,1.56,.64,1) both; }
+  @keyframes winPop { from{opacity:0;transform:scale(.9) translateY(16px);} to{opacity:1;transform:scale(1) translateY(0);} }
+  #ak-hd {
+    padding:1rem 1.1rem;flex-shrink:0;
+    background:linear-gradient(135deg,rgba(0,200,240,.08),rgba(139,124,248,.05));
+    border-bottom:1px solid rgba(255,255,255,.06);
+    display:flex;align-items:center;gap:.8rem;position:relative;
+  }
+  #ak-hd::before { content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,200,240,.5),rgba(139,124,248,.4),transparent); }
+  .ak-av { width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#00C8F0,#8B7CF8);display:flex;align-items:center;justify-content:center;font-size:1rem;box-shadow:0 0 16px rgba(0,200,240,.3);flex-shrink:0; }
+  .ak-hn { font-family:"Bebas Neue","Inter",sans-serif;font-size:1rem;letter-spacing:3px;color:#fff; }
+  .ak-hs { font-size:.52rem;color:#10D48A;letter-spacing:2px;text-transform:uppercase;margin-top:3px;display:flex;align-items:center;gap:4px; }
+  .ak-dot { width:5px;height:5px;background:#10D48A;border-radius:50%;box-shadow:0 0 6px #10D48A;animation:akDot 2s infinite; }
+  @keyframes akDot { 0%,100%{opacity:1;}50%{opacity:.2;} }
+  #ak-cl { margin-left:auto;background:none;border:none;color:rgba(255,255,255,.25);font-size:1.1rem;cursor:pointer;padding:5px 6px;border-radius:8px;transition:all .2s;line-height:1; }
+  #ak-cl:hover { background:rgba(255,255,255,.08);color:#fff; }
+  #ak-msgs { flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.7rem;scrollbar-width:thin;scrollbar-color:rgba(0,200,240,.15) transparent; }
+  #ak-msgs::-webkit-scrollbar { width:3px; }
+  #ak-msgs::-webkit-scrollbar-thumb { background:rgba(0,200,240,.2);border-radius:2px; }
+  .ak-m { max-width:88%;padding:.7rem 1rem;font-size:.78rem;line-height:1.65;word-break:break-word; }
+  .ak-m.bot { background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:#c8d0dc;align-self:flex-start;border-radius:4px 14px 14px 14px; }
+  .ak-m.usr { background:linear-gradient(135deg,rgba(0,200,240,.14),rgba(139,124,248,.14));border:1px solid rgba(0,200,240,.22);color:#e8edf5;align-self:flex-end;border-radius:14px 14px 4px 14px;text-align:right; }
+  .ak-m.typ { color:rgba(255,255,255,.28);font-style:italic; }
+  #ak-qs { padding:.6rem .9rem;border-top:1px solid rgba(255,255,255,.05);flex-shrink:0;display:flex;flex-wrap:wrap;gap:5px; }
+  .ak-q { background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);color:rgba(180,190,210,.65);font-size:.54rem;letter-spacing:1.5px;padding:4px 11px;cursor:pointer;border-radius:100px;transition:all .2s;font-family:"Inter",sans-serif;text-transform:uppercase; }
+  .ak-q:hover { border-color:rgba(0,200,240,.5);color:#00C8F0;background:rgba(0,200,240,.08);transform:translateY(-1px); }
+  #ak-ir { display:flex;gap:8px;padding:.8rem 1rem;border-top:1px solid rgba(255,255,255,.05);flex-shrink:0;background:rgba(0,0,0,.3); }
+  #ak-inp { flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#e8edf5;font-size:.78rem;padding:.58rem .9rem;outline:none;font-family:"Inter",sans-serif;border-radius:10px;transition:border-color .2s,box-shadow .2s; }
+  #ak-inp:focus { border-color:rgba(0,200,240,.4);box-shadow:0 0 0 3px rgba(0,200,240,.08); }
+  #ak-inp::placeholder { color:rgba(255,255,255,.18); }
+  #ak-snd { background:linear-gradient(135deg,#00C8F0,#8B7CF8);border:none;color:#000;font-size:.65rem;font-weight:700;padding:.58rem 1rem;cursor:pointer;letter-spacing:1px;font-family:"Inter",sans-serif;border-radius:10px;white-space:nowrap;transition:opacity .2s,transform .15s;box-shadow:0 4px 16px rgba(0,200,240,.25); }
+  #ak-snd:hover { transform:scale(1.04);box-shadow:0 6px 20px rgba(0,200,240,.35); }
+  #ak-snd:disabled { opacity:.4;cursor:not-allowed;transform:none;box-shadow:none; }
+  `;
+  document.head.appendChild(css);
 
-  function addMsg(html, cls){{
-    const d = document.getElementById('chat-msgs');
-    const el = document.createElement('div');
-    el.className = 'msg ' + cls;
+  // Inject HTML
+  var root = document.createElement("div");
+  root.id = "ak-chat-root";
+  root.innerHTML = `
+  <button id="ak-fab" class="" onclick="akChatToggle()" title="Chat with AK AI">💬</button>
+  <div id="ak-win">
+    <div id="ak-hd">
+      <div class="ak-av">🤖</div>
+      <div><div class="ak-hn">AK AI SUPPORT</div><div class="ak-hs"><span class="ak-dot"></span>Online · Powered by Groq</div></div>
+      <button id="ak-cl" onclick="akChatToggle()">✕</button>
+    </div>
+    <div id="ak-msgs">
+      <div class="ak-m bot">Hey 👋 I'm <strong>AK AI</strong>, your personal trading assistant.<br><br>Ask me anything about challenges, payouts, rules, or how to get funded!</div>
+    </div>
+    <div id="ak-qs">
+      <button class="ak-q" onclick="akChatAsk('How do payouts work?')">💰 Payouts</button>
+      <button class="ak-q" onclick="akChatAsk('What are the trading rules?')">📋 Rules</button>
+      <button class="ak-q" onclick="akChatAsk('Tips to pass the challenge?')">🏆 Tips</button>
+      <button class="ak-q" onclick="akChatAsk('What plans are available?')">📦 Plans</button>
+      <button class="ak-q" onclick="akChatAsk('Is news trading allowed?')">📰 News?</button>
+      <button class="ak-q" onclick="akChatAsk('What instruments can I trade?')">📊 Instruments</button>
+    </div>
+    <div id="ak-ir">
+      <input id="ak-inp" placeholder="Ask anything about AKFunded…" />
+      <button id="ak-snd" onclick="akChatSend()">SEND →</button>
+    </div>
+  </div>`;
+  document.body.appendChild(root);
+
+  // Wire enter key
+  document.getElementById("ak-inp").addEventListener("keydown", function(e){
+    if(e.key === "Enter") { e.preventDefault(); akChatSend(); }
+  });
+
+  function addMsg(html, cls) {
+    var d = document.getElementById("ak-msgs");
+    var el = document.createElement("div");
+    el.className = "ak-m " + cls;
     el.innerHTML = html;
     d.appendChild(el);
     d.scrollTop = d.scrollHeight;
     return el;
-  }}
+  }
 
-  window.chatSend = async function(){{
+  window.akChatToggle = function() {
+    isOpen = !isOpen;
+    var w = document.getElementById("ak-win");
+    var f = document.getElementById("ak-fab");
+    if(isOpen) {
+      w.classList.add("open"); f.classList.add("open"); f.innerHTML = "✕";
+      setTimeout(function(){ document.getElementById("ak-inp").focus(); }, 200);
+    } else {
+      w.classList.remove("open"); f.classList.remove("open"); f.innerHTML = "💬";
+    }
+  };
+
+  window.akChatAsk = function(q) {
+    document.getElementById("ak-inp").value = q; akChatSend();
+  };
+
+  window.akChatSend = async function() {
     if(busy) return;
-    const inp = document.getElementById('chat-inp');
-    const txt = inp.value.trim();
-    if(!txt) return;
-    inp.value = '';
-    addMsg(txt, 'user');
-    hist.push({{role:'user',content:txt}});
+    var inp = document.getElementById("ak-inp");
+    var txt = inp.value.trim(); if(!txt) return;
+    inp.value = "";
+    addMsg(txt, "usr");
+    hist.push({role:"user",content:txt});
     busy = true;
-    document.getElementById('chat-send').disabled = true;
-    const tp = addMsg('<span class="typing">Thinking…</span>', 'bot');
-    try{{
-      const r = await fetch(URL, {{
-        method:'POST',
-        headers:{{'Content-Type':'application/json','Authorization':'Bearer '+KEY}},
-        body: JSON.stringify({{
-          model:'llama-3.3-70b-versatile',max_tokens:300,temperature:0.7,
-          messages:[{{role:'system',content:SYS}},...hist.slice(-8)]
-        }})
-      }});
-      const d = await r.json();
-      const rep = d?.choices?.[0]?.message?.content || "Sorry, couldn't get a response. Try again!";
-      tp.remove();
-      addMsg(rep, 'bot');
-      hist.push({{role:'assistant',content:rep}});
-    }} catch(e){{
-      tp.remove();
-      addMsg('⚠️ Connection error. Please try again.', 'bot');
-    }}
+    document.getElementById("ak-snd").disabled = true;
+    var tp = addMsg("Thinking…", "bot typ");
+    try {
+      var r = await fetch(GROQ_URL, {
+        method:"POST",
+        headers:{"Content-Type":"application/json","Authorization":"Bearer "+GROQ_KEY},
+        body: JSON.stringify({
+          model:"llama-3.3-70b-versatile",max_tokens:300,temperature:0.7,
+          messages:[{role:"system",content:SYS},...hist.slice(-8)]
+        })
+      });
+      var d = await r.json();
+      var rep = (d && d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) || "Sorry, couldn't get a response. Try again!";
+      tp.remove(); addMsg(rep, "bot");
+      hist.push({role:"assistant",content:rep});
+    } catch(e) {
+      tp.remove(); addMsg("⚠️ Connection error. Please try again.", "bot");
+    }
     busy = false;
-    document.getElementById('chat-send').disabled = false;
-    document.getElementById('chat-inp').focus();
-  }};
-}})();
+    document.getElementById("ak-snd").disabled = false;
+    document.getElementById("ak-inp").focus();
+  };
+})();
 </script>
-""", height=0, scrolling=False)
+'''
+_chat_html = _chat_html.replace("___GROQ_KEY___", _groq_key)
+st.markdown(_chat_html, unsafe_allow_html=True)
 
 
 # ══════════════════════════════════════════════════════════════
@@ -3654,6 +3600,14 @@ elif st.session_state.page == "profile":
             f'<div style="font-size:.5rem;color:var(--dim);margin-top:3px;line-height:1.4;">{desc}</div>'
             f'{_tag}</div>'
         )
+
+    # Compute missing vars for badges
+    win_streak, loss_streak = compute_streaks(all_trades)
+    _trade_days = set()
+    for _t in all_trades:
+        _td = str(_t.get("created_at",""))[:10]
+        if _td: _trade_days.add(_td)
+    days = len(_trade_days)
 
     _BADGES = [
         ("⚡", "First Trade",  "Execute your first trade",       tt >= 1),
