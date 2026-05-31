@@ -1,4 +1,4 @@
- import streamlit as st
+import streamlit as st
 import streamlit.components.v1 as _stc
 from supabase import create_client
 import time, random, string, smtplib, base64, io
