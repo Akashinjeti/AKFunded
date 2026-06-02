@@ -949,7 +949,34 @@ def send_breach_email(to_email, name, reason, plan, capital):
         "<div style='text-align:center;font-size:.6rem;color:#3a3a3a;letter-spacing:1.5px;margin-top:1.5rem;'>AKFunded &middot; Simulated Prop Trading &middot; @akfunded</div>"
         "</div></body></html>"
     )
-    return send_email_html(to_email, "AKFunded — Account Breached", html)
+    return send_email_html(to_email, "Account Breached - AKFunded", html)
+
+def send_passed_email(to_email, name, target, plan, capital):
+    cap_str = f"${capital//1000}K"
+    html = (
+        "<!DOCTYPE html><html><head><meta charset='UTF-8'></head>"
+        "<body style='margin:0;padding:0;background:#030303;font-family:Helvetica Neue,sans-serif;'>"
+        "<div style='max-width:600px;margin:0 auto;padding:2rem;'>"
+        "<div style='text-align:center;border-bottom:1px solid #1e1e1e;padding-bottom:1.5rem;margin-bottom:1.5rem;'>"
+        "<div style='font-size:1.4rem;font-weight:700;letter-spacing:4px;color:#D4AF37;'>AKFUNDED</div>"
+        "<div style='font-size:.6rem;color:#505050;letter-spacing:3px;text-transform:uppercase;margin-top:4px;'>Achievement Alert</div>"
+        "</div>"
+        "<div style='background:#1a1708;border:1px solid rgba(212,175,55,.3);border-left:3px solid #D4AF37;padding:1.5rem;margin-bottom:1.5rem;'>"
+        "<div style='font-size:.65rem;color:#D4AF37;letter-spacing:3px;text-transform:uppercase;margin-bottom:.5rem;font-weight:700;'>CHALLENGE PASSED</div>"
+        f"<div style='font-size:1.1rem;color:#D8D8D8;margin-bottom:.5rem;'>Congratulations <strong style='color:#fff;'>{name}</strong>!</div>"
+        f"<div style='font-size:.88rem;color:#888;line-height:1.8;'>You have successfully passed the <strong style='color:#D4AF37;'>{plan.upper()} {cap_str}</strong> evaluation by hitting your {target}% target!</div>"
+        "</div>"
+        "<div style='background:#111;border:1px solid #1e1e1e;padding:1.2rem;margin-bottom:1.5rem;'>"
+        "<div style='font-size:.6rem;color:#505050;letter-spacing:2px;text-transform:uppercase;margin-bottom:.8rem;'>Next Steps</div>"
+        f"<div style='font-size:.88rem;color:#D8D8D8;line-height:1.7;'>Your certificate is now available in your dashboard. Login to proceed to your funded account.</div>"
+        "</div>"
+        f"<div style='background:#111;border:1px solid #1e1e1e;padding:1.2rem;'>"
+        f"<div style='font-size:.75rem;color:#888;line-height:1.8;'>Access your dashboard at <a href='{PLATFORM_URL}' style='color:#D4AF37;text-decoration:none;'>{PLATFORM_URL}</a></div>"
+        "</div>"
+        "<div style='text-align:center;font-size:.6rem;color:#3a3a3a;letter-spacing:1.5px;margin-top:1.5rem;'>AKFunded &middot; Simulated Prop Trading &middot; @akfunded</div>"
+        "</div></body></html>"
+    )
+    return send_email_html(to_email, "Challenge Passed! - AKFunded", html)
 
 def call_ai(messages, system_prompt):
     try:
@@ -3409,7 +3436,28 @@ elif st.session_state.page == "dashboard":
                 elif target > 0 and new_pct >= target and new_days >= r.get("min_days",0):
                     supabase.table("challenges").update({"status":"passed"}).eq("id",ch_id).execute()
                     push_notification(uid,"🏆","Challenge Passed!",f"Profit target of +{target}% achieved.")
-                    st.balloons(); st.success("Challenge passed! Certificate available.")
+                    send_passed_email(email, name, target, challenge["plan"], int(initial))
+                    st.components.v1.html("""
+                    <script>
+                    const w = window.parent; const d = w.document;
+                    if(!d.getElementById('g-confetti-style')){
+                        const s = d.createElement('style'); s.id = 'g-confetti-style';
+                        s.innerHTML = `@keyframes gFall{0%{transform:translateY(-10vh) rotateZ(0deg) rotateX(0deg);opacity:1;}100%{transform:translateY(110vh) rotateZ(720deg) rotateX(360deg);opacity:0;}} .g-confetti{position:fixed;z-index:999999;width:12px;height:24px;background:linear-gradient(135deg,#D4AF37,#FFDF00);box-shadow:0 0 10px rgba(212,175,55,0.6);pointer-events:none;} @keyframes passAnim{0%{opacity:0;transform:translate(-50%,-50%) scale(0.5);} 15%{opacity:1;transform:translate(-50%,-50%) scale(1.1);} 25%{transform:translate(-50%,-50%) scale(1);} 80%{opacity:1;transform:translate(-50%,-50%) scale(1);} 100%{opacity:0;transform:translate(-50%,-50%) scale(1.3);}}`;
+                        d.head.appendChild(s);
+                    }
+                    for(let i=0; i<150; i++) {
+                        const c = d.createElement('div'); c.className = 'g-confetti';
+                        c.style.left = Math.random() * 100 + 'vw';
+                        c.style.animation = 'gFall ' + (Math.random() * 2 + 2) + 's linear forwards';
+                        c.style.animationDelay = Math.random() * 1 + 's';
+                        d.body.appendChild(c); setTimeout(()=>c.remove(), 4000);
+                    }
+                    const text = d.createElement('div');
+                    text.innerHTML = '<h1 style="color:#D4AF37;text-shadow:0 0 40px #D4AF37, 0 0 80px #D4AF37;font-size:clamp(4rem,10vw,8rem);font-family:Orbitron,sans-serif;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:999999;animation:passAnim 3.5s forwards;text-align:center;line-height:1;margin:0;">CHALLENGE<br>PASSED!</h1>';
+                    d.body.appendChild(text); setTimeout(()=>text.remove(), 4000);
+                    </script>
+                    """, height=0, width=0)
+                    st.success("Challenge passed! Certificate available.")
                 else:
                     push_notification(uid,"⚡","Trade Executed",f"{t_dir} {t_sym} — P&L: {es}${actual_est:,.2f}")
                     if actual_est>=0: st.success(f"Trade executed. P&L: {es}${actual_est:,.2f}")
@@ -3583,6 +3631,27 @@ elif st.session_state.page == "markets":
 
     # Heatmap, Scanner, and Order Book removed.
 
+    footer()
+
+# ══════════════════════════════════════════════════════════════
+# PORTFOLIO & ANALYTICS
+# ══════════════════════════════════════════════════════════════
+elif st.session_state.page in ["portfolio", "analytics"]:
+    if not st.session_state.user: goto("auth")
+    nav()
+    uid = st.session_state.user["id"]
+    
+    challenge = db_get_active_challenge(uid)
+    ch_id = challenge["id"] if challenge else 0
+    all_trades = db_get_trades(uid, ch_id, limit=500)
+    wr, ap, bt, wt, tt = compute_stats(all_trades)
+    
+    passed_challenges = supabase.table("challenges").select("id").eq("user_id", uid).eq("status", "passed").execute().data
+    passed = len(passed_challenges)
+
+    st.markdown('<div style="margin-top:2rem;"></div>', unsafe_allow_html=True)
+    sec("Portfolio & Trading DNA", "Detailed analysis of your trading habits and performance.")
+
     # ── TRADING DNA ──────────────────────────────────────────
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown(
@@ -3660,16 +3729,67 @@ elif st.session_state.page == "markets":
             unsafe_allow_html=True
         )
 
-    st.markdown("<br>", unsafe_allow_html=True)
-    c1,c2=st.columns(2)
+
+    footer()
+
+# ══════════════════════════════════════════════════════════════
+# JOURNAL
+# ══════════════════════════════════════════════════════════════
+elif st.session_state.page == "journal":
+    if not st.session_state.user: goto("auth")
+    nav()
+    st.markdown('<div style="margin-top:2rem;"></div>', unsafe_allow_html=True)
+    sec("Trading Journal", "Log your thoughts, emotions, and trade rationale.")
+    st.markdown('<div style="color:var(--dim);text-align:center;padding:3rem;background:var(--s1);border:1px solid var(--border);border-radius:4px;">Journal feature is currently under development for the Beta. Check back soon!</div>', unsafe_allow_html=True)
+    footer()
+
+# ══════════════════════════════════════════════════════════════
+# HISTORY
+# ══════════════════════════════════════════════════════════════
+elif st.session_state.page == "history":
+    if not st.session_state.user: goto("auth")
+    nav()
+    st.markdown('<div style="margin-top:2rem;"></div>', unsafe_allow_html=True)
+    sec("Trade History", "Complete log of all executed trades across all challenges.")
+    st.markdown('<div style="color:var(--dim);text-align:center;padding:3rem;background:var(--s1);border:1px solid var(--border);border-radius:4px;">Trade history table is currently being synchronized. View recent trades on the Dashboard.</div>', unsafe_allow_html=True)
+    footer()
+
+
+# ══════════════════════════════════════════════════════════════
+# PROFILE / ME
+# ══════════════════════════════════════════════════════════════
+elif st.session_state.page == "profile":
+    if not st.session_state.user: goto("auth")
+    nav()
+    uid = st.session_state.user["id"]
+    name = st.session_state.user.get("name", "Trader")
+    email = st.session_state.user.get("email", "")
+    
+    st.markdown('<div style="margin-top:2rem;"></div>', unsafe_allow_html=True)
+    sec("Trader Profile", "Manage your account and platform settings")
+    
+    st.markdown(
+        f'<div style="background:var(--s1);border:1px solid var(--border);padding:2rem;border-radius:4px;margin-bottom:1.5rem;">'
+        f'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:2.5rem;color:var(--text);letter-spacing:2px;line-height:1;">{name}</div>'
+        f'<div style="font-size:.9rem;color:var(--gold);margin-top:8px;font-family:\'JetBrains Mono\',monospace;">{email}</div>'
+        f'<div style="font-size:.7rem;color:var(--dim);margin-top:8px;">ID: {uid}</div>'
+        f'</div>', unsafe_allow_html=True
+    )
+    
+    c1, c2 = st.columns(2)
     with c1:
         if st.button("Sign Out",use_container_width=True,key="profile_logout"):
-            supabase.auth.sign_out(); st.session_state.user=None; st.session_state.notifications=[]; goto("home")
+            supabase.auth.sign_out()
+            st.session_state.user=None
+            st.session_state.notifications=[]
+            goto("home")
     with c2:
         if st.button("Send Test Email",use_container_width=True,key="test_email"):
-            ok=send_email_html(email,"AKFunded — Email Test",f'<div style="font-family:Arial,sans-serif;background:#050505;color:#D8D8D8;padding:2rem;max-width:500px;"><h2 style="color:#00D4FF;">AKFUNDED</h2><p>Email working correctly, {name}.</p></div>')
+            ok=send_email_html(email,"AKFunded — Email Test",f'<div style="font-family:Arial,sans-serif;background:#030303;color:#D8D8D8;padding:2rem;max-width:500px;"><h2 style="color:#D4AF37;">AKFUNDED</h2><p>Email working correctly, {name}.</p></div>')
             if ok: st.success(f"Test email sent to {email}.")
             else: st.error("Configure SMTP_EMAIL and SMTP_PASSWORD in secrets.")
+            
+    st.markdown("<br><br>", unsafe_allow_html=True)
     footer()
 
 # ══════════════════════════════════════════════════════════════
