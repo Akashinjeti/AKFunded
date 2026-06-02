@@ -29,33 +29,33 @@ st.markdown("""
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
 
 :root {
-  --gold:#F900FF; /* Cyber Magenta */
-  --gold-dim:#4a004d;
-  --gold-glow:rgba(249,0,255,.2);
-  --black:#020108; /* Deep Void */
-  --s0:#04030d;
-  --s1:rgba(12, 10, 25, 0.65); /* Glassmorphism Panel */
-  --s2:rgba(18, 15, 40, 0.7);
-  --s3:rgba(25, 22, 55, 0.8);
-  --border:rgba(0, 243, 255, 0.15); /* Electric Blue Border */
-  --border2:rgba(0, 243, 255, 0.3);
-  --border3:rgba(249, 0, 255, 0.3);
-  --text:#EAF0FF;
-  --dim:#687A9E;
-  --dim2:#3A4C6A;
-  --green:#00FF85; /* Neon Green */
-  --green-dim:rgba(0,255,133,.15);
-  --red:#FF003C; /* Cyber Red */
-  --red-dim:rgba(255,0,60,.15);
-  --purple:#A200FF;
-  --blue:#0066FF;
-  --cyan:#00F3FF; /* Electric Cyan */
-  --cyan-dim:rgba(0,243,255,.15);
-  --neon:#39FF14;
+  --gold:#9d00ff; /* Neon Purple */
+  --gold-dim:#35005c;
+  --gold-glow:rgba(157, 0, 255, 0.25);
+  --black:#05000a; /* Darkest Purple-Black */
+  --s0:#0b0014;
+  --s1:rgba(18, 0, 36, 0.65); /* Glass Purple */
+  --s2:rgba(28, 5, 50, 0.75);
+  --s3:rgba(42, 10, 75, 0.85);
+  --border:rgba(157, 0, 255, 0.2); 
+  --border2:rgba(157, 0, 255, 0.35);
+  --border3:rgba(212, 102, 255, 0.4);
+  --text:#f4e6ff;
+  --dim:#9c7eb5;
+  --dim2:#5c4075;
+  --green:#00ffcc; /* Cyan/Teal for Profits */
+  --green-dim:rgba(0, 255, 204, 0.15);
+  --red:#ff0073; /* Hot Pink for Losses */
+  --red-dim:rgba(255, 0, 115, 0.15);
+  --purple:#c300ff;
+  --blue:#6200ff;
+  --cyan:#e066ff; /* Lavender/Pink Accent */
+  --cyan-dim:rgba(224, 102, 255, 0.15);
+  --neon:#df00ff;
 }
 
 html, body {
-  background:#020108!important;
+  background:#05000a!important;
   font-family:'Rajdhani',sans-serif;
 }
 [class*="css"],.main,.stApp,.stApp>div,section.main,
@@ -675,7 +675,30 @@ div[data-testid="stVerticalBlock"],div[data-testid="stHorizontalBlock"],
 div[data-testid="column"],div[data-testid="stMarkdownContainer"],
 div.element-container,div.stMarkdown { background:transparent!important; }
 .stSlider [data-baseweb="slider"] [data-testid="stSliderThumb"] { background:var(--cyan)!important; }
-</style>
+
+.card, .feat-card, .step-card, .plan-card, .metric-card {
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+  transform-style: preserve-3d;
+}
+.card:hover, .feat-card:hover, .step-card:hover, .plan-card:hover, .metric-card:hover {
+  transform: perspective(1000px) rotateX(4deg) rotateY(-4deg) scale3d(1.03, 1.03, 1.03) translateY(-8px);
+  box-shadow: 20px 20px 40px rgba(0,0,0,0.8), -1px -1px 2px rgba(224, 102, 255, 0.3) inset;
+}
+.btn-primary, .btn-secondary {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.btn-primary:hover {
+  transform: perspective(500px) translateZ(20px) scale(1.05);
+  box-shadow: 0 0 30px rgba(157, 0, 255, 0.6);
+}
+.gs-val {
+  transition: transform 0.3s ease;
+}
+.gs:hover .gs-val {
+  transform: perspective(400px) translateZ(40px) scale(1.15);
+  text-shadow: 0 0 20px var(--cyan);
+}
+\n</style>
 """, unsafe_allow_html=True)
 
 # ─── CONSTANTS ─────────────────────────────────────────────────
@@ -2163,25 +2186,25 @@ if st.session_state.page == "home":
     display:inline-flex;
     align-items:center;
     gap:.6rem;
-    border:1px solid rgba(249,0,255,.3);
-    color:#F900FF;
+    border:1px solid rgba(157,0,255,.3);
+    color:#9d00ff;
     font-size:.65rem;
     letter-spacing:4px;
     padding:6px 20px;
     border-radius:2px;
     margin-bottom:2.5rem;
     text-transform:uppercase;
-    background:rgba(249,0,255,.05);
+    background:rgba(157,0,255,.05);
     font-family:'Orbitron',sans-serif;
     font-weight:600;
   }}
   .eyebrow-dot{{
     width:6px;height:6px;
-    background:#00F3FF;
+    background:#e066ff;
     border-radius:50%;
     display:inline-block;
     animation:blink 2s infinite;
-    box-shadow:0 0 10px #00F3FF;
+    box-shadow:0 0 10px #e066ff;
   }}
   @keyframes blink{{0%,100%{{opacity:1;}}50%{{opacity:.2;}}}}
   .hero-h1{{
@@ -2192,12 +2215,12 @@ if st.session_state.page == "home":
     letter-spacing:2px;
     color:#EAF0FF;
     margin:0 0 1.5rem;
-    text-shadow:0 0 40px rgba(0,243,255,.2);
+    text-shadow:0 0 40px rgba(224,102,255,.2);
   }}
   .hero-h1 em{{
-    color:#00F3FF;
+    color:#e066ff;
     font-style:normal;
-    text-shadow:0 0 40px rgba(0,243,255,.6), 0 0 80px rgba(0,243,255,.3);
+    text-shadow:0 0 40px rgba(224,102,255,.6), 0 0 80px rgba(224,102,255,.3);
   }}
   .hero-sub{{
     font-size:1.1rem;
