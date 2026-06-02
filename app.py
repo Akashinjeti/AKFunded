@@ -8,8 +8,8 @@ from email.mime.multipart import MIMEMultipart
 
 # ─── PAGE CONFIG ───────────────────────────────────────────────
 st.set_page_config(
-    page_title="AKFunded — Prove Your Edge",
-    page_icon="https://raw.githubusercontent.com/Akashinjeti/akfunded/main/logo.PNG",
+    page_title="AKFunded — Trade Crypto. Get Funded.",
+    page_icon="⚡",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
@@ -26,652 +26,655 @@ supabase = get_supabase()
 # ─── GLOBAL STYLES ─────────────────────────────────────────────
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700;800&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Alex+Brush&family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&family=Dancing+Script:wght@700&family=Rajdhani:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --gold:#C9A84C;
-  --gold2:#E8C878;
-  --gold-dim:rgba(201,168,76,.12);
-  --black:#020304;
-  --s0:#060809;
-  --s1:#0a0c0f;
-  --s2:#0f1217;
-  --s3:#141820;
-  --s4:#1a1f28;
-  --border:rgba(255,255,255,.06);
-  --border2:rgba(255,255,255,.1);
-  --border3:rgba(255,255,255,.15);
-  --text:#E2E8F0;
-  --text2:#94A3B8;
-  --dim:#475569;
-  --dim2:#334155;
-  --green:#10D48A;
-  --green2:#0EA572;
-  --green-glow:rgba(16,212,138,.15);
-  --red:#F04E65;
-  --red-glow:rgba(240,78,101,.12);
-  --purple:#8B7CF8;
-  --purple2:#A78BFA;
-  --cyan:#00C8F0;
-  --cyan2:#38D9F5;
-  --cyan-glow:rgba(0,200,240,.12);
-  --cyan-glow2:rgba(0,200,240,.06);
-  --orange:#F59E0B;
+  --gold:#D4A843;
+  --gold-dim:#5c450e;
+  --gold-glow:rgba(212,168,67,.15);
+  --black:#050505;
+  --s0:#080808;
+  --s1:#0d0d0d;
+  --s2:#111111;
+  --s3:#161616;
+  --border:#1e1e1e;
+  --border2:#252525;
+  --border3:#2e2e2e;
+  --text:#D8D8D8;
+  --dim:#505050;
+  --dim2:#3a3a3a;
+  --green:#00B87A;
+  --green-dim:rgba(0,184,122,.1);
+  --red:#E03A52;
+  --red-dim:rgba(224,58,82,.1);
+  --purple:#7B6EF6;
+  --blue:#2D7DD2;
+  --cyan:#00D4FF;
+  --cyan-dim:rgba(0,212,255,.1);
+  --neon:#39FF14;
 }
-
-*, *::before, *::after { box-sizing:border-box; }
 
 html, body {
-  background:var(--black)!important;
-  font-family:'Inter',sans-serif;
-  -webkit-font-smoothing:antialiased;
+  background:#050505!important;
+  font-family:'Rajdhani',sans-serif;
 }
-
-[class*='css'],.main,.stApp,.stApp>div,section.main,
-div[data-testid='stAppViewContainer'],div[data-testid='stHeader'],
-div[data-testid='stToolbar'],div[data-testid='stDecoration'],
-div[data-testid='stBottom'],.appview-container,.reportview-container,
-.main .block-container {
-  background-color:var(--black)!important;
-  background:var(--black)!important;
+[class*="css"],.main,.stApp,.stApp>div,section.main,
+div[data-testid="stAppViewContainer"],div[data-testid="stHeader"],
+div[data-testid="stToolbar"],div[data-testid="stDecoration"],
+div[data-testid="stBottom"],.appview-container,.reportview-container,
+.main .block-container,iframe {
+  background-color:#050505!important;background:#050505!important;
 }
-
-iframe { background:transparent!important; }
-* { font-family:'Inter',sans-serif; color:var(--text); }
+* { font-family:'Rajdhani',sans-serif; color:var(--text); }
 #MainMenu,footer,header { visibility:hidden!important;display:none!important; }
-.block-container { padding:0 2.5rem 4rem!important;max-width:1400px!important; }
-
-::-webkit-scrollbar { width:3px;height:3px; }
-::-webkit-scrollbar-track { background:transparent; }
-::-webkit-scrollbar-thumb { background:rgba(0,200,240,.2);border-radius:2px; }
-::-webkit-scrollbar-thumb:hover { background:rgba(0,200,240,.4); }
-
-body::before {
-  content:'';position:fixed;top:0;left:0;right:0;bottom:0;
-  background:
-    radial-gradient(ellipse 80% 50% at 20% 0%, rgba(0,200,240,.04) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(139,124,248,.04) 0%, transparent 60%),
-    radial-gradient(ellipse 40% 30% at 50% 50%, rgba(16,212,138,.02) 0%, transparent 70%);
-  pointer-events:none;z-index:0;
-}
+.block-container { padding:1rem 2.5rem 3rem!important;max-width:1400px!important; }
+::-webkit-scrollbar { width:2px; }
+::-webkit-scrollbar-thumb { background:var(--gold-dim); }
 
 body::after {
-  content:'';position:fixed;top:0;left:0;right:0;bottom:0;
-  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.025) 2px,rgba(0,0,0,.025) 4px);
-  pointer-events:none;z-index:0;opacity:.4;
+  content:'';
+  position:fixed;
+  top:0;left:0;right:0;bottom:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px);
+  pointer-events:none;
+  z-index:0;
 }
 
 .ak-nav {
-  display:flex;align-items:center;justify-content:space-between;
-  padding:1.4rem 0;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:1.2rem 0;
   border-bottom:1px solid var(--border);
-  margin-bottom:0;position:relative;
+  margin-bottom:2rem;
+  position:relative;
 }
 .ak-nav::after {
-  content:'';position:absolute;bottom:-1px;left:0;width:280px;height:1px;
-  background:linear-gradient(90deg,var(--cyan),var(--purple),transparent);
-  opacity:.6;
+  content:'';
+  position:absolute;
+  bottom:-1px;
+  left:0;
+  width:200px;
+  height:1px;
+  background:linear-gradient(90deg,var(--cyan),transparent);
 }
 .ak-logo {
-  font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:8px;
-  display:inline-flex;align-items:baseline;gap:3px;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:2.2rem;
+  letter-spacing:6px;
+  display:inline-flex;
+  align-items:baseline;
+  gap:2px;
 }
-.ak-part { color:var(--cyan);text-shadow:0 0 30px rgba(0,200,240,.5),0 0 60px rgba(0,200,240,.2); }
+.ak-part { color:var(--cyan); text-shadow:0 0 20px rgba(0,212,255,.4); }
 .funded-part { color:#fff; }
 .ak-beta {
-  background:linear-gradient(135deg,var(--gold),var(--gold2));
-  color:#000;font-size:.45rem;font-weight:800;padding:2px 7px;
-  border-radius:4px;letter-spacing:2px;vertical-align:super;margin-left:6px;
-  font-family:'Inter',sans-serif;box-shadow:0 2px 12px rgba(201,168,76,.3);
+  background:var(--gold);
+  color:#000;
+  font-size:.5rem;
+  font-weight:700;
+  padding:2px 6px;
+  border-radius:3px;
+  letter-spacing:1.5px;
+  vertical-align:super;
+  margin-left:5px;
+  font-family:'Rajdhani',sans-serif;
 }
-.ak-tagline { font-size:.55rem;color:var(--dim);letter-spacing:4px;text-transform:uppercase;margin-top:3px;font-weight:400; }
+.ak-tagline {
+  font-size:.6rem;
+  color:var(--dim);
+  letter-spacing:3px;
+  text-transform:uppercase;
+  margin-top:2px;
+}
 
 .ticker-wrap {
-  overflow:hidden;background:var(--s1);
-  border-top:1px solid rgba(0,200,240,.1);border-bottom:1px solid rgba(0,200,240,.1);
-  padding:.5rem 0;margin-bottom:0;position:relative;
+  overflow:hidden;
+  background:var(--s1);
+  border-top:1px solid rgba(0,212,255,.15);
+  border-bottom:1px solid rgba(0,212,255,.15);
+  padding:.45rem 0;
+  margin-bottom:2rem;
+  position:relative;
 }
 .ticker-wrap::before {
-  content:'LIVE';position:absolute;left:0;top:50%;transform:translateY(-50%);
-  background:var(--cyan);color:#000;font-size:.48rem;font-weight:800;
-  padding:4px 12px;letter-spacing:2px;z-index:2;font-family:'Inter',sans-serif;
+  content:'LIVE';
+  position:absolute;
+  left:0;
+  top:50%;
+  transform:translateY(-50%);
+  background:var(--cyan);
+  color:#000;
+  font-size:.5rem;
+  font-weight:700;
+  padding:3px 10px;
+  letter-spacing:2px;
+  z-index:2;
 }
-.ticker-inner { display:flex;gap:3.5rem;animation:ticker 50s linear infinite;white-space:nowrap;padding-left:65px; }
-@keyframes ticker{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
-.ticker-item { display:inline-flex;align-items:center;gap:.6rem;font-size:.7rem; }
-.ticker-sep { color:rgba(0,200,240,.2); }
-.ticker-sym { font-weight:700;color:var(--text2);font-family:'Inter',sans-serif;letter-spacing:.5px;font-size:.68rem; }
-.ticker-price { font-family:'JetBrains Mono',monospace;color:var(--dim);font-size:.66rem; }
-.ticker-chg { font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700; }
+.ticker-inner {
+  display:flex;
+  gap:3.5rem;
+  animation:ticker 45s linear infinite;
+  white-space:nowrap;
+  padding-left:60px;
+}
+@keyframes ticker { 0%{transform:translateX(0);} 100%{transform:translateX(-50%);} }
+.ticker-item { display:inline-flex;align-items:center;gap:.6rem;font-size:.72rem; }
+.ticker-sep { color:rgba(0,212,255,.3); }
+.ticker-sym { font-weight:700;color:var(--text);font-family:'Rajdhani',sans-serif;letter-spacing:1px; }
+.ticker-price { font-family:'JetBrains Mono',monospace;color:var(--dim);font-size:.7rem; }
+.ticker-chg { font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:700; }
 .ticker-chg.up { color:var(--green); }
 .ticker-chg.dn { color:var(--red); }
 
 .hero-v2 {
-  position:relative;text-align:center;padding:8rem 2rem 6rem;overflow:hidden;
+  position:relative;
+  text-align:center;
+  padding:7rem 2rem 5rem;
+  overflow:hidden;
 }
 .hero-v2::before {
-  content:'';position:absolute;top:-10%;left:50%;transform:translateX(-50%);
-  width:1000px;height:700px;
-  background:radial-gradient(ellipse,rgba(0,200,240,.06) 0%,rgba(139,124,248,.03) 40%,transparent 70%);
+  content:'';
+  position:absolute;
+  top:-20%;
+  left:50%;
+  transform:translateX(-50%);
+  width:900px;
+  height:600px;
+  background:radial-gradient(ellipse,rgba(0,212,255,.05) 0%,transparent 65%);
   pointer-events:none;
 }
 .hero-v2::after {
-  content:'';position:absolute;top:0;left:0;right:0;bottom:0;
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;bottom:0;
   background:
-    repeating-linear-gradient(0deg,transparent,transparent 80px,rgba(0,200,240,.006) 80px,rgba(0,200,240,.006) 81px),
-    repeating-linear-gradient(90deg,transparent,transparent 80px,rgba(0,200,240,.006) 80px,rgba(0,200,240,.006) 81px);
+    repeating-linear-gradient(0deg,transparent,transparent 60px,rgba(0,212,255,.008) 60px,rgba(0,212,255,.008) 61px),
+    repeating-linear-gradient(90deg,transparent,transparent 60px,rgba(0,212,255,.008) 60px,rgba(0,212,255,.008) 61px);
   pointer-events:none;
 }
 .eyebrow {
-  display:inline-flex;align-items:center;gap:.6rem;
-  border:1px solid rgba(0,200,240,.25);color:var(--cyan);font-size:.58rem;letter-spacing:4px;
-  padding:6px 20px;border-radius:100px;margin-bottom:2.5rem;text-transform:uppercase;
-  background:rgba(0,200,240,.05);font-family:'Inter',sans-serif;font-weight:600;
-  box-shadow:0 0 20px rgba(0,200,240,.08);
+  display:inline-flex;
+  align-items:center;
+  gap:.6rem;
+  border:1px solid rgba(0,212,255,.2);
+  color:var(--cyan);
+  font-size:.6rem;
+  letter-spacing:3px;
+  padding:5px 18px;
+  border-radius:2px;
+  margin-bottom:2.5rem;
+  text-transform:uppercase;
+  background:rgba(0,212,255,.04);
+  font-family:'Rajdhani',sans-serif;
+  font-weight:600;
 }
 .eyebrow-dot {
-  width:6px;height:6px;background:var(--cyan);border-radius:50%;
-  animation:blink 2s infinite;box-shadow:0 0 10px var(--cyan);
+  width:5px;height:5px;
+  background:var(--cyan);
+  border-radius:50%;
+  display:inline-block;
+  animation:blink 2s infinite;
+  box-shadow:0 0 8px var(--cyan);
 }
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
 .hero-v2 h1 {
-  font-family:'Bebas Neue',sans-serif;font-size:clamp(4rem,10vw,11rem);
-  line-height:.86;letter-spacing:4px;margin:0 0 2rem;color:#fff;
-  text-shadow:0 2px 40px rgba(0,0,0,.5);
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(4rem,10vw,10.5rem);
+  line-height:.88;
+  letter-spacing:6px;
+  margin:0 0 1.8rem;
+  color:#fff;
 }
-.hero-v2 h1 em {
-  color:transparent;font-style:normal;
-  background:linear-gradient(135deg,var(--cyan) 0%,var(--purple) 60%,var(--cyan2) 100%);
-  -webkit-background-clip:text;background-clip:text;
-  background-size:200% 200%;animation:gradShift 4s ease infinite;
-  text-shadow:none;
-}
-@keyframes gradShift{0%,100%{background-position:0% 50%;}50%{background-position:100% 50%;}}
+.hero-v2 h1 em { color:var(--cyan);font-style:normal;text-shadow:0 0 40px rgba(0,212,255,.3); }
 .hero-v2 .sub {
-  font-size:.95rem;color:var(--dim);max-width:500px;margin:0 auto 3.5rem;
-  line-height:2;font-weight:400;letter-spacing:.2px;
+  font-size:1rem;
+  color:#3a3a3a;
+  max-width:480px;
+  margin:0 auto 3rem;
+  line-height:1.9;
+  font-weight:400;
+  letter-spacing:.3px;
 }
 
 .hstats {
-  display:flex;justify-content:center;gap:0;
-  border:1px solid var(--border2);margin-bottom:4rem;border-radius:12px;
-  overflow:hidden;background:var(--s1);
-  box-shadow:0 8px 32px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.04);
+  display:flex;
+  justify-content:center;
+  gap:0;
+  border:1px solid var(--border);
+  margin-bottom:4rem;
+  border-radius:4px;
+  overflow:hidden;
 }
 .hstat {
-  flex:1;padding:1.6rem 2rem;border-right:1px solid var(--border);
-  text-align:center;position:relative;overflow:hidden;
+  flex:1;
+  padding:1.5rem 2rem;
+  border-right:1px solid var(--border);
+  text-align:center;
+  position:relative;
+  overflow:hidden;
 }
 .hstat::before {
-  content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(0,200,240,.25),transparent);
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,212,255,.3),transparent);
 }
 .hstat:last-child { border-right:none; }
 .hstat .n {
-  font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:var(--cyan);
-  letter-spacing:3px;display:block;margin-bottom:.3rem;
-  text-shadow:0 0 30px rgba(0,200,240,.3);
+  font-family:'Bebas Neue',sans-serif;
+  font-size:2rem;
+  color:var(--cyan);
+  letter-spacing:2px;
+  display:block;
+  margin-bottom:.2rem;
+  text-shadow:0 0 20px rgba(0,212,255,.2);
 }
-.hstat .l { font-size:.55rem;color:var(--dim);letter-spacing:3px;text-transform:uppercase;font-weight:500; }
+.hstat .l {
+  font-size:.58rem;
+  color:var(--dim);
+  letter-spacing:2.5px;
+  text-transform:uppercase;
+}
 
 .metric-row { display:grid;grid-template-columns:repeat(4,1fr);gap:1px;margin-bottom:1px;background:var(--border); }
 .m-card {
-  background:var(--s1);padding:1.5rem 1.8rem;position:relative;overflow:hidden;
-  transition:background .2s;
+  background:var(--s1);
+  padding:1.4rem 1.6rem;
+  position:relative;
+  overflow:hidden;
 }
-.m-card:hover { background:var(--s2); }
 .m-card::before {
-  content:'';position:absolute;top:0;left:0;width:2px;height:100%;
-  background:linear-gradient(180deg,var(--cyan),var(--purple));opacity:.4;
+  content:'';
+  position:absolute;
+  top:0;left:0;
+  width:2px;height:100%;
+  background:var(--cyan);
+  opacity:.3;
 }
 .m-card::after {
-  content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,rgba(0,200,240,.3),transparent);
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;
+  height:1px;
+  background:linear-gradient(90deg,var(--cyan),transparent);
+  opacity:.2;
 }
-.m-label { font-size:.55rem;color:var(--dim);letter-spacing:3px;text-transform:uppercase;margin-bottom:.4rem;font-weight:500; }
-.m-val { font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:700;line-height:1;color:var(--text); }
-.m-sub { font-size:.65rem;color:var(--dim);margin-top:.4rem;font-weight:400; }
-.m-up { color:var(--green)!important; }
-.m-dn { color:var(--red)!important; }
+.m-label {
+  font-size:.58rem;
+  color:var(--dim);
+  letter-spacing:2.5px;
+  text-transform:uppercase;
+  margin-bottom:.6rem;
+  font-weight:600;
+}
+.m-val {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.9rem;
+  letter-spacing:2px;
+  line-height:1;
+}
+.m-val.g { color:var(--green); }
+.m-val.r { color:var(--red); }
+.m-val.o { color:var(--gold); }
+.m-val.c { color:var(--cyan); }
+.m-val.w { color:var(--text); }
+.m-sub { font-size:.65rem;color:var(--dim);margin-top:.5rem;font-family:'JetBrains Mono',monospace; }
 
-.plan-wrap { display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);margin:2rem 0; }
-.plan-card {
-  background:var(--s1);padding:2.2rem 1.8rem;position:relative;overflow:hidden;
-  transition:all .3s cubic-bezier(.34,1.56,.64,1);
-}
-.plan-card::before {
-  content:'';position:absolute;top:0;left:0;right:0;height:2px;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent);
-  transition:background .3s;
-}
-.plan-card:hover { background:var(--s2);transform:translateY(-2px); }
-.plan-card.popular {
-  background:linear-gradient(145deg,var(--s2),var(--s3));
-  border:1px solid rgba(0,200,240,.2);
-}
-.plan-card.popular::before {
-  background:linear-gradient(90deg,var(--cyan),var(--purple),var(--cyan));
-}
-.plan-card.popular::after {
-  content:'MOST POPULAR';position:absolute;top:1rem;right:1rem;
-  background:linear-gradient(135deg,var(--cyan),var(--purple));
-  color:#000;font-size:.45rem;font-weight:800;padding:3px 10px;
-  letter-spacing:2px;border-radius:100px;font-family:'Inter',sans-serif;
-}
-.plan-icon { font-size:1.5rem;margin-bottom:1rem; }
-.plan-name { font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:4px;color:#fff;margin-bottom:.3rem; }
-.plan-sub { font-size:.6rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:1.5rem; }
-.plan-price { font-family:'JetBrains Mono',monospace;font-size:2rem;font-weight:700;color:var(--cyan);line-height:1;margin-bottom:.2rem; }
-.plan-price-sub { font-size:.6rem;color:var(--dim);letter-spacing:1px;margin-bottom:1.5rem; }
+.stats-row { display:grid;grid-template-columns:repeat(5,1fr);gap:1px;margin-bottom:1.5rem;background:var(--border); }
+.stat-box { background:var(--s1);padding:1.1rem 1rem;text-align:center; }
+.stat-box .sv { font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:2px;line-height:1; }
+.stat-box .sl { font-size:.58rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-top:.4rem; }
+.sv.g { color:var(--green); }
+.sv.r { color:var(--red); }
+.sv.o { color:var(--gold); }
+.sv.c { color:var(--cyan); }
+.sv.w { color:var(--text); }
 
-.sec-hd { margin:4rem 0 2rem; }
-.sec-hd h2 {
-  font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:5px;color:var(--text);
-  margin:0 0 .4rem;
+.rules-box {
+  background:var(--s1);
+  border:1px solid var(--border);
+  border-radius:0;
+  padding:1.6rem;
+  margin-bottom:1.5rem;
 }
-.sec-hd-line {
-  width:40px;height:2px;border-radius:2px;
-  background:linear-gradient(90deg,var(--cyan),var(--purple));
-  box-shadow:0 0 10px rgba(0,200,240,.4);margin-bottom:.6rem;
-}
-.sec-hd p { font-size:.75rem;color:var(--dim);letter-spacing:.5px;margin:0; }
+.r-row { display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem; }
+.r-name { font-size:.75rem;color:var(--dim);letter-spacing:.5px; }
+.r-val { font-family:'JetBrains Mono',monospace;font-size:.75rem;font-weight:600; }
+.r-val.ok { color:var(--green); }
+.r-val.bad { color:var(--red); }
+.prog { height:2px;background:var(--border3);margin-bottom:1.2rem; }
+.prog-fill { height:100%; }
 
-.steps-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:1px;margin:3rem 0;background:var(--border); }
-.step-card {
-  background:var(--s1);padding:2.2rem 1.8rem;position:relative;overflow:hidden;
-  transition:background .2s;
+.t-header,.t-row {
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr 1fr 1fr 1.2fr;
+  padding:.65rem 1rem;
+  font-size:.75rem;
+  align-items:center;
 }
-.step-card:hover { background:var(--s2); }
-.step-card::after {
-  content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,var(--cyan),var(--purple),transparent);opacity:.2;
+.t-header {
+  color:var(--dim);
+  font-size:.58rem;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  border-bottom:1px solid var(--border);
+  font-weight:600;
 }
-.step-num {
-  font-family:'Bebas Neue',sans-serif;font-size:3rem;line-height:1;margin-bottom:.6rem;
-  letter-spacing:2px;background:linear-gradient(135deg,var(--cyan),var(--purple));
-  -webkit-background-clip:text;background-clip:text;color:transparent;opacity:.5;
-}
-.step-title { font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:3px;color:var(--text);margin-bottom:.6rem; }
-.step-desc { font-size:.8rem;color:var(--dim);line-height:1.8;font-weight:400; }
+.t-row { border-bottom:1px solid var(--border); }
+.t-row:hover { background:var(--s2); }
+.t-row:last-child { border-bottom:none; }
+.tag-b { background:rgba(0,184,122,.1);color:var(--green);padding:2px 8px;border-radius:2px;font-size:.62rem;font-weight:700;letter-spacing:1px; }
+.tag-s { background:rgba(224,58,82,.1);color:var(--red);padding:2px 8px;border-radius:2px;font-size:.62rem;font-weight:700;letter-spacing:1px; }
 
-.testi-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin:2rem 0;background:var(--border); }
-.testi-card {
-  background:var(--s1);padding:2rem;position:relative;overflow:hidden;
-  transition:background .2s;
+.lb-item {
+  display:flex;
+  align-items:center;
+  gap:1.2rem;
+  background:var(--s1);
+  border:1px solid var(--border);
+  border-left:2px solid transparent;
+  padding:1rem 1.4rem;
+  margin-bottom:2px;
+  transition:border-color .2s;
 }
-.testi-card:hover { background:var(--s2); }
-.testi-card::before {
-  content:'"';position:absolute;top:.5rem;right:1.2rem;
-  font-size:5rem;color:rgba(0,200,240,.06);font-family:'Bebas Neue',sans-serif;line-height:1;
+.lb-item:hover { border-left-color:var(--cyan); }
+.lb-rank { font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--dim);width:36px;text-align:center; }
+.lb-rank.top { color:var(--cyan); text-shadow:0 0 15px rgba(0,212,255,.4); }
+.lb-info { flex:1; }
+.lb-name { font-weight:600;font-size:.88rem;letter-spacing:.3px; }
+.lb-country { font-size:.68rem;color:var(--dim);margin-top:2px; }
+.lb-pnl { font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--green);font-size:.95rem; }
+.lb-badge { font-size:.55rem;padding:2px 8px;border-radius:2px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase; }
+.funded-b { background:rgba(0,212,255,.1);color:var(--cyan);border:1px solid rgba(0,212,255,.2); }
+.active-b { background:rgba(0,184,122,.08);color:var(--green);border:1px solid rgba(0,184,122,.2); }
+
+.journal-entry {
+  background:var(--s1);
+  border:1px solid var(--border);
+  border-left:2px solid var(--border3);
+  padding:1.2rem 1.5rem;
+  margin-bottom:2px;
+  transition:border-left-color .2s;
 }
-.testi-quote {
-  font-size:.84rem;color:var(--text2);line-height:1.9;margin-bottom:1.4rem;
-  font-weight:400;border-left:2px solid rgba(0,200,240,.25);padding-left:1rem;
+.journal-entry:hover { border-left-color:var(--cyan); }
+.je-date { font-size:.58rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:.4rem;font-family:'JetBrains Mono',monospace; }
+.je-note { font-size:.85rem;color:var(--text);line-height:1.7;font-weight:300; }
+.je-tags { display:flex;gap:.4rem;margin-top:.7rem;flex-wrap:wrap; }
+.je-tag { font-size:.58rem;padding:2px 8px;border-radius:2px;background:rgba(0,212,255,.08);color:var(--cyan);font-weight:700;letter-spacing:1px; }
+.je-tag.win { background:rgba(0,184,122,.1);color:var(--green);border:1px solid rgba(0,184,122,.2); }
+.je-tag.loss { background:rgba(224,58,82,.1);color:var(--red);border:1px solid rgba(224,58,82,.2); }
+
+.ch-card {
+  background:var(--s1);
+  border:1px solid var(--border);
+  padding:1.4rem 1.8rem;
+  margin-bottom:2px;
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr 1fr auto;
+  align-items:center;
+  gap:1rem;
 }
-.testi-name { font-weight:700;font-size:.8rem;color:var(--cyan);letter-spacing:1px; }
-.testi-meta { font-size:.65rem;color:var(--dim);margin-top:4px; }
+.ch-plan { font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:3px;color:var(--cyan); }
+.ch-status { padding:3px 12px;border-radius:2px;font-size:.58rem;font-weight:700;letter-spacing:2px;text-align:center;text-transform:uppercase; }
+.ch-status.passed { background:rgba(0,184,122,.1);color:var(--green);border:1px solid rgba(0,184,122,.2); }
+.ch-status.failed { background:rgba(224,58,82,.1);color:var(--red);border:1px solid rgba(224,58,82,.2); }
+.ch-status.active { background:rgba(0,212,255,.08);color:var(--cyan);border:1px solid rgba(0,212,255,.2); }
+
+.notif-item {
+  display:flex;
+  align-items:flex-start;
+  gap:1.2rem;
+  background:var(--s1);
+  border:1px solid var(--border);
+  border-left:2px solid var(--border3);
+  padding:1rem 1.4rem;
+  margin-bottom:2px;
+}
+.notif-item.unread { border-left:2px solid var(--cyan); }
+.notif-icon { font-size:1rem;flex-shrink:0;margin-top:2px;opacity:.7; }
+.notif-body { flex:1; }
+.notif-title { font-weight:600;font-size:.85rem;color:var(--text);margin-bottom:3px; }
+.notif-msg { font-size:.75rem;color:var(--dim);line-height:1.5; }
+.notif-time { font-size:.6rem;color:var(--dim2);letter-spacing:1px;margin-top:5px;font-family:'JetBrains Mono',monospace; }
+.notif-badge { background:var(--cyan);color:#000;font-size:.5rem;font-weight:800;padding:1px 6px;border-radius:2px;margin-left:6px;vertical-align:middle;letter-spacing:1px; }
+
+.profile-hero {
+  background:var(--s1);
+  border:1px solid var(--border);
+  padding:2rem 2.5rem;
+  margin-bottom:1.5rem;
+  display:flex;
+  gap:2.5rem;
+  align-items:center;
+}
+.profile-avatar {
+  width:72px;height:72px;
+  border:1px solid rgba(0,212,255,.3);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:2rem;
+  color:var(--cyan);
+  flex-shrink:0;
+  background:var(--s2);
+  box-shadow:inset 0 0 20px rgba(0,212,255,.05);
+}
+.profile-name { font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:4px;color:var(--text);line-height:1; }
+.profile-email { font-size:.75rem;color:var(--dim);margin-top:5px;font-family:'JetBrains Mono',monospace; }
+.funded-badge-inline {
+  display:inline-block;
+  background:transparent;
+  border:1px solid rgba(0,212,255,.2);
+  color:var(--cyan);
+  font-size:.6rem;
+  letter-spacing:2.5px;
+  padding:3px 12px;
+  margin-top:8px;
+  font-weight:700;
+  text-transform:uppercase;
+}
 
 .admin-row {
-  display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr auto;
-  align-items:center;gap:1rem;padding:.85rem 1rem;
-  border-bottom:1px solid var(--border);font-size:.78rem;
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr 1fr 1fr auto;
+  align-items:center;
+  gap:1rem;
+  padding:.8rem 1rem;
+  border-bottom:1px solid var(--border);
+  font-size:.78rem;
 }
-.admin-row.header { color:var(--dim);font-size:.55rem;letter-spacing:2.5px;text-transform:uppercase; }
-.admin-status { padding:3px 12px;border-radius:100px;font-size:.55rem;font-weight:700;letter-spacing:1.5px;text-align:center;text-transform:uppercase; }
-.admin-status.active { background:rgba(0,200,240,.08);color:var(--cyan);border:1px solid rgba(0,200,240,.2); }
-.admin-status.passed { background:rgba(16,212,138,.08);color:var(--green);border:1px solid rgba(16,212,138,.2); }
-.admin-status.failed { background:rgba(240,78,101,.08);color:var(--red);border:1px solid rgba(240,78,101,.2); }
+.admin-row.header { color:var(--dim);font-size:.58rem;letter-spacing:2px;text-transform:uppercase; }
+.admin-status { padding:2px 10px;border-radius:2px;font-size:.58rem;font-weight:700;letter-spacing:1.5px;text-align:center;text-transform:uppercase; }
+.admin-status.active { background:rgba(0,212,255,.08);color:var(--cyan); }
+.admin-status.passed { background:rgba(0,184,122,.1);color:var(--green); }
+.admin-status.failed { background:rgba(224,58,82,.1);color:var(--red); }
 
-.chat-container { background:var(--s1);border:1px solid var(--border);overflow:hidden;margin-bottom:1rem;border-radius:8px; }
+.plan-rules { list-style:none;padding:0;margin:0 0 1.2rem; }
+.plan-rules li {
+  display:flex;
+  justify-content:space-between;
+  padding:.45rem 0;
+  border-bottom:1px solid var(--border);
+  font-size:.78rem;
+  color:var(--dim);
+}
+.plan-rules li b { color:var(--text);font-weight:500; }
+
+.chat-container { background:var(--s1);border:1px solid var(--border);overflow:hidden;margin-bottom:1rem; }
 .chat-header { padding:1rem 1.4rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.8rem; }
-.chat-ai-dot { width:7px;height:7px;background:var(--green);border-radius:50%;animation:aiPulse 2s infinite;box-shadow:0 0 8px var(--green); }
-@keyframes aiPulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.8);}}
+.chat-ai-dot { width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;box-shadow:0 0 8px var(--green); }
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
 .chat-messages { padding:1.2rem;max-height:380px;overflow-y:auto; }
 .chat-msg { margin-bottom:1rem;display:flex;gap:.8rem;align-items:flex-start; }
 .chat-msg.user { flex-direction:row-reverse; }
-.chat-bubble { padding:.8rem 1.1rem;font-size:.82rem;line-height:1.7;max-width:78%;border-radius:12px; }
+.chat-bubble { padding:.7rem 1rem;font-size:.82rem;line-height:1.6;max-width:78%; }
 .chat-bubble.ai { background:var(--s2);border:1px solid var(--border);color:var(--text); }
-.chat-bubble.user { background:linear-gradient(135deg,var(--cyan),var(--purple));color:#000;font-weight:500; }
-.chat-avatar { width:28px;height:28px;font-size:.7rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--s2);border:1px solid var(--border);font-weight:700;border-radius:50%; }
+.chat-bubble.user { background:var(--cyan);color:#000;font-weight:500; }
+.chat-avatar { width:26px;height:26px;font-size:.7rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--s2);border:1px solid var(--border);font-weight:700; }
 .chat-avatar.user { background:var(--cyan);color:#000; }
 
-.risk-card { background:var(--s1);border:1px solid var(--border);padding:1.5rem;border-radius:8px; }
-.risk-result { background:var(--s2);border:1px solid var(--border);padding:1.1rem;text-align:center;margin-top:1rem;border-radius:6px; }
-.risk-val { font-family:'Bebas Neue',sans-serif;font-size:2.5rem;letter-spacing:2px; }
+.risk-card { background:var(--s1);border:1px solid var(--border);padding:1.5rem; }
+.risk-result { background:var(--s2);border:1px solid var(--border);padding:1.1rem;text-align:center;margin-top:1rem; }
+.risk-val { font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:2px; }
 
 .ref-code-box {
-  background:var(--s2);border:1px solid var(--border2);
-  border-left:3px solid var(--cyan);padding:1rem 1.4rem;
-  display:flex;align-items:center;justify-content:space-between;margin:1rem 0;border-radius:0 8px 8px 0;
+  background:var(--s2);
+  border:1px solid var(--border3);
+  border-left:2px solid var(--cyan);
+  padding:1rem 1.4rem;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin:1rem 0;
 }
-.ref-code { font-family:'JetBrains Mono',monospace;font-size:1.4rem;color:var(--cyan);font-weight:700;letter-spacing:6px; }
+.ref-code { font-family:'JetBrains Mono',monospace;font-size:1.4rem;color:var(--cyan);font-weight:700;letter-spacing:5px; }
 .ref-stats { display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin:1rem 0;background:var(--border); }
 
 .heatmap-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:1px;margin-top:1rem;background:var(--border); }
-.hmap-cell { padding:.9rem .5rem;text-align:center;cursor:default;transition:opacity .2s; }
-.hmap-cell:hover { opacity:.8; }
+.hmap-cell { padding:.8rem .5rem;text-align:center;cursor:default; }
 .hmap-sym { font-size:.68rem;font-weight:700;color:var(--text);letter-spacing:1px; }
 .hmap-chg { font-size:.75rem;font-family:'JetBrains Mono',monospace;margin-top:3px; }
 
 .scan-row {
-  display:flex;align-items:center;justify-content:space-between;
-  background:var(--s1);border:1px solid var(--border);
-  border-left:2px solid transparent;padding:.85rem 1.2rem;margin-bottom:2px;
-  transition:all .15s;border-radius:0 4px 4px 0;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  background:var(--s1);
+  border:1px solid var(--border);
+  border-left:2px solid transparent;
+  padding:.85rem 1.2rem;
+  margin-bottom:2px;
+  transition:border-left-color .15s;
 }
-.scan-row:hover { border-left-color:var(--cyan);background:var(--s2); }
+.scan-row:hover { border-left-color:var(--cyan); }
 .scan-sym { font-weight:700;font-size:.85rem;letter-spacing:.5px; }
-.scan-signal { font-size:.55rem;font-weight:700;letter-spacing:2px;padding:3px 12px;border-radius:100px;text-transform:uppercase; }
-.scan-signal.bull { background:rgba(16,212,138,.1);color:var(--green);border:1px solid rgba(16,212,138,.25); }
-.scan-signal.bear { background:rgba(240,78,101,.1);color:var(--red);border:1px solid rgba(240,78,101,.25); }
-.scan-signal.neut { background:rgba(0,200,240,.08);color:var(--cyan);border:1px solid rgba(0,200,240,.2); }
+.scan-signal { font-size:.58rem;font-weight:700;letter-spacing:2px;padding:3px 10px;border-radius:2px;text-transform:uppercase; }
+.scan-signal.bull { background:rgba(0,184,122,.1);color:var(--green);border:1px solid rgba(0,184,122,.25); }
+.scan-signal.bear { background:rgba(224,58,82,.1);color:var(--red);border:1px solid rgba(224,58,82,.25); }
+.scan-signal.neut { background:rgba(0,212,255,.08);color:var(--cyan);border:1px solid rgba(0,212,255,.2); }
 
 .wl-row { display:flex;align-items:center;justify-content:space-between;padding:.7rem .5rem;border-bottom:1px solid var(--border); }
 .wl-row:last-child { border-bottom:none; }
 
-.ob-row { display:grid;grid-template-columns:1fr 1fr 1fr;padding:.35rem .8rem;font-size:.72rem;font-family:'JetBrains Mono',monospace; }
+.ob-row { display:grid;grid-template-columns:1fr 1fr 1fr;padding:.3rem .8rem;font-size:.73rem;font-family:'JetBrains Mono',monospace; }
 .ob-bid { color:var(--green); }
 .ob-ask { color:var(--red); }
 .ob-vol { color:var(--dim);text-align:right; }
 
-.xp-bar { height:5px;background:var(--border);border-radius:100px;overflow:hidden; }
-.xp-fill { height:100%;background:linear-gradient(90deg,var(--cyan),var(--purple));border-radius:100px; }
-.badge-locked { opacity:.18!important;filter:grayscale(1); }
-
-.breach-alert {
-  background:rgba(240,78,101,.06);border:1px solid rgba(240,78,101,.25);
-  border-left:3px solid var(--red);padding:1.2rem 1.6rem;border-radius:0 8px 8px 0;margin-bottom:1rem;
+.steps-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:1px;margin:3rem 0;background:var(--border); }
+.step-card { background:var(--s1);padding:2rem 1.5rem;position:relative;overflow:hidden; }
+.step-card::after {
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;
+  height:1px;
+  background:linear-gradient(90deg,var(--cyan),transparent);
+  opacity:.2;
 }
+.step-num { font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:var(--cyan);line-height:1;margin-bottom:.5rem;letter-spacing:2px;opacity:.5; }
+.step-title { font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2.5px;color:var(--text);margin-bottom:.6rem; }
+.step-desc { font-size:.82rem;color:var(--dim);line-height:1.7;font-weight:400; }
 
+.testi-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin:2rem 0;background:var(--border); }
+.testi-card { background:var(--s1);padding:1.8rem; }
+.testi-quote { font-size:.85rem;color:var(--text);line-height:1.8;margin-bottom:1.2rem;font-weight:300;border-left:2px solid rgba(0,212,255,.2);padding-left:1rem; }
+.testi-name { font-weight:700;font-size:.8rem;color:var(--cyan);letter-spacing:.5px; }
+.testi-meta { font-size:.68rem;color:var(--dim);margin-top:3px; }
+
+.xp-bar { height:6px; background:var(--border3); border-radius:2px; overflow:hidden; }
+.xp-fill { height:100%; background:linear-gradient(90deg,var(--cyan),var(--green)); border-radius:2px; }
+.badge-locked { opacity:.22 !important; }
 .ak-footer {
-  text-align:center;padding:3rem 0 2rem;
-  border-top:1px solid var(--border);margin-top:6rem;
-  color:var(--dim);font-size:.65rem;letter-spacing:1.5px;position:relative;
+  text-align:center;
+  padding:2.5rem 0 1.5rem;
+  border-top:1px solid var(--border);
+  margin-top:5rem;
+  color:var(--dim);
+  font-size:.68rem;
+  letter-spacing:1px;
+  position:relative;
 }
 .ak-footer::before {
-  content:'';position:absolute;top:-1px;left:50%;transform:translateX(-50%);
-  width:160px;height:1px;background:linear-gradient(90deg,transparent,rgba(0,200,240,.4),transparent);
+  content:'';
+  position:absolute;
+  top:-1px;
+  left:50%;
+  transform:translateX(-50%);
+  width:120px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,212,255,.3),transparent);
 }
 .ak-footer b { color:var(--cyan); }
 
+.breach-alert {
+  background:rgba(224,58,82,.08);
+  border:1px solid rgba(224,58,82,.3);
+  border-left:3px solid var(--red);
+  padding:1.2rem 1.6rem;
+  margin-bottom:1rem;
+}
+
 .stButton>button {
-  background:transparent!important;color:var(--text2)!important;font-weight:600!important;
-  border:1px solid var(--border2)!important;border-radius:8px!important;
-  font-family:'Inter',sans-serif!important;letter-spacing:1px!important;
-  white-space:nowrap!important;text-transform:uppercase!important;font-size:.72rem!important;
-  transition:all .2s!important;padding:.55rem 1.2rem!important;
+  background:var(--s2)!important;
+  color:var(--cyan)!important;
+  font-weight:700!important;
+  border:1px solid rgba(0,212,255,.3)!important;
+  border-radius:2px!important;
+  font-family:'Rajdhani',sans-serif!important;
+  letter-spacing:2px!important;
+  white-space:nowrap!important;
+  text-transform:uppercase!important;
+  font-size:.78rem!important;
+  transition:all .2s!important;
 }
 .stButton>button:hover {
-  background:rgba(0,200,240,.08)!important;border-color:rgba(0,200,240,.4)!important;
-  color:var(--cyan)!important;box-shadow:0 4px 20px rgba(0,200,240,.1)!important;transform:translateY(-1px)!important;
+  background:rgba(0,212,255,.1)!important;
+  border-color:var(--cyan)!important;
+  box-shadow:0 0 15px rgba(0,212,255,.15)!important;
 }
-.stButton>button p { color:inherit!important; }
-.stButton>button[kind='primary'] {
-  background:linear-gradient(135deg,var(--cyan),var(--purple))!important;
-  color:#000!important;border:none!important;box-shadow:0 4px 24px rgba(0,200,240,.25)!important;
+.stButton>button p { color:var(--cyan)!important; }
+.stButton>button[kind="primary"],
+.stButton>button[data-testid*="primary"] {
+  background:var(--cyan)!important;
+  color:#000!important;
+  border-color:var(--cyan)!important;
 }
-.stButton>button[kind='primary']:hover {
-  transform:translateY(-2px)!important;box-shadow:0 8px 32px rgba(0,200,240,.35)!important;
+.stButton>button[kind="primary"] p { color:#000!important; }
+div[data-testid="stTabs"] [data-baseweb="tab-list"] {
+  background:var(--s1)!important;
+  border:1px solid var(--border)!important;
+  border-radius:2px!important;
+  padding:3px!important;
+  gap:3px!important;
 }
-.stButton>button[kind='primary'] p { color:#000!important; }
-
-div[data-testid='stTabs'] [data-baseweb='tab-list'] {
-  background:var(--s1)!important;border:1px solid var(--border)!important;
-  border-radius:10px!important;padding:4px!important;gap:3px!important;
-}
-div[data-testid='stTabs'] [data-baseweb='tab'] {
-  color:var(--dim)!important;font-family:'Inter',sans-serif!important;
-  font-size:.72rem!important;letter-spacing:.5px!important;border-radius:7px!important;
-}
-div[data-testid='stTabs'] [aria-selected='true'] {
-  background:linear-gradient(135deg,rgba(0,200,240,.12),rgba(139,124,248,.12))!important;
-  color:var(--cyan)!important;border:1px solid rgba(0,200,240,.2)!important;
-}
-div[data-testid='stTabs'] [data-baseweb='tab-highlight'],
-div[data-testid='stTabs'] [data-baseweb='tab-border'] { display:none!important; }
-
+div[data-testid="stTabs"] [data-baseweb="tab"] { color:var(--dim)!important;font-family:'Rajdhani',sans-serif!important;font-size:.78rem!important;letter-spacing:1px!important; }
+div[data-testid="stTabs"] [aria-selected="true"] { background:rgba(0,212,255,.1)!important;color:var(--cyan)!important;border-radius:2px!important;border:1px solid rgba(0,212,255,.2)!important; }
+div[data-testid="stTabs"] [data-baseweb="tab-highlight"],
+div[data-testid="stTabs"] [data-baseweb="tab-border"] { display:none!important; }
 .stSelectbox>div>div,
 .stNumberInput>div>div>input,
 .stTextInput>div>div>input,
 .stTextArea>div>div>textarea {
-  background:var(--s2)!important;border:1px solid var(--border)!important;
-  color:var(--text)!important;border-radius:8px!important;font-family:'Inter',sans-serif!important;
-  transition:border-color .2s,box-shadow .2s!important;
+  background:var(--s2)!important;
+  border:1px solid var(--border)!important;
+  color:var(--text)!important;
+  border-radius:2px!important;
+  font-family:'Rajdhani',sans-serif!important;
 }
 .stSelectbox>div>div:focus-within,
 .stNumberInput>div>div>input:focus,
 .stTextInput>div>div>input:focus,
 .stTextArea>div>div>textarea:focus {
-  border-color:rgba(0,200,240,.35)!important;box-shadow:0 0 0 3px rgba(0,200,240,.08)!important;
+  border-color:rgba(0,212,255,.4)!important;
+  box-shadow:0 0 10px rgba(0,212,255,.1)!important;
 }
-label[data-testid='stWidgetLabel'] {
-  color:var(--dim)!important;font-size:.62rem!important;
-  letter-spacing:2px!important;text-transform:uppercase!important;font-weight:600!important;
-}
-div[data-testid='stVerticalBlock'],div[data-testid='stHorizontalBlock'],
-div[data-testid='column'],div[data-testid='stMarkdownContainer'],
+label[data-testid="stWidgetLabel"] { color:var(--dim)!important;font-size:.68rem!important;letter-spacing:1.5px!important;text-transform:uppercase!important; }
+div[data-testid="stVerticalBlock"],div[data-testid="stHorizontalBlock"],
+div[data-testid="column"],div[data-testid="stMarkdownContainer"],
 div.element-container,div.stMarkdown { background:transparent!important; }
-.stSlider [data-baseweb='slider'] [data-testid='stSliderThumb'] { background:var(--cyan)!important; }
-
-.plan-rules { list-style:none;padding:0;margin:0 0 1.2rem; }
-.plan-rules li {
-  display:flex;justify-content:space-between;padding:.5rem 0;
-  border-bottom:1px solid var(--border);font-size:.78rem;color:var(--dim);
-}
-.plan-rules li b { color:var(--text);font-weight:500; }
-.plan-rules li:last-child { border-bottom:none; }
-
-/* ══ LEADERBOARD ══ */
-.lb-item {
-  display:grid;grid-template-columns:52px 1fr auto auto;align-items:center;
-  gap:1rem;padding:1rem 1.2rem;
-  background:var(--s1);border:1px solid var(--border);
-  border-left:2px solid transparent;
-  margin-bottom:2px;transition:all .2s;border-radius:0 8px 8px 0;
-}
-.lb-item:hover { background:var(--s2);border-left-color:var(--cyan); }
-.lb-rank {
-  font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:2px;
-  text-align:center;color:var(--dim);
-}
-.lb-rank.gold { color:var(--gold);text-shadow:0 0 16px rgba(201,168,76,.4); }
-.lb-rank.silver { color:#94A3B8; }
-.lb-rank.bronze { color:#CD7F32; }
-.lb-info { min-width:0; }
-.lb-name { font-weight:700;font-size:.9rem;color:var(--text);letter-spacing:.3px;margin-bottom:3px; }
-.lb-country { font-size:.62rem;color:var(--dim);letter-spacing:1px; }
-.lb-pnl { font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:var(--green);text-align:right; }
-.lb-badge {
-  font-size:.52rem;font-weight:700;letter-spacing:2px;padding:4px 12px;
-  border-radius:100px;text-transform:uppercase;white-space:nowrap;
-}
-.lb-badge.funded { background:rgba(0,200,240,.1);color:var(--cyan);border:1px solid rgba(0,200,240,.25); }
-.lb-badge.passed { background:rgba(16,212,138,.1);color:var(--green);border:1px solid rgba(16,212,138,.25); }
-.lb-badge.active { background:rgba(139,124,248,.1);color:var(--purple);border:1px solid rgba(139,124,248,.25); }
-
-/* ══ CHALLENGE HISTORY ══ */
-.ch-card {
-  background:var(--s1);border:1px solid var(--border);
-  border-left:3px solid var(--border2);
-  padding:1.2rem 1.4rem;margin-bottom:3px;
-  display:grid;grid-template-columns:1fr auto auto auto auto;align-items:center;
-  gap:1.5rem;transition:all .2s;border-radius:0 8px 8px 0;
-}
-.ch-card:hover { background:var(--s2);border-left-color:var(--cyan); }
-.ch-plan { font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:3px;color:var(--text);margin-bottom:4px; }
-.ch-status {
-  font-size:.52rem;font-weight:700;letter-spacing:2px;padding:4px 14px;
-  border-radius:100px;text-transform:uppercase;white-space:nowrap;
-}
-.ch-status.passed { background:rgba(16,212,138,.1);color:var(--green);border:1px solid rgba(16,212,138,.25); }
-.ch-status.failed { background:rgba(240,78,101,.1);color:var(--red);border:1px solid rgba(240,78,101,.25); }
-.ch-status.active { background:rgba(0,200,240,.1);color:var(--cyan);border:1px solid rgba(0,200,240,.25); }
-.ch-status.pending { background:rgba(245,158,11,.1);color:var(--orange);border:1px solid rgba(245,158,11,.25); }
-
-/* ══ PORTFOLIO ══ */
-.portfolio-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);margin-bottom:2rem; }
-.port-stat {
-  background:var(--s1);padding:1.5rem 1.8rem;position:relative;overflow:hidden;
-  transition:background .2s;
-}
-.port-stat:hover { background:var(--s2); }
-.port-stat::before {
-  content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(0,200,240,.2),transparent);
-}
-.port-val { font-family:'JetBrains Mono',monospace;font-size:1.8rem;font-weight:700;line-height:1;color:var(--text);margin-bottom:.4rem; }
-.port-lbl { font-size:.55rem;color:var(--dim);letter-spacing:3px;text-transform:uppercase;font-weight:500; }
-
-/* ══ PROFILE ══ */
-.profile-hero {
-  display:flex;align-items:center;gap:2rem;padding:2rem;
-  background:linear-gradient(135deg,var(--s1),var(--s2));
-  border:1px solid var(--border);border-radius:12px;
-  margin-bottom:2rem;position:relative;overflow:hidden;
-}
-.profile-hero::before {
-  content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(0,200,240,.3),rgba(139,124,248,.2),transparent);
-}
-.profile-avatar {
-  width:72px;height:72px;border-radius:50%;flex-shrink:0;
-  background:linear-gradient(135deg,var(--cyan),var(--purple));
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:#000;
-  box-shadow:0 0 24px rgba(0,200,240,.25);
-}
-.profile-name { font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:4px;color:#fff;margin-bottom:4px; }
-.profile-email { font-size:.72rem;color:var(--dim);letter-spacing:.5px; }
-.funded-badge-inline {
-  display:inline-flex;align-items:center;gap:5px;
-  background:rgba(0,200,240,.1);border:1px solid rgba(0,200,240,.25);
-  color:var(--cyan);font-size:.55rem;font-weight:700;letter-spacing:2px;
-  padding:3px 12px;border-radius:100px;margin-top:8px;text-transform:uppercase;
-}
-
-/* ══ PROG BARS ══ */
-.prog { height:4px;background:var(--border);border-radius:100px;overflow:hidden;margin-top:.5rem; }
-.prog-fill { height:100%;border-radius:100px;background:linear-gradient(90deg,var(--cyan),var(--purple)); }
-
-/* ══ FEAT CARDS ══ */
-.feat-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);margin:2rem 0; }
-.feat-card {
-  background:var(--s1);padding:2rem 1.8rem;position:relative;overflow:hidden;
-  transition:all .3s;cursor:default;
-}
-.feat-card:hover { background:var(--s2);transform:translateY(-2px); }
-.feat-card::before {
-  content:'';position:absolute;top:0;left:0;right:0;height:2px;
-  background:linear-gradient(90deg,var(--cyan),var(--purple),transparent);opacity:.3;
-}
-.feat-icon { font-size:1.8rem;margin-bottom:1rem; }
-.feat-tag { font-size:.52rem;font-weight:700;letter-spacing:2px;color:var(--cyan);text-transform:uppercase;margin-bottom:.5rem; }
-.feat-title { font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:3px;color:var(--text);margin-bottom:.6rem; }
-.feat-desc { font-size:.78rem;color:var(--dim);line-height:1.8; }
-
-/* ══ TRADE TABLE ══ */
-.t-header,.t-row {
-  display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr 1fr;gap:.5rem;
-  padding:.7rem 1rem;align-items:center;
-}
-.t-header { font-size:.55rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;border-bottom:1px solid var(--border);font-weight:600; }
-.t-row { border-bottom:1px solid var(--border);font-size:.8rem;transition:background .15s; }
-.t-row:hover { background:var(--s2); }
-.t-row:last-child { border-bottom:none; }
-
-/* ══ RULES BOX ══ */
-.rules-box { background:var(--s1);border:1px solid var(--border);padding:1.4rem;border-radius:8px;margin-bottom:1rem; }
-.r-row { display:flex;justify-content:space-between;align-items:center;padding:.55rem 0;border-bottom:1px solid var(--border); }
-.r-row:last-child { border-bottom:none; }
-.r-name { font-size:.78rem;color:var(--dim); }
-.r-val { font-size:.78rem;font-weight:600;color:var(--text);font-family:'JetBrains Mono',monospace; }
-
-/* ══ JOURNAL ══ */
-.journal-entry { background:var(--s1);border:1px solid var(--border);padding:1.2rem;margin-bottom:4px;border-radius:6px;transition:background .2s; }
-.journal-entry:hover { background:var(--s2); }
-.je-date { font-size:.6rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:.4rem; }
-.je-note { font-size:.82rem;color:var(--text2);line-height:1.7; }
-.je-tags { display:flex;gap:5px;margin-top:.6rem;flex-wrap:wrap; }
-.je-tag { font-size:.52rem;padding:2px 9px;border-radius:100px;background:rgba(0,200,240,.08);color:var(--cyan);border:1px solid rgba(0,200,240,.2);letter-spacing:1.5px;text-transform:uppercase; }
-
-/* ══ NOTIF ══ */
-.notif-item { display:flex;align-items:flex-start;gap:.8rem;padding:.9rem 1rem;border-bottom:1px solid var(--border);transition:background .15s; }
-.notif-item:hover { background:var(--s2); }
-.notif-item.unread { border-left:2px solid var(--cyan); }
-.notif-title { font-size:.8rem;font-weight:600;color:var(--text);margin-bottom:3px; }
-.notif-msg { font-size:.73rem;color:var(--dim);line-height:1.5; }
-.notif-time { font-size:.58rem;color:var(--dim2);margin-top:4px;letter-spacing:.5px; }
-.notif-badge { background:linear-gradient(135deg,var(--cyan),var(--purple));color:#000;font-size:.45rem;font-weight:800;padding:2px 7px;border-radius:100px;margin-left:6px;letter-spacing:1px; }
-
-/* ══ GLOBE STATS ══ */
-.gn-stats { display:flex;flex-direction:column;gap:1rem; }
-.gs { background:var(--s1);border:1px solid var(--border);border-left:3px solid var(--cyan);padding:1rem 1.5rem;min-width:220px;position:relative;overflow:hidden;border-radius:0 8px 8px 0; }
-.gs-val { font-family:'JetBrains Mono',monospace;font-size:1.7rem;font-weight:700;color:var(--cyan);letter-spacing:2px;line-height:1; }
-.gs-val.gr { color:var(--green); }
-.gs-val.go { color:var(--orange); }
-.gs-val.gp { color:var(--purple); }
-.gs-lbl { font-size:.55rem;color:var(--dim);letter-spacing:3px;text-transform:uppercase;margin-top:5px;font-weight:500; }
-.gs-sub { font-size:.5rem;color:var(--dim2);letter-spacing:1.5px;margin-top:2px; }
-
-/* ══ STAT BOX (dashboard) ══ */
-.sv { font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:700;line-height:1;color:var(--text); }
-.sv.g { color:var(--green); }
-.sv.r { color:var(--red); }
-.sv.c { color:var(--cyan); }
-.sl { font-size:.55rem;color:var(--dim);letter-spacing:2.5px;text-transform:uppercase;margin-top:.4rem;font-weight:500; }
-.stat-box { background:var(--s1);border:1px solid var(--border);padding:1.2rem 1.4rem;border-radius:8px;position:relative;overflow:hidden; }
-.stat-box::before { content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,200,240,.2),transparent); }
-
-/* ══ M CARD ALIASES (g/r colors) ══ */
-.m-val.g { color:var(--green); }
-.m-val.r { color:var(--red); }
-.m-val.c { color:var(--cyan); }
-
-/* ══ MISC TAG CLASSES ══ */
-.tag-b { background:rgba(0,200,240,.08);color:var(--cyan);border:1px solid rgba(0,200,240,.2);font-size:.52rem;padding:2px 8px;border-radius:100px;letter-spacing:1.5px;font-weight:700;text-transform:uppercase; }
-.tag-s { background:rgba(139,124,248,.08);color:var(--purple);border:1px solid rgba(139,124,248,.2);font-size:.52rem;padding:2px 8px;border-radius:100px;letter-spacing:1.5px;font-weight:700;text-transform:uppercase; }
-
-/* ══ HERO CANVAS BG ══ */
-.hero-content { position:relative;z-index:2; }
-.hero-h1 { font-family:'Bebas Neue',sans-serif;font-size:clamp(4rem,10vw,11rem);line-height:.86;letter-spacing:4px;margin:0 0 2rem;color:#fff; }
-.hero-sub { font-size:.95rem;color:var(--dim);max-width:500px;margin:0 auto 3.5rem;line-height:2; }
-
-/* ══ FEAT CARD ORB ══ */
-.card-orb { position:absolute;width:120px;height:120px;border-radius:50%;filter:blur(40px);opacity:.08;pointer-events:none; }
-
-/* ══ LOGO WRAP ══ */
-.ak-logo-wrap { display:flex;align-items:center;gap:.8rem; }
-.ak-logo-img { height:40px;width:40px;object-fit:contain;border-radius:6px; }
-.ak-brand { display:flex;flex-direction:column; }
-.ak-brand-ak { font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:6px;color:var(--cyan);text-shadow:0 0 24px rgba(0,200,240,.4);line-height:1; }
-.ak-brand-funded { font-family:'Bebas Neue',sans-serif;font-size:.7rem;letter-spacing:6px;color:var(--dim);line-height:1; }
-
-/* ══ AK STATUS ══ */
-.ak-status { display:inline-flex;align-items:center;gap:5px;font-size:.55rem;color:var(--green);letter-spacing:2px;text-transform:uppercase;font-weight:600; }
-
-/* ══ AK INNER / BARS ══ */
-.ak-inner { position:relative;overflow:hidden; }
-.ak-bar-wrap { position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--border); }
-.ak-bar { height:100%;background:linear-gradient(90deg,var(--cyan),var(--purple));border-radius:100px; }
-.ak-scanline { position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,200,240,.01) 3px,rgba(0,200,240,.01) 4px); }
-
-/* ══ AK CORNER DECORATORS ══ */
-.ak-corner { position:absolute;width:12px;height:12px; }
-.ak-corner-tl { top:0;left:0;border-top:2px solid var(--cyan);border-left:2px solid var(--cyan);opacity:.4; }
-.ak-corner-tr { top:0;right:0;border-top:2px solid var(--cyan);border-right:2px solid var(--cyan);opacity:.4; }
-.ak-corner-bl { bottom:0;left:0;border-bottom:2px solid var(--cyan);border-left:2px solid var(--cyan);opacity:.4; }
-.ak-corner-br { bottom:0;right:0;border-bottom:2px solid var(--cyan);border-right:2px solid var(--cyan);opacity:.4; }
-
-/* ══ AK ORBIT (splash/logo) ══ */
-.ak-orbit1,.ak-orbit2 { position:absolute;border-radius:50%;border:1px solid rgba(0,200,240,.2); }
-.ak-orbit1 { width:90px;height:90px;top:50%;left:50%;transform:translate(-50%,-50%);animation:orb1 4s linear infinite; }
-.ak-orbit2 { width:130px;height:130px;top:50%;left:50%;transform:translate(-50%,-50%);animation:orb2 6s linear infinite reverse; }
-@keyframes orb1 { to{transform:translate(-50%,-50%) rotate(360deg);} }
-@keyframes orb2 { to{transform:translate(-50%,-50%) rotate(360deg);} }
-
-/* ══ AK WELCOME ══ */
-.ak-welcome { font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:4px;color:var(--text);margin-bottom:.3rem; }
-
+.stSlider [data-baseweb="slider"] [data-testid="stSliderThumb"] { background:var(--cyan)!important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -682,34 +685,43 @@ IG_URL       = "https://www.instagram.com/akfunded"
 PLATFORM_URL = "https://akfunded.streamlit.app"
 
 SYMBOLS = {
-    "Forex Majors":  ["EURUSD","GBPUSD","USDJPY","AUDUSD","USDCHF","NZDUSD","USDCAD"],
-    "Forex Minors":  ["EURGBP","EURJPY","GBPJPY","AUDCAD","CADJPY","EURNZD"],
-    "Metals":        ["XAUUSD","XAGUSD"],
-    "Commodities":   ["USOIL","UKOIL","NATGAS"],
+    "Crypto Majors": ["BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT"],
+    "Crypto Altcoins": ["XRPUSDT", "ADAUSDT", "DOGEUSDT", "DOTUSDT", "AVAXUSDT", "LINKUSDT"],
 }
 TV_SYMBOL_MAP = {
-    "XAUUSD":"TVC:GOLD","XAGUSD":"TVC:SILVER",
-    "USOIL":"TVC:USOIL","UKOIL":"TVC:UKOIL","NATGAS":"TVC:NATURALGAS",
-    "EURUSD":"FX:EURUSD","GBPUSD":"FX:GBPUSD","USDJPY":"FX:USDJPY",
-    "AUDUSD":"FX:AUDUSD","USDCHF":"FX:USDCHF","NZDUSD":"FX:NZDUSD","USDCAD":"FX:USDCAD",
-    "EURGBP":"FX:EURGBP","EURJPY":"FX:EURJPY","GBPJPY":"FX:GBPJPY",
-    "AUDCAD":"FX:AUDCAD","CADJPY":"FX:CADJPY","EURNZD":"FX:EURNZD",
+    "BTCUSDT":"BINANCE:BTCUSDT", "ETHUSDT":"BINANCE:ETHUSDT",
+    "BNBUSDT":"BINANCE:BNBUSDT", "SOLUSDT":"BINANCE:SOLUSDT",
+    "XRPUSDT":"BINANCE:XRPUSDT", "ADAUSDT":"BINANCE:ADAUSDT",
+    "DOGEUSDT":"BINANCE:DOGEUSDT", "DOTUSDT":"BINANCE:DOTUSDT",
+    "AVAXUSDT":"BINANCE:AVAXUSDT", "LINKUSDT":"BINANCE:LINKUSDT",
 }
 
-MARKET_DATA = {
-    "XAUUSD": {"price":2345.80,"change":+0.42,"vol":"High","name":"Gold / USD"},
-    "XAGUSD": {"price":29.15,  "change":-0.18,"vol":"Medium","name":"Silver / USD"},
-    "EURUSD": {"price":1.0842, "change":-0.12,"vol":"High","name":"Euro / USD"},
-    "GBPUSD": {"price":1.2680, "change":+0.08,"vol":"High","name":"GBP / USD"},
-    "USDJPY": {"price":151.42, "change":+0.31,"vol":"High","name":"USD / JPY"},
-    "AUDUSD": {"price":0.6540, "change":-0.22,"vol":"Medium","name":"AUD / USD"},
-    "USDCHF": {"price":0.8921, "change":+0.05,"vol":"Medium","name":"USD / CHF"},
-    "USOIL":  {"price":82.45,  "change":+1.20,"vol":"High","name":"WTI Crude Oil"},
-    "UKOIL":  {"price":87.30,  "change":+0.95,"vol":"High","name":"Brent Crude"},
-    "NATGAS": {"price":2.18,   "change":-0.85,"vol":"Medium","name":"Natural Gas"},
-    "NZDUSD": {"price":0.6015, "change":-0.15,"vol":"Low","name":"NZD / USD"},
-    "USDCAD": {"price":1.3620, "change":+0.10,"vol":"Medium","name":"USD / CAD"},
-}
+import requests
+@st.cache_data(ttl=1)
+def get_all_market_data():
+    try:
+        r = requests.get("https://api.binance.com/api/v3/ticker/24hr", timeout=3)
+        data = r.json()
+        
+        my_symbols = [s for g in SYMBOLS.values() for s in g]
+        market_data = {}
+        for d in data:
+            sym = d['symbol']
+            if sym in my_symbols:
+                market_data[sym] = {
+                    "price": float(d['lastPrice']),
+                    "change": float(d['priceChangePercent']),
+                    "vol": "High" if float(d['quoteVolume']) > 100000000 else "Medium",
+                    "name": sym.replace("USDT", " / USDT")
+                }
+        for s in my_symbols:
+            if s not in market_data:
+                market_data[s] = {"price":1.0, "change":0.0, "vol":"Low", "name":s}
+        return market_data
+    except:
+        my_symbols = [s for g in SYMBOLS.values() for s in g]
+        return {s: {"price": 1.0, "change": 0.0, "vol": "Low", "name": s} for s in my_symbols}
+
 
 PLANS_INSTANT = [
     {"name":"$5,000",   "capital":5000,   "price":299,  "slug":"instant_5k",   "split":70, "phase":"instant"},
@@ -754,8 +766,7 @@ RULES = {
 # ─── SESSION STATE ──────────────────────────────────────────────
 for k, v in [
     ("user",None),("page","home"),("notifications",[]),
-    ("chat_history",[]),("watchlist",["XAUUSD","EURUSD","GBPUSD","USOIL"]),
-    ("xp_points", 0), ("badges_earned", []),
+    ("chat_history",[]),("watchlist",["BTCUSDT","ETHUSDT","BNBUSDT","SOLUSDT"]),
 ]:
     if k not in st.session_state:
         st.session_state[k] = v
@@ -949,9 +960,8 @@ def compute_streaks(trades):
         loss_streak = max(loss_streak, cur_loss)
     return win_streak, loss_streak
 
-def get_simulated_price(symbol):
-    base_price = MARKET_DATA.get(symbol,{}).get("price",1.0)
-    return round(base_price * (1 + random.uniform(-0.002, 0.002)), 5 if base_price < 10 else 2)
+def get_live_price(symbol):
+    return float(get_all_market_data().get(symbol, {}).get("price", 1.0))
 
 def check_and_breach(uid, challenge, account, email, name):
     r = RULES.get(challenge["plan"], {})
@@ -1541,7 +1551,7 @@ def nav():
         f'<img src="{LOGO_URL}" onerror="this.style.display=\'none\'" style="height:34px;width:34px;object-fit:contain;" />'
         '<div>'
         '<div class="ak-logo"><span class="ak-part">AK</span><span class="funded-part">FUNDED</span><span class="ak-beta">BETA</span></div>'
-        '<div class="ak-tagline">Prove Your Edge — Get Funded</div>'
+        '<div class="ak-tagline">Trade Crypto. Get Funded. — Get Funded</div>'
         '</div></div></div>',
         unsafe_allow_html=True
     )
@@ -1609,7 +1619,7 @@ def sec(title, sub=""):
 
 def render_live_ticker():
     items = ""
-    for sym, data in MARKET_DATA.items():
+    for sym, data in get_all_market_data().items():
         chg  = data["change"]
         cls  = "up" if chg >= 0 else "dn"
         sign = "+" if chg >= 0 else ""
@@ -1626,7 +1636,7 @@ def render_live_ticker():
 
 def render_market_heatmap():
     cells = ""
-    for sym, data in MARKET_DATA.items():
+    for sym, data in get_all_market_data().items():
         chg = data["change"]
         if chg > 1.5:    bg,bord = "rgba(0,184,122,.2)","rgba(0,184,122,.3)"
         elif chg > 0.3:  bg,bord = "rgba(0,184,122,.1)","rgba(0,184,122,.15)"
@@ -1647,7 +1657,7 @@ def render_market_heatmap():
     st.markdown(f'<div class="heatmap-grid">{cells}</div>', unsafe_allow_html=True)
 
 def render_signal_scanner():
-    for sym, data in MARKET_DATA.items():
+    for sym, data in get_all_market_data().items():
         chg = data["change"]; vol = data["vol"]
         if chg > 1.5 and vol in ["High","Very High"]:   sig,cls = "STRONG BUY","bull"
         elif chg > 0.3:                                  sig,cls = "BUY","bull"
@@ -1677,180 +1687,170 @@ def pbar(pct, col):
 
 
 
-# ─── AI SUPPORT CHATBOT ── injected into parent window via script ──
+# ─── AI SUPPORT CHATBOT — Groq via Streamlit sidebar ─────────
 if "chat_support_msgs" not in st.session_state:
     st.session_state.chat_support_msgs = []
+if "chatbot_open" not in st.session_state:
+    st.session_state.chatbot_open = False
 
+# Floating chat widget via components — pure HTML/JS/CSS
+# Groq API called directly from JS using the key from secrets
 _groq_key = st.secrets.get("GROQ_API_KEY","")
-_chat_html = '''
+st.markdown(f"""
+<style>
+#ak-fab{{position:fixed;bottom:28px;right:28px;z-index:99998;width:56px;height:56px;
+  border-radius:50%;background:linear-gradient(135deg,#00D4FF,#00B87A);
+  border:none;cursor:pointer;font-size:1.4rem;display:flex;align-items:center;
+  justify-content:center;box-shadow:0 4px 28px rgba(0,212,255,.45);
+  transition:transform .2s,box-shadow .2s;}}
+#ak-fab:hover{{transform:scale(1.1);box-shadow:0 8px 36px rgba(0,212,255,.6);}}
+#ak-fab.open{{background:linear-gradient(135deg,#444,#222);}}
+#ak-win{{position:fixed;bottom:98px;right:28px;z-index:99997;width:380px;height:540px;
+  background:#090909;border:1px solid #1c1c1c;border-radius:6px;display:none;
+  flex-direction:column;overflow:hidden;
+  box-shadow:0 24px 64px rgba(0,0,0,.85),0 0 0 1px rgba(0,212,255,.07);
+  font-family:Rajdhani,sans-serif;}}
+#ak-win.open{{display:flex;}}
+#ak-hd{{background:#050505;border-bottom:1px solid #181818;padding:.9rem 1rem;
+  display:flex;align-items:center;gap:.75rem;flex-shrink:0;}}
+.ak-pulse{{width:7px;height:7px;background:#00B87A;border-radius:50%;
+  box-shadow:0 0 8px #00B87A;animation:akP 2s infinite;}}
+@keyframes akP{{0%,100%{{opacity:1;}}50%{{opacity:.2;}}}}
+#ak-hd-t{{font-family:"Bebas Neue",sans-serif;font-size:1rem;letter-spacing:3px;color:#d8d8d8;}}
+#ak-hd-s{{font-size:.5rem;color:#2a2a2a;letter-spacing:2px;text-transform:uppercase;margin-top:2px;}}
+#ak-msgs{{flex:1;overflow-y:auto;padding:.9rem;display:flex;flex-direction:column;
+  gap:.65rem;scrollbar-width:thin;scrollbar-color:#1e1e1e transparent;}}
+#ak-msgs::-webkit-scrollbar{{width:3px;}}
+#ak-msgs::-webkit-scrollbar-thumb{{background:#1e1e1e;}}
+.ak-m{{max-width:85%;padding:.65rem .9rem;font-size:.76rem;line-height:1.6;
+  border-radius:3px;word-break:break-word;}}
+.ak-m.b{{background:#111;border:1px solid #1e1e1e;border-left:2px solid #00D4FF;
+  color:#d0d0d0;align-self:flex-start;}}
+.ak-m.u{{background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);
+  color:#d0d0d0;align-self:flex-end;text-align:right;}}
+#ak-qs{{padding:.5rem .8rem;display:flex;flex-wrap:wrap;gap:4px;
+  border-top:1px solid #111;flex-shrink:0;}}
+.ak-q{{background:#0d0d0d;border:1px solid #1c1c1c;color:#3a3a3a;font-size:.54rem;
+  letter-spacing:1.5px;padding:3px 9px;cursor:pointer;border-radius:2px;
+  transition:all .15s;font-family:Rajdhani,sans-serif;text-transform:uppercase;}}
+.ak-q:hover{{border-color:rgba(0,212,255,.4);color:#00D4FF;}}
+#ak-ir{{display:flex;gap:5px;padding:.65rem .8rem;border-top:1px solid #181818;
+  flex-shrink:0;background:#050505;}}
+#ak-inp{{flex:1;background:#0d0d0d;border:1px solid #1c1c1c;color:#d8d8d8;
+  font-size:.73rem;padding:.5rem .8rem;outline:none;font-family:Rajdhani,sans-serif;
+  border-radius:2px;}}
+#ak-inp:focus{{border-color:rgba(0,212,255,.35);}}
+#ak-inp::placeholder{{color:#252525;}}
+#ak-send{{background:linear-gradient(135deg,#00D4FF,#00B87A);border:none;color:#000;
+  font-size:.62rem;font-weight:700;padding:.5rem 1rem;cursor:pointer;letter-spacing:1.5px;
+  font-family:Rajdhani,sans-serif;border-radius:2px;white-space:nowrap;}}
+#ak-send:disabled{{opacity:.4;cursor:not-allowed;}}
+</style>
+
+<button id="ak-fab" onclick="akT()">&#x1F4AC;</button>
+
+<div id="ak-win">
+  <div id="ak-hd">
+    <div class="ak-pulse"></div>
+    <div>
+      <div id="ak-hd-t">AK SUPPORT</div>
+      <div id="ak-hd-s">AI Assistant &middot; Powered by Groq</div>
+    </div>
+    <div style="margin-left:auto;cursor:pointer;color:#333;font-size:.9rem;padding:4px 8px;" onclick="akT()">&#x2715;</div>
+  </div>
+  <div id="ak-msgs">
+    <div class="ak-m b">Hey &#x1F44B; I&apos;m your <strong>AKFunded</strong> AI assistant.<br><br>Ask me anything about challenges, payouts, rules, or getting funded!</div>
+  </div>
+  <div id="ak-qs">
+    <button class="ak-q" onclick="akQ('How do payouts work?')">Payouts</button>
+    <button class="ak-q" onclick="akQ('What are the trading rules?')">Rules</button>
+    <button class="ak-q" onclick="akQ('Tips to pass the challenge')">Pass Tips</button>
+    <button class="ak-q" onclick="akQ('What plans are available?')">Plans</button>
+    <button class="ak-q" onclick="akQ('Is news trading allowed?')">News OK?</button>
+    <button class="ak-q" onclick="akQ('What instruments can I trade?')">Instruments</button>
+  </div>
+  <div id="ak-ir">
+    <input id="ak-inp" placeholder="Ask anything..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){{event.preventDefault();akS();}}"/>
+    <button id="ak-send" onclick="akS()">SEND</button>
+  </div>
+</div>
+
 <script>
-(function(){
-  // Remove existing if already injected
-  var old = document.getElementById("ak-chat-root");
-  if(old) return;
+(function(){{
+  const GROQ_KEY = "{_groq_key}";
+  const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
+  const SYSTEM = "You are AKFunded\'s helpful AI support assistant. AKFunded is a prop trading firm. Plans: Instant Funded (70-75% split, no evaluation), One-Step (8% target, 80% split), Two-Step (8%+5% targets, 90% split). Accounts $5K-$100K. Payouts within 24hr. News trading allowed. No time limit. Instruments: XAUUSD, EURUSD, GBPUSD, USOIL, XAGUSD. Daily loss limit 3-5%, max drawdown 6-10%. Answer concisely in 2-4 sentences. Be warm and encouraging.";
+  const history = [];
+  let busy = false;
 
-  var GROQ_KEY = "___GROQ_KEY___";
-  var GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
-  var SYS = "You are AKFunded AI — a warm, expert prop trading assistant. AKFunded offers: Instant Funded (70-75% split, no challenge), One-Step (8% target, 80% split), Two-Step (8%+5% targets, 90% split). Accounts $5K-$100K. Payouts in 24hrs. News trading allowed. No time limits. Instruments: XAUUSD, EURUSD, GBPUSD, USOIL, XAGUSD. Daily drawdown 3-5%, max 6-10%. Answer in 2-4 sentences. Be encouraging and professional.";
-  var hist = [], busy = false, isOpen = false;
-
-  // Inject CSS
-  var css = document.createElement("style");
-  css.textContent = `
-  #ak-chat-root * { box-sizing:border-box; font-family:"Inter","Rajdhani",sans-serif; }
-  #ak-fab {
-    position:fixed;bottom:28px;right:28px;z-index:2147483647;
-    width:60px;height:60px;border-radius:50%;border:none;cursor:pointer;
-    background:linear-gradient(135deg,#00C8F0,#8B7CF8);
-    display:flex;align-items:center;justify-content:center;font-size:1.4rem;
-    box-shadow:0 4px 24px rgba(0,200,240,.4),0 0 0 0 rgba(0,200,240,.3);
-    animation:akFabPulse 2.5s ease-out infinite;
-    transition:transform .3s cubic-bezier(.34,1.56,.64,1),background .3s;
-  }
-  #ak-fab:hover { transform:scale(1.12) rotate(-8deg); }
-  #ak-fab.open { background:linear-gradient(135deg,#1a1f28,#111); animation:none; box-shadow:0 4px 20px rgba(0,0,0,.5); }
-  @keyframes akFabPulse { 0%{box-shadow:0 4px 24px rgba(0,200,240,.4),0 0 0 0 rgba(0,200,240,.3);} 70%{box-shadow:0 4px 24px rgba(0,200,240,.4),0 0 0 16px rgba(0,200,240,0);} 100%{box-shadow:0 4px 24px rgba(0,200,240,.4),0 0 0 0 rgba(0,200,240,0);} }
-  #ak-win {
-    position:fixed;bottom:102px;right:28px;z-index:2147483646;
-    width:390px;height:560px;
-    background:linear-gradient(145deg,#07080a,#0c0e13);
-    border:1px solid rgba(0,200,240,.2);border-radius:16px;
-    display:none;flex-direction:column;overflow:hidden;
-    box-shadow:0 32px 80px rgba(0,0,0,.9),0 0 80px rgba(0,200,240,.06),inset 0 1px 0 rgba(255,255,255,.05);
-    transform-origin:bottom right;
-  }
-  #ak-win.open { display:flex;animation:winPop .35s cubic-bezier(.34,1.56,.64,1) both; }
-  @keyframes winPop { from{opacity:0;transform:scale(.9) translateY(16px);} to{opacity:1;transform:scale(1) translateY(0);} }
-  #ak-hd {
-    padding:1rem 1.1rem;flex-shrink:0;
-    background:linear-gradient(135deg,rgba(0,200,240,.08),rgba(139,124,248,.05));
-    border-bottom:1px solid rgba(255,255,255,.06);
-    display:flex;align-items:center;gap:.8rem;position:relative;
-  }
-  #ak-hd::before { content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,200,240,.5),rgba(139,124,248,.4),transparent); }
-  .ak-av { width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#00C8F0,#8B7CF8);display:flex;align-items:center;justify-content:center;font-size:1rem;box-shadow:0 0 16px rgba(0,200,240,.3);flex-shrink:0; }
-  .ak-hn { font-family:"Bebas Neue","Inter",sans-serif;font-size:1rem;letter-spacing:3px;color:#fff; }
-  .ak-hs { font-size:.52rem;color:#10D48A;letter-spacing:2px;text-transform:uppercase;margin-top:3px;display:flex;align-items:center;gap:4px; }
-  .ak-dot { width:5px;height:5px;background:#10D48A;border-radius:50%;box-shadow:0 0 6px #10D48A;animation:akDot 2s infinite; }
-  @keyframes akDot { 0%,100%{opacity:1;}50%{opacity:.2;} }
-  #ak-cl { margin-left:auto;background:none;border:none;color:rgba(255,255,255,.25);font-size:1.1rem;cursor:pointer;padding:5px 6px;border-radius:8px;transition:all .2s;line-height:1; }
-  #ak-cl:hover { background:rgba(255,255,255,.08);color:#fff; }
-  #ak-msgs { flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.7rem;scrollbar-width:thin;scrollbar-color:rgba(0,200,240,.15) transparent; }
-  #ak-msgs::-webkit-scrollbar { width:3px; }
-  #ak-msgs::-webkit-scrollbar-thumb { background:rgba(0,200,240,.2);border-radius:2px; }
-  .ak-m { max-width:88%;padding:.7rem 1rem;font-size:.78rem;line-height:1.65;word-break:break-word; }
-  .ak-m.bot { background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:#c8d0dc;align-self:flex-start;border-radius:4px 14px 14px 14px; }
-  .ak-m.usr { background:linear-gradient(135deg,rgba(0,200,240,.14),rgba(139,124,248,.14));border:1px solid rgba(0,200,240,.22);color:#e8edf5;align-self:flex-end;border-radius:14px 14px 4px 14px;text-align:right; }
-  .ak-m.typ { color:rgba(255,255,255,.28);font-style:italic; }
-  #ak-qs { padding:.6rem .9rem;border-top:1px solid rgba(255,255,255,.05);flex-shrink:0;display:flex;flex-wrap:wrap;gap:5px; }
-  .ak-q { background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);color:rgba(180,190,210,.65);font-size:.54rem;letter-spacing:1.5px;padding:4px 11px;cursor:pointer;border-radius:100px;transition:all .2s;font-family:"Inter",sans-serif;text-transform:uppercase; }
-  .ak-q:hover { border-color:rgba(0,200,240,.5);color:#00C8F0;background:rgba(0,200,240,.08);transform:translateY(-1px); }
-  #ak-ir { display:flex;gap:8px;padding:.8rem 1rem;border-top:1px solid rgba(255,255,255,.05);flex-shrink:0;background:rgba(0,0,0,.3); }
-  #ak-inp { flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#e8edf5;font-size:.78rem;padding:.58rem .9rem;outline:none;font-family:"Inter",sans-serif;border-radius:10px;transition:border-color .2s,box-shadow .2s; }
-  #ak-inp:focus { border-color:rgba(0,200,240,.4);box-shadow:0 0 0 3px rgba(0,200,240,.08); }
-  #ak-inp::placeholder { color:rgba(255,255,255,.18); }
-  #ak-snd { background:linear-gradient(135deg,#00C8F0,#8B7CF8);border:none;color:#000;font-size:.65rem;font-weight:700;padding:.58rem 1rem;cursor:pointer;letter-spacing:1px;font-family:"Inter",sans-serif;border-radius:10px;white-space:nowrap;transition:opacity .2s,transform .15s;box-shadow:0 4px 16px rgba(0,200,240,.25); }
-  #ak-snd:hover { transform:scale(1.04);box-shadow:0 6px 20px rgba(0,200,240,.35); }
-  #ak-snd:disabled { opacity:.4;cursor:not-allowed;transform:none;box-shadow:none; }
-  `;
-  document.head.appendChild(css);
-
-  // Inject HTML
-  var root = document.createElement("div");
-  root.id = "ak-chat-root";
-  root.innerHTML = `
-  <button id="ak-fab" class="" onclick="akChatToggle()" title="Chat with AK AI">💬</button>
-  <div id="ak-win">
-    <div id="ak-hd">
-      <div class="ak-av">🤖</div>
-      <div><div class="ak-hn">AK AI SUPPORT</div><div class="ak-hs"><span class="ak-dot"></span>Online · Powered by Groq</div></div>
-      <button id="ak-cl" onclick="akChatToggle()">✕</button>
-    </div>
-    <div id="ak-msgs">
-      <div class="ak-m bot">Hey 👋 I'm <strong>AK AI</strong>, your personal trading assistant.<br><br>Ask me anything about challenges, payouts, rules, or how to get funded!</div>
-    </div>
-    <div id="ak-qs">
-      <button class="ak-q" onclick="akChatAsk('How do payouts work?')">💰 Payouts</button>
-      <button class="ak-q" onclick="akChatAsk('What are the trading rules?')">📋 Rules</button>
-      <button class="ak-q" onclick="akChatAsk('Tips to pass the challenge?')">🏆 Tips</button>
-      <button class="ak-q" onclick="akChatAsk('What plans are available?')">📦 Plans</button>
-      <button class="ak-q" onclick="akChatAsk('Is news trading allowed?')">📰 News?</button>
-      <button class="ak-q" onclick="akChatAsk('What instruments can I trade?')">📊 Instruments</button>
-    </div>
-    <div id="ak-ir">
-      <input id="ak-inp" placeholder="Ask anything about AKFunded…" />
-      <button id="ak-snd" onclick="akChatSend()">SEND →</button>
-    </div>
-  </div>`;
-  document.body.appendChild(root);
-
-  // Wire enter key
-  document.getElementById("ak-inp").addEventListener("keydown", function(e){
-    if(e.key === "Enter") { e.preventDefault(); akChatSend(); }
-  });
-
-  function addMsg(html, cls) {
-    var d = document.getElementById("ak-msgs");
-    var el = document.createElement("div");
+  function addMsg(text, cls){{
+    const d = document.getElementById("ak-msgs");
+    const el = document.createElement("div");
     el.className = "ak-m " + cls;
-    el.innerHTML = html;
+    el.innerHTML = text;
     d.appendChild(el);
     d.scrollTop = d.scrollHeight;
     return el;
-  }
+  }}
 
-  window.akChatToggle = function() {
-    isOpen = !isOpen;
-    var w = document.getElementById("ak-win");
-    var f = document.getElementById("ak-fab");
-    if(isOpen) {
-      w.classList.add("open"); f.classList.add("open"); f.innerHTML = "✕";
-      setTimeout(function(){ document.getElementById("ak-inp").focus(); }, 200);
-    } else {
-      w.classList.remove("open"); f.classList.remove("open"); f.innerHTML = "💬";
-    }
-  };
+  window.akT = function(){{
+    const w = document.getElementById("ak-win");
+    const b = document.getElementById("ak-fab");
+    const isOpen = w.classList.toggle("open");
+    b.classList.toggle("open");
+    b.innerHTML = isOpen ? "&#x2715;" : "&#x1F4AC;";
+    if(isOpen) setTimeout(()=>document.getElementById("ak-inp").focus(), 120);
+  }};
 
-  window.akChatAsk = function(q) {
-    document.getElementById("ak-inp").value = q; akChatSend();
-  };
+  window.akQ = function(q){{
+    document.getElementById("ak-inp").value = q;
+    akS();
+  }};
 
-  window.akChatSend = async function() {
+  async function akS(){{
     if(busy) return;
-    var inp = document.getElementById("ak-inp");
-    var txt = inp.value.trim(); if(!txt) return;
+    const inp = document.getElementById("ak-inp");
+    const txt = inp.value.trim();
+    if(!txt) return;
     inp.value = "";
-    addMsg(txt, "usr");
-    hist.push({role:"user",content:txt});
+    addMsg(txt, "u");
+    history.push({{role:"user", content:txt}});
     busy = true;
-    document.getElementById("ak-snd").disabled = true;
-    var tp = addMsg("Thinking…", "bot typ");
-    try {
-      var r = await fetch(GROQ_URL, {
-        method:"POST",
-        headers:{"Content-Type":"application/json","Authorization":"Bearer "+GROQ_KEY},
-        body: JSON.stringify({
-          model:"llama-3.3-70b-versatile",max_tokens:300,temperature:0.7,
-          messages:[{role:"system",content:SYS},...hist.slice(-8)]
-        })
-      });
-      var d = await r.json();
-      var rep = (d && d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) || "Sorry, couldn't get a response. Try again!";
-      tp.remove(); addMsg(rep, "bot");
-      hist.push({role:"assistant",content:rep});
-    } catch(e) {
-      tp.remove(); addMsg("⚠️ Connection error. Please try again.", "bot");
-    }
-    busy = false;
-    document.getElementById("ak-snd").disabled = false;
-    document.getElementById("ak-inp").focus();
-  };
-})();
-</script>
-'''
-_chat_html = _chat_html.replace("___GROQ_KEY___", _groq_key)
-st.markdown(_chat_html, unsafe_allow_html=True)
+    document.getElementById("ak-send").disabled = true;
+    const typing = addMsg("<span style=\"color:#2a2a2a;font-style:italic;\">Thinking&hellip;</span>", "b");
 
+    try{{
+      const res = await fetch(GROQ_URL, {{
+        method: "POST",
+        headers: {{
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + GROQ_KEY
+        }},
+        body: JSON.stringify({{
+          model: "llama-3.3-70b-versatile",
+          max_tokens: 300,
+          temperature: 0.7,
+          messages: [{{role:"system",content:SYSTEM}}, ...history.slice(-8)]
+        }})
+      }});
+      const data = await res.json();
+      const reply = data?.choices?.[0]?.message?.content || "Sorry, I couldn\'t get a response. Please try again.";
+      typing.remove();
+      addMsg(reply, "b");
+      history.push({{role:"assistant", content:reply}});
+    }} catch(e){{
+      typing.remove();
+      addMsg("Connection error. Please check your internet and try again.", "b");
+    }}
+    busy = false;
+    document.getElementById("ak-send").disabled = false;
+    document.getElementById("ak-inp").focus();
+  }}
+
+  window.akS = akS;
+}})();
+</script>
+""", unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════
 # HOME
@@ -2034,7 +2034,7 @@ if st.session_state.page == "home":
       <div class="ak-brand">
         <span class="ak-brand-ak">AK</span><span class="ak-brand-funded">FUNDED</span>
       </div>
-      <div class="ak-tagline">Prove Your Edge — Get Funded</div>
+      <div class="ak-tagline">Trade Crypto. Get Funded. — Get Funded</div>
       <div class="ak-bar-wrap"><div class="ak-bar"></div></div>
       <div class="ak-status" id="ak-status">Initializing platform...</div>
     </div>
@@ -2215,9 +2215,9 @@ if st.session_state.page == "home":
     <div style="margin-bottom:1.6rem;">
       <img class="hero-logo" src="{hero_logo}" onerror="this.style.display='none'" />
     </div>
-    <div class="eyebrow"><span class="eyebrow-dot"></span> Forex &middot; Metals &middot; Commodities &middot; Prop Trading</div>
-    <div class="hero-h1">TRADE OUR<br><em>CAPITAL.</em></div>
-    <p class="hero-sub">Pass the evaluation. Get funded up to $100,000.<br>Keep up to 90% of your profits. Trade XAUUSD, Forex &amp; Crude Oil.</p>
+    <div class="eyebrow"><span class="eyebrow-dot"></span> Crypto &middot; Bitcoin &middot; Ethereum &middot; Prop Trading</div>
+    <div class="hero-h1">TRADE CRYPTO.<br>GET FUNDED.<br><em>KEEP UP TO 90%.</em></div>
+    <p class="hero-sub">Prove your consistency on Bitcoin, Ethereum and top crypto markets.<br>Pass the challenge. Earn a funded account. Keep up to 90% of your profits.</p>
   </div>
 </div>
 
@@ -2274,10 +2274,10 @@ if st.session_state.page == "home":
 
   // ── FLOATING PRICE TAGS ───────────────────────────────────
   const tags = [
-    {{ sym:'XAUUSD', price:'2,345.80', chg:'+0.42%', up:true,  x:0.08, y:0.22, vy:-0.12 }},
-    {{ sym:'EURUSD', price:'1.0842',   chg:'-0.12%', up:false, x:0.80, y:0.28, vy: 0.10 }},
-    {{ sym:'GBPUSD', price:'1.2680',   chg:'+0.08%', up:true,  x:0.88, y:0.60, vy:-0.09 }},
-    {{ sym:'USOIL',  price:'82.45',    chg:'+1.20%', up:true,  x:0.04, y:0.65, vy: 0.11 }},
+    {{ sym:'BTCUSDT', price:'69,450.20', chg:'+1.42%', up:true,  x:0.08, y:0.22, vy:-0.12 }},
+    {{ sym:'ETHUSDT', price:'3,780.40',  chg:'+2.12%', up:true,  x:0.80, y:0.28, vy: 0.10 }},
+    {{ sym:'SOLUSDT', price:'168.20',    chg:'+5.08%', up:true,  x:0.88, y:0.60, vy:-0.09 }},
+    {{ sym:'XRPUSDT', price:'0.52',      chg:'-1.20%', up:false, x:0.04, y:0.65, vy: 0.11 }},
   ];
   tags.forEach(t => {{ t.fy = t.y * 600; t.oy = t.fy; }});
 
@@ -2523,7 +2523,7 @@ if st.session_state.page == "home":
     }}
     setTimeout(()=>{{ el.style.opacity=1; requestAnimationFrame(step); }},300);
   }}
-  animCount("cnt-traders",10500,"","",1800);
+  animCount("cnt-traders",10000,"","",1800);
   animCount("cnt-payouts",6500,"$","",2000);
   setTimeout(()=>document.getElementById("cnt-payouts").textContent="$6.5M",2400);
   setTimeout(()=>{{ document.getElementById("cnt-split").textContent="90%"; document.getElementById("cnt-split").style.opacity=1; }},600);
@@ -3281,15 +3281,15 @@ elif st.session_state.page == "dashboard":
     with col_trade:
         st.markdown('<div style="font-size:.58rem;color:var(--dim);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:.8rem;font-weight:600;">Execute Trade</div>', unsafe_allow_html=True)
         t_sym   = st.selectbox("Symbol", [s for g in SYMBOLS.values() for s in g], key="tsym")
-        live_px = get_simulated_price(t_sym)
+        live_px = get_live_price(t_sym)
         t_dir   = st.selectbox("Direction", ["BUY","SELL"], key="ttype")
-        decimal = 5 if MARKET_DATA.get(t_sym,{}).get("price",1) < 10 else 2
+        decimal = 5 if get_all_market_data().get(t_sym,{}).get("price",1) < 10 else 2
         t_entry = st.number_input("Entry Price", min_value=0.00001, value=float(live_px), format=f"%.{decimal}f", key="tentry")
         t_qty   = st.number_input("Lot Size / Units", min_value=0.01, value=0.10, step=0.01, format="%.2f", key="tqty")
         t_exit  = st.number_input("Exit Price", min_value=0.00001, value=float(round(live_px*1.015,decimal)), format=f"%.{decimal}f", key="texit")
         t_sl    = st.number_input("Stop Loss", min_value=0.00001, value=float(round(live_px*0.985,decimal)), format=f"%.{decimal}f", key="tsl")
 
-        lot_mult   = 100000 if MARKET_DATA.get(t_sym,{}).get("price",1) < 100 else 1
+        lot_mult   = 100000 if get_all_market_data().get(t_sym,{}).get("price",1) < 100 else 1
         est        = (t_exit-t_entry)*t_qty*lot_mult if t_dir=="BUY" else (t_entry-t_exit)*t_qty*lot_mult
         risk_trade = abs(t_entry-t_sl)*t_qty*lot_mult
         ec         = "var(--green)" if est>=0 else "var(--red)"
@@ -3312,18 +3312,26 @@ elif st.session_state.page == "dashboard":
         )
 
         if st.button("Execute Trade", use_container_width=True, key="exec"):
+            # Exact moment live price
+            real_entry_price = get_live_price(t_sym)
+            
+            # Recalculate P&L based on exact moment price
+            actual_est = (t_exit - real_entry_price) * t_qty * lot_mult if t_dir == "BUY" else (real_entry_price - t_exit) * t_qty * lot_mult
+            
             ch_id   = challenge["id"]
-            new_bal = balance + est
+            new_bal = balance + actual_est
             new_tl  = min(0.0, new_bal-initial)
             new_days = days+1
-            new_daily = float(account.get("daily_loss",0)) + (est if est < 0 else 0)
+            new_daily = float(account.get("daily_loss",0)) + (actual_est if actual_est < 0 else 0)
             daily_loss_pct = abs(new_daily)/initial*100 if new_daily < 0 else 0
             total_loss_pct = abs(new_tl)/initial*100 if new_tl < 0 else 0
             try:
                 supabase.table("trades").insert({
                     "user_id":uid,"challenge_id":ch_id,"symbol":t_sym,"type":t_dir,
-                    "entry_price":t_entry,"exit_price":t_exit,"quantity":t_qty,
-                    "pnl":est,"closed_at":datetime.utcnow().isoformat()
+                    "entry_price":real_entry_price,"exit_price":t_exit,"quantity":t_qty,
+                    "pnl":actual_est,"closed_at":datetime.utcnow().isoformat(),
+                    # Store SL and TP for open positions tracking
+                    "stop_loss":t_sl, "take_profit":t_exit
                 }).execute()
                 supabase.table("accounts").update({
                     "balance":new_bal,"total_loss":new_tl,"daily_loss":new_daily,
@@ -3347,9 +3355,9 @@ elif st.session_state.page == "dashboard":
                     push_notification(uid,"🏆","Challenge Passed!",f"Profit target of +{target}% achieved.")
                     st.balloons(); st.success("Challenge passed! Certificate available.")
                 else:
-                    push_notification(uid,"⚡","Trade Executed",f"{t_dir} {t_sym} — P&L: {es}${est:,.2f}")
-                    if est>=0: st.success(f"Trade executed. P&L: {es}${est:,.2f}")
-                    else: st.warning(f"Trade executed. P&L: ${est:,.2f}")
+                    push_notification(uid,"⚡","Trade Executed",f"{t_dir} {t_sym} — P&L: {es}${actual_est:,.2f}")
+                    if actual_est>=0: st.success(f"Trade executed. P&L: {es}${actual_est:,.2f}")
+                    else: st.warning(f"Trade executed. P&L: ${actual_est:,.2f}")
             except Exception as e:
                 st.error(f"Trade execution error: {e}")
             time.sleep(1); st.rerun()
@@ -3363,7 +3371,7 @@ elif st.session_state.page == "dashboard":
             p=t.get("pnl",0); pc3="var(--green)" if p>=0 else "var(--red)"; ps3="+" if p>=0 else ""
             tag='<span class="tag-b">BUY</span>' if t.get("type")=="BUY" else '<span class="tag-s">SELL</span>'
             dt=t.get("closed_at","")[:10]; sym=t.get("symbol","")
-            dec = 5 if MARKET_DATA.get(sym,{}).get("price",1) < 10 else 2
+            dec = 5 if get_all_market_data().get(sym,{}).get("price",1) < 10 else 2
             st.markdown(
                 f'<div class="t-row">'
                 f'<span style="font-weight:700;">{sym} <span style="font-size:.62rem;color:var(--dim);font-family:\'JetBrains Mono\',monospace;">{dt}</span></span>'
@@ -3509,7 +3517,7 @@ elif st.session_state.page == "dashboard":
     footer()
 
 # ══════════════════════════════════════════════════════════════
-# MARKETS
+# CRYPTO MARKETS
 # ══════════════════════════════════════════════════════════════
 elif st.session_state.page == "markets":
     if not st.session_state.user: goto("auth")
@@ -3517,288 +3525,10 @@ elif st.session_state.page == "markets":
     render_live_ticker()
     sec("Live Markets","Forex · Metals · Crude Oil — Signals, order book and watchlist")
 
-    tab_hm, tab_sc, tab_ob, tab_wl = st.tabs(["  Heatmap  ","  Signal Scanner  ","  Order Book  ","  Watchlist  "])
+    tab_hm, tab_sc, tab_ob, tab_wl = st.tabs(["  Heatmap  ","  Crypto Opportunities  ","  Order Book  ","  Watchlist  "])
 
     with tab_hm:
-        st.markdown('<div style="font-size:.58rem;color:var(--dim);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:.8rem;font-weight:600;">Market Heatmap</div>', unsafe_allow_html=True)
-        render_market_heatmap()
-        st.markdown("<br>", unsafe_allow_html=True)
-        st.markdown('<div style="background:var(--s1);border:1px solid var(--border);"><div style="display:grid;grid-template-columns:1.5fr 1.2fr 1fr 1fr 1fr 1fr;padding:.8rem 1.2rem;background:var(--s2);font-size:.58rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;font-weight:600;border-bottom:1px solid var(--border);"><span>Symbol</span><span>Name</span><span>Price</span><span>Change</span><span>Volume</span><span>Signal</span></div>', unsafe_allow_html=True)
-        for sym, data in MARKET_DATA.items():
-            chg=data["change"]; col="var(--green)" if chg>=0 else "var(--red)"; sign="+" if chg>=0 else ""
-            sig="BUY" if chg>0.5 else ("SELL" if chg<-0.5 else "HOLD")
-            sc="bull" if sig=="BUY" else ("bear" if sig=="SELL" else "neut")
-            dec = 5 if data["price"] < 10 else 2
-            st.markdown(f'<div style="display:grid;grid-template-columns:1.5fr 1.2fr 1fr 1fr 1fr 1fr;padding:.65rem 1.2rem;border-top:1px solid var(--border);align-items:center;"><span style="font-weight:700;color:var(--text);">{sym}</span><span style="font-size:.72rem;color:var(--dim);">{data.get("name","")}</span><span style="font-family:\'JetBrains Mono\',monospace;font-size:.75rem;">{data["price"]:.{dec}f}</span><span style="color:{col};font-weight:700;font-family:\'JetBrains Mono\',monospace;font-size:.75rem;">{sign}{chg:.2f}%</span><span style="font-size:.72rem;color:var(--dim);">{data["vol"]}</span><span class="scan-signal {sc}" style="width:fit-content;">{sig}</span></div>', unsafe_allow_html=True)
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    with tab_sc:
-        st.markdown('<div style="font-size:.58rem;color:var(--dim);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:1rem;font-weight:600;">Signal Scanner</div>', unsafe_allow_html=True)
-        render_signal_scanner()
-
-    with tab_ob:
-        st.markdown('<div style="font-size:.58rem;color:var(--dim);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:1rem;font-weight:600;">Simulated Order Book</div>', unsafe_allow_html=True)
-        ob_sym = st.selectbox("Symbol", list(MARKET_DATA.keys()), key="ob_sym")
-        base   = MARKET_DATA[ob_sym]["price"]
-        dec    = 5 if base < 10 else 2
-        col_bid, col_ask = st.columns(2)
-        with col_bid:
-            st.markdown('<div style="font-size:.65rem;color:var(--green);letter-spacing:2px;font-weight:700;margin-bottom:.5rem;">BIDS</div><div style="background:var(--s1);border:1px solid var(--border);"><div class="ob-row" style="color:var(--dim);font-size:.58rem;letter-spacing:1.5px;text-transform:uppercase;border-bottom:1px solid var(--border);font-weight:600;"><span>Price</span><span>Size</span><span>Total</span></div>', unsafe_allow_html=True)
-            for i in range(8):
-                px=round(base-(i+1)*base*0.0003,dec); sz=random.randint(1,500)
-                st.markdown(f'<div class="ob-row"><span class="ob-bid">{px:.{dec}f}</span><span style="color:var(--text);">{sz}</span><span class="ob-vol">${px*sz:,.0f}</span></div>', unsafe_allow_html=True)
-            st.markdown('</div>', unsafe_allow_html=True)
-        with col_ask:
-            st.markdown('<div style="font-size:.65rem;color:var(--red);letter-spacing:2px;font-weight:700;margin-bottom:.5rem;">ASKS</div><div style="background:var(--s1);border:1px solid var(--border);"><div class="ob-row" style="color:var(--dim);font-size:.58rem;letter-spacing:1.5px;text-transform:uppercase;border-bottom:1px solid var(--border);font-weight:600;"><span>Price</span><span>Size</span><span>Total</span></div>', unsafe_allow_html=True)
-            for i in range(8):
-                px=round(base+(i+1)*base*0.0003,dec); sz=random.randint(1,500)
-                st.markdown(f'<div class="ob-row"><span class="ob-ask">{px:.{dec}f}</span><span style="color:var(--text);">{sz}</span><span class="ob-vol">${px*sz:,.0f}</span></div>', unsafe_allow_html=True)
-            st.markdown('</div>', unsafe_allow_html=True)
-
-    with tab_wl:
-        st.markdown('<div style="font-size:.58rem;color:var(--dim);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:1rem;font-weight:600;">Watchlist</div>', unsafe_allow_html=True)
-        all_syms = [s for g in SYMBOLS.values() for s in g]
-        c1,c2 = st.columns([3,1])
-        with c1:
-            add_sym = st.selectbox("Add symbol", [s for s in all_syms if s not in st.session_state.watchlist], key="wl_add")
-        with c2:
-            st.markdown("<br>", unsafe_allow_html=True)
-            if st.button("Add", use_container_width=True, key="wl_add_btn"):
-                st.session_state.watchlist.append(add_sym); st.rerun()
-        st.markdown('<div style="background:var(--s1);border:1px solid var(--border);padding:.5rem 1rem;">', unsafe_allow_html=True)
-        for sym in st.session_state.watchlist:
-            data=MARKET_DATA.get(sym,{"price":1.0,"change":0.0,"vol":"N/A","name":sym})
-            chg=data["change"]; col="var(--green)" if chg>=0 else "var(--red)"; sign="+" if chg>=0 else ""
-            dec = 5 if data["price"] < 10 else 2
-            st.markdown(f'<div class="wl-row"><div><div style="font-weight:700;color:var(--text);">{sym}</div><div style="font-size:.65rem;color:var(--dim);">{data.get("name","")} &middot; {data["vol"]}</div></div><div style="font-family:\'JetBrains Mono\',monospace;color:var(--text);font-size:.82rem;">{data["price"]:.{dec}f}</div><div style="font-weight:700;color:{col};font-family:\'JetBrains Mono\',monospace;font-size:.78rem;">{sign}{chg:.2f}%</div></div>', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-    footer()
-
-# ══════════════════════════════════════════════════════════════
-# ANALYTICS
-# ══════════════════════════════════════════════════════════════
-elif st.session_state.page == "analytics":
-    if not st.session_state.user: goto("auth")
-    nav()
-    uid = st.session_state.user["id"]
-    sec("Trade Analytics","Deep performance breakdown")
-    challenge  = db_get_active_challenge(uid)
-    all_trades = db_get_trades(uid, challenge["id"] if challenge else None, limit=500)
-    wr,ap,bt,wt,tt = compute_stats(all_trades)
-    win_streak, loss_streak = compute_streaks(all_trades)
-    if not all_trades:
-        st.markdown('<div style="text-align:center;padding:4rem;color:var(--dim);background:var(--s1);border:1px solid var(--border);font-size:.8rem;">No trades to analyse. Execute some trades first.</div>', unsafe_allow_html=True)
-        footer(); st.stop()
-    wins=[t for t in all_trades if t.get("pnl",0)>0]; losses=[t for t in all_trades if t.get("pnl",0)<0]
-    gross_profit=sum(t.get("pnl",0) for t in wins); gross_loss=abs(sum(t.get("pnl",0) for t in losses))
-    pf=round(gross_profit/gross_loss,2) if gross_loss>0 else 99.0
-    avg_win=round(gross_profit/len(wins),2) if wins else 0; avg_loss=round(gross_loss/len(losses),2) if losses else 0
-    expectancy=round(wr/100*avg_win-(1-wr/100)*avg_loss,2)
-    st.markdown(
-        f'<div class="metric-row">'
-        f'<div class="m-card"><div class="m-label">Profit Factor</div><div class="m-val {"g" if pf>=1.5 else "r"}">{pf}x</div><div class="m-sub">{"Strong edge" if pf>=1.5 else "Needs work"}</div></div>'
-        f'<div class="m-card"><div class="m-label">Expectancy / Trade</div><div class="m-val {"g" if expectancy>0 else "r"}">{"+" if expectancy>0 else ""}${expectancy:,.2f}</div><div class="m-sub">Expected P&L per trade</div></div>'
-        f'<div class="m-card"><div class="m-label">Avg Win</div><div class="m-val g">+${avg_win:,.2f}</div><div class="m-sub">{len(wins)} winning trades</div></div>'
-        f'<div class="m-card"><div class="m-label">Avg Loss</div><div class="m-val r">-${avg_loss:,.2f}</div><div class="m-sub">{len(losses)} losing trades</div></div>'
-        f'</div>',
-        unsafe_allow_html=True
-    )
-    sym_pnl={}; sym_cnt={}; sym_wins={}
-    for t in all_trades:
-        s=t.get("symbol","?"); p=t.get("pnl",0)
-        sym_pnl[s]=sym_pnl.get(s,0)+p; sym_cnt[s]=sym_cnt.get(s,0)+1
-        sym_wins[s]=sym_wins.get(s,0)+(1 if p>0 else 0)
-    st.markdown('<div style="font-size:.58rem;color:var(--dim);letter-spacing:2.5px;text-transform:uppercase;margin:.8rem 0;font-weight:600;">P&L by Symbol</div>', unsafe_allow_html=True)
-    st.markdown('<div style="background:var(--s1);border:1px solid var(--border);"><div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;padding:.8rem 1.2rem;background:var(--s2);font-size:.58rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;font-weight:600;border-bottom:1px solid var(--border);"><span>Symbol</span><span>Total P&L</span><span>Trades</span><span>Win Rate</span></div>', unsafe_allow_html=True)
-    for sym,total in sorted(sym_pnl.items(),key=lambda x:x[1],reverse=True):
-        pc=("var(--green)" if total>=0 else "var(--red)"); ps2=("+" if total>=0 else "")
-        cnt=sym_cnt.get(sym,1); wr2=round(sym_wins.get(sym,0)/cnt*100,0)
-        wrc2="var(--green)" if wr2>=50 else "var(--red)"
-        st.markdown(f'<div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;padding:.65rem 1.2rem;border-top:1px solid var(--border);align-items:center;"><span style="font-weight:700;color:var(--text);">{sym}</span><span style="color:{pc};font-family:\'JetBrains Mono\',monospace;font-size:.75rem;">{ps2}${total:,.2f}</span><span style="color:var(--text);">{cnt}</span><span style="color:{wrc2};font-weight:700;">{wr2:.0f}%</span></div>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-    footer()
-
-# ══════════════════════════════════════════════════════════════
-# PORTFOLIO
-# ══════════════════════════════════════════════════════════════
-elif st.session_state.page == "portfolio":
-    if not st.session_state.user: goto("auth")
-    nav()
-    uid=st.session_state.user["id"]
-    sec("Portfolio Overview","Performance across all challenges")
-    all_trades=db_get_trades(uid,limit=500); all_challenges=db_get_all_challenges(uid)
-    wr,ap,bt,wt,tt=compute_stats(all_trades)
-    passed=sum(1 for c in all_challenges if c.get("status")=="passed")
-    failed=sum(1 for c in all_challenges if c.get("status")=="failed")
-    wrc="g" if wr>=50 else "r"; apc="g" if ap>=0 else "r"; aps="+" if ap>=0 else ""
-    st.markdown(
-        f'<div class="stats-row">'
-        f'<div class="stat-box"><div class="sv w">{tt}</div><div class="sl">Total Trades</div></div>'
-        f'<div class="stat-box"><div class="sv {wrc}">{wr:.0f}%</div><div class="sl">Win Rate</div></div>'
-        f'<div class="stat-box"><div class="sv {apc}">{aps}${ap:,.2f}</div><div class="sl">Avg P&L</div></div>'
-        f'<div class="stat-box"><div class="sv g">{passed}</div><div class="sl">Passed</div></div>'
-        f'<div class="stat-box"><div class="sv r">{failed}</div><div class="sl">Failed</div></div>'
-        f'</div>',
-        unsafe_allow_html=True
-    )
-    challenge=db_get_active_challenge(uid); account=db_get_account(challenge["id"]) if challenge else None
-    if challenge and account:
-        bal=account["balance"]; init=account["initial_capital"]; p=bal-init; pp=(p/init)*100
-        r=RULES.get(challenge["plan"],{}); pc="var(--green)" if p>=0 else "var(--red)"; ps="+" if p>=0 else ""
-        st.markdown(
-            f'<div style="background:var(--s1);border:1px solid rgba(0,212,255,.2);border-left:2px solid var(--cyan);padding:1.8rem 2rem;margin-bottom:1.5rem;">'
-            f'<div style="font-size:.58rem;color:var(--dim);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:1rem;">Active Challenge</div>'
-            f'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;">'
-            f'<div><div class="m-label">Plan</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--cyan);">{challenge["plan"].upper()}</div></div>'
-            f'<div><div class="m-label">Balance</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--text);">${bal:,.2f}</div></div>'
-            f'<div><div class="m-label">P&L</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:{pc};">{ps}${p:,.2f}</div></div>'
-            f'<div><div class="m-label">Progress</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:var(--cyan);">{ps}{pp:.1f}%</div></div>'
-            f'</div></div>',
-            unsafe_allow_html=True
-        )
-    footer()
-
-# ══════════════════════════════════════════════════════════════
-# JOURNAL
-# ══════════════════════════════════════════════════════════════
-elif st.session_state.page == "journal":
-    if not st.session_state.user: goto("auth")
-    nav()
-    uid=st.session_state.user["id"]; challenge=db_get_active_challenge(uid)
-    sec("Trade Journal","Document your setups, outcomes and mindset")
-    with st.expander("Add New Entry", expanded=True):
-        ca,cb = st.columns(2)
-        with ca:
-            all_s=[s for g in SYMBOLS.values() for s in g]
-            j_sym=st.selectbox("Symbol",all_s,key="jsym")
-            j_out=st.selectbox("Outcome",["WIN","LOSS","BREAKEVEN"],key="jout")
-        with cb:
-            j_setup=st.text_input("Setup / Pattern",placeholder="e.g. Breakout retest",key="jsetup")
-            j_emo=st.selectbox("Emotional State",["Calm","Confident","Anxious","Greedy","Fearful","FOMO"],key="jemo")
-        j_note=st.text_area("Journal Note",placeholder="What did you observe? Why did you enter? What would you improve?",height=100,key="jnote")
-        if st.button("Save Entry",use_container_width=True,key="jsave"):
-            if j_note.strip():
-                try:
-                    supabase.table("journal_entries").insert({"user_id":uid,"challenge_id":challenge["id"] if challenge else None,"symbol":j_sym,"outcome":j_out.lower(),"setup":j_setup,"emotion":j_emo,"note":j_note,"created_at":datetime.utcnow().isoformat()}).execute()
-                    st.success("Entry saved."); time.sleep(1); st.rerun()
-                except Exception as e: st.error(f"Error: {e}")
-            else: st.warning("Write a note before saving.")
-    entries=db_get_journal(uid)
-    if entries:
-        for e in entries:
-            out=e.get("outcome",""); tc="win" if out=="win" else ("loss" if out=="loss" else "")
-            dt=e.get("created_at","")[:10]
-            setup_tag=f'<span class="je-tag">{e["setup"]}</span>' if e.get("setup") else ""
-            st.markdown(f'<div class="journal-entry"><div class="je-date">{dt} &nbsp;|&nbsp; {e.get("symbol","")} &nbsp;|&nbsp; {e.get("emotion","")}</div><div class="je-note">{e.get("note","")}</div><div class="je-tags"><span class="je-tag {tc}">{out.upper()}</span>{setup_tag}</div></div>', unsafe_allow_html=True)
-    else:
-        st.markdown('<div style="text-align:center;padding:3rem;color:var(--dim);background:var(--s1);border:1px solid var(--border);font-size:.8rem;">No entries yet.</div>', unsafe_allow_html=True)
-    footer()
-
-# ══════════════════════════════════════════════════════════════
-# HISTORY
-# ══════════════════════════════════════════════════════════════
-elif st.session_state.page == "history":
-    if not st.session_state.user: goto("auth")
-    nav()
-    uid=st.session_state.user["id"]
-    sec("Challenge History","All past and active challenge attempts")
-    all_ch=db_get_all_challenges(uid)
-    if not all_ch:
-        st.markdown('<div style="text-align:center;padding:4rem;color:var(--dim);background:var(--s1);border:1px solid var(--border);font-size:.8rem;">No challenges yet.</div>', unsafe_allow_html=True)
-        _,c,_=st.columns([2,1,2])
-        with c:
-            if st.button("Activate Plan",use_container_width=True): goto("plans")
-    else:
-        total=len(all_ch); passed=sum(1 for c in all_ch if c.get("status")=="passed")
-        failed=sum(1 for c in all_ch if c.get("status")=="failed"); active=sum(1 for c in all_ch if c.get("status")=="active")
-        st.markdown(f'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;margin-bottom:1.5rem;background:var(--border);"><div class="stat-box"><div class="sv w">{total}</div><div class="sl">Total</div></div><div class="stat-box"><div class="sv g">{passed}</div><div class="sl">Passed</div></div><div class="stat-box"><div class="sv r">{failed}</div><div class="sl">Failed</div></div><div class="stat-box"><div class="sv c">{active}</div><div class="sl">Active</div></div></div>', unsafe_allow_html=True)
-        for ch in all_ch:
-            acc=db_get_account(ch["id"]) or {}; cap=ch.get("capital",0); bal=acc.get("balance",cap)
-            p=bal-cap; pp=(p/cap*100) if cap else 0; status=ch.get("status","active"); d=acc.get("days_traded",0)
-            r=RULES.get(ch.get("plan",""),{}); phase=r.get("phase","1step")
-            cap_str=f"${cap//1000}K"; date_str=ch.get("started_at","")[:10]
-            pc="var(--green)" if p>=0 else "var(--red)"; ps="+" if p>=0 else ""
-            st.markdown(f'<div class="ch-card"><div><div class="ch-plan">{ch.get("plan","").upper()}</div><div style="font-size:.68rem;color:var(--dim);font-family:\'JetBrains Mono\',monospace;">{cap_str} &nbsp;|&nbsp; {date_str} &nbsp;|&nbsp; {phase.upper()}</div></div><div style="font-size:.8rem;">Balance: <b style="color:var(--text);">${bal:,.2f}</b></div><div style="font-size:.8rem;color:{pc};">P&L: <b>{ps}${p:,.2f} ({ps}{pp:.1f}%)</b></div><div style="font-size:.8rem;color:var(--dim);">Days: <b style="color:var(--text);">{d}</b></div><div class="ch-status {status}">{status.upper()}</div></div>', unsafe_allow_html=True)
-    footer()
-
-# ══════════════════════════════════════════════════════════════
-# LEADERBOARD
-# ══════════════════════════════════════════════════════════════
-elif st.session_state.page == "leaderboard":
-    nav()
-    sec("Leaderboard","Top traders ranked by profit")
-    data=db_get_leaderboard()
-    if not data:
-        data=[
-            {"name":"Rahul S.","country":"India","profit_pct":18.4,"status":"passed","plan":"1phase_50k"},
-            {"name":"Priya M.","country":"India","profit_pct":15.2,"status":"passed","plan":"2phase_25k"},
-            {"name":"Kiran T.","country":"India","profit_pct":12.7,"status":"active","plan":"instant_25k"},
-            {"name":"Arun K.","country":"UAE",  "profit_pct":11.1,"status":"passed","plan":"1phase_100k"},
-            {"name":"Sneha R.","country":"India","profit_pct":9.8, "status":"active","plan":"2phase_50k"},
-        ]
-    medals=["01","02","03"]
-    for i,t in enumerate(data):
-        rank=i+1; medal=medals[i] if i<3 else f"{rank:02d}"
-        rc="top" if rank<=3 else ""; funded=t.get("status")=="passed"
-        bc="funded-b" if funded else "active-b"; bt2="Funded" if funded else "Active"
-        profit=t.get("profit_pct",0)
-        r=RULES.get(t.get("plan",""),{}); phase=r.get("phase","1step")
-        st.markdown(f'<div class="lb-item"><div class="lb-rank {rc}">{medal}</div><div class="lb-info"><div class="lb-name">{t.get("name","Trader")}</div><div class="lb-country">{t.get("country","")} &nbsp;|&nbsp; {t.get("plan","").upper()} &nbsp;|&nbsp; {phase.upper()}</div></div><div class="lb-pnl">+{profit:.2f}%</div><div class="lb-badge {bc}">{bt2}</div></div>', unsafe_allow_html=True)
-    footer()
-
-# ══════════════════════════════════════════════════════════════
-# PROFILE
-# ══════════════════════════════════════════════════════════════
-elif st.session_state.page == "profile":
-    if not st.session_state.user: goto("auth")
-    nav()
-    uid=st.session_state.user["id"]; email=st.session_state.user.get("email","")
-    prof=db_get_profile(uid) or {}
-    name=prof.get("name",email.split("@")[0]); country=prof.get("country","India"); bio=prof.get("bio","")
-    all_challenges=db_get_all_challenges(uid); all_trades=db_get_trades(uid,limit=500)
-    wr,ap,bt,wt,tt=compute_stats(all_trades)
-    passed=sum(1 for c in all_challenges if c.get("status")=="passed")
-    failed=sum(1 for c in all_challenges if c.get("status")=="failed")
-    funded_badge=passed>0
-    initials="".join([w[0].upper() for w in name.split()[:2]])
-    sec("My Profile","Trader identity and performance summary")
-    badge_html='<div class="funded-badge-inline">&#10003; Funded Trader</div>' if funded_badge else ""
-    st.markdown(
-        f'<div class="profile-hero">'
-        f'<div class="profile-avatar">{initials}</div>'
-        f'<div><div class="profile-name">{name.upper()}</div>'
-        f'<div class="profile-email">{email}</div>'
-        f'<div style="font-size:.68rem;color:var(--dim);margin-top:4px;letter-spacing:.5px;">{country}</div>'
-        f'{badge_html}</div>'
-        f'<div style="margin-left:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:2rem;text-align:center;">'
-        f'<div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.6rem;color:var(--cyan);">{tt}</div><div style="font-size:.55rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-top:4px;">Trades</div></div>'
-        f'<div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.6rem;color:{"var(--green)" if wr>=50 else "var(--red)"};">{wr:.0f}%</div><div style="font-size:.55rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-top:4px;">Win Rate</div></div>'
-        f'<div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.6rem;color:var(--green);">{passed}</div><div style="font-size:.55rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-top:4px;">Passed</div></div>'
-        f'<div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.6rem;color:var(--red);">{failed}</div><div style="font-size:.55rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-top:4px;">Failed</div></div>'
-        f'</div></div>',
-        unsafe_allow_html=True
-    )
-    with st.form("edit_profile"):
-        c1,c2=st.columns(2)
-        with c1:
-            new_name=st.text_input("Full Name",value=name,key="pf_name")
-            new_country=st.text_input("Country",value=country,key="pf_country")
-        with c2:
-            new_bio=st.text_area("Bio",value=bio,placeholder="e.g. XAUUSD scalper.",height=100,key="pf_bio")
-        if st.form_submit_button("Save Profile",use_container_width=True):
-            if db_update_profile(uid,new_name,new_country,new_bio):
-                st.session_state.user["name"]=new_name
-                st.success("Profile saved."); time.sleep(1); st.rerun()
-            else: st.error("Save failed.")
-
-    # ── ACHIEVEMENTS ─────────────────────────────────────────
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown(
-        '<div style="font-size:.58rem;color:var(--dim);letter-spacing:2.5px;'
-        'text-transform:uppercase;margin-bottom:.8rem;font-weight:600;">Achievements</div>',
-        unsafe_allow_html=True
-    )
-    def _badge_html(icon, title, desc, earned):
+        def _badge_html(icon, title, desc, earned):
         _op   = "1" if earned else "0.22"
         _bord = "rgba(0,212,255,.35)" if earned else "var(--border)"
         _glow = "box-shadow:0 0 18px rgba(0,212,255,.12);" if earned else ""
@@ -3812,14 +3542,6 @@ elif st.session_state.page == "profile":
             f'<div style="font-size:.5rem;color:var(--dim);margin-top:3px;line-height:1.4;">{desc}</div>'
             f'{_tag}</div>'
         )
-
-    # Compute missing vars for badges
-    win_streak, loss_streak = compute_streaks(all_trades)
-    _trade_days = set()
-    for _t in all_trades:
-        _td = str(_t.get("created_at",""))[:10]
-        if _td: _trade_days.add(_td)
-    days = len(_trade_days)
 
     _BADGES = [
         ("⚡", "First Trade",  "Execute your first trade",       tt >= 1),
@@ -4158,9 +3880,9 @@ elif st.session_state.page == "risk_calc":
         acc_size=st.number_input("Account Balance ($)",value=balance,min_value=1000.0,step=1000.0,key="rc_bal")
         risk_pct=st.slider("Risk per trade (%)",0.1,3.0,1.0,0.1,key="rc_risk")
         sym_sel=st.selectbox("Symbol",[s for g in SYMBOLS.values() for s in g],key="rc_sym")
-        entry_p=st.number_input("Entry Price",value=float(MARKET_DATA.get(sym_sel,{}).get("price",1.0)),min_value=0.00001,format="%.5f",key="rc_entry")
-        stop_loss=st.number_input("Stop Loss",value=float(round(MARKET_DATA.get(sym_sel,{}).get("price",1.0)*0.995,5)),min_value=0.00001,format="%.5f",key="rc_sl")
-        target_p=st.number_input("Take Profit",value=float(round(MARKET_DATA.get(sym_sel,{}).get("price",1.0)*1.015,5)),min_value=0.00001,format="%.5f",key="rc_tp")
+        entry_p=st.number_input("Entry Price",value=float(get_all_market_data().get(sym_sel,{}).get("price",1.0)),min_value=0.00001,format="%.5f",key="rc_entry")
+        stop_loss=st.number_input("Stop Loss",value=float(round(get_all_market_data().get(sym_sel,{}).get("price",1.0)*0.995,5)),min_value=0.00001,format="%.5f",key="rc_sl")
+        target_p=st.number_input("Take Profit",value=float(round(get_all_market_data().get(sym_sel,{}).get("price",1.0)*1.015,5)),min_value=0.00001,format="%.5f",key="rc_tp")
         risk_amt=acc_size*risk_pct/100; sl_dist=abs(entry_p-stop_loss); tp_dist=abs(target_p-entry_p)
         pip_val=10 if "JPY" not in sym_sel and "XAG" not in sym_sel and "OIL" not in sym_sel else 1
         lots=round(risk_amt/(sl_dist*pip_val*1000),2) if sl_dist>0 else 0
