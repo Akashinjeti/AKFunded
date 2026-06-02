@@ -2121,9 +2121,9 @@ if st.session_state.page == "home":
 <head>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@400;600;700&display=swap');
-  *{margin:0;padding:0;box-sizing:border-box;}
-  body{background:#020108;overflow:hidden;}
-  #hero{
+  *{{margin:0;padding:0;box-sizing:border-box;}}
+  body{{background:#020108;overflow:hidden;}}
+  #hero{{
     position:relative;
     width:100%;
     height:600px;
@@ -2133,33 +2133,33 @@ if st.session_state.page == "home":
     justify-content:center;
     overflow:hidden;
     background:#020108;
-  }
-  #bgCanvas{
+  }}
+  #bgCanvas{{
     position:absolute;
     top:0;left:0;
     width:100%;height:100%;
     z-index:0;
-  }
-  .hero-content{
+  }}
+  .hero-content{{
     position:relative;
     z-index:2;
     text-align:center;
     display:flex;
     flex-direction:column;
     align-items:center;
-  }
-  .hero-logo{
+  }}
+  .hero-logo{{
     height:68px;width:68px;
     object-fit:contain;
     margin-bottom:1.6rem;
     filter:drop-shadow(0 0 24px rgba(249,0,255,.5));
     animation:floatLogo 4s ease-in-out infinite;
-  }
-  @keyframes floatLogo{
-    0%,100%{transform:translateY(0);}
-    50%{transform:translateY(-8px);}
-  }
-  .eyebrow{
+  }}
+  @keyframes floatLogo{{
+    0%,100%{{transform:translateY(0);}}
+    50%{{transform:translateY(-8px);}}
+  }}
+  .eyebrow{{
     display:inline-flex;
     align-items:center;
     gap:.6rem;
