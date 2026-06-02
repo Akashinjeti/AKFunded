@@ -3178,17 +3178,13 @@ elif st.session_state.page == "plans":
         )
         if st.button(f"Activate {plan['name']}", key=f"buy_{plan['slug']}", use_container_width=True):
             uid = st.session_state.user["id"]
-            existing = db_get_active_challenge(uid)
-            if existing:
-                st.warning("You already have an active challenge. Complete or view it in your dashboard.")
+            ok, ch_id = activate_challenge(plan, uid)
+            if ok:
+                push_notification(uid,"⚡","Challenge Activated",f"{plan['name']} {phase_type.upper()} challenge is now active.")
+                st.success(f"✅ {plan['name']} {phase_type.upper()} challenge activated!")
+                time.sleep(1); goto("dashboard")
             else:
-                ok, ch_id = activate_challenge(plan, uid)
-                if ok:
-                    push_notification(uid,"⚡","Challenge Activated",f"{plan['name']} {phase_type.upper()} challenge is now active.")
-                    st.success(f"✅ {plan['name']} {phase_type.upper()} challenge activated!")
-                    time.sleep(1); goto("dashboard")
-                else:
-                    st.error(f"Activation failed: {ch_id}")
+                st.error(f"Activation failed: {ch_id}")
 
     with tab_inst:
         st.markdown('<div style="background:linear-gradient(135deg,rgba(212,168,67,.06),rgba(212,168,67,.02));border:1px solid rgba(212,168,67,.2);border-left:2px solid var(--gold);padding:.8rem 1.2rem;margin-bottom:1.5rem;font-size:.78rem;color:var(--dim);"><b style="color:var(--gold);">INSTANT FUNDED</b> — No evaluation required. Strictest rules: <b style="color:var(--red);">3% daily loss</b> &middot; <b style="color:var(--red);">6% max loss</b> &middot; <b style="color:var(--gold);">70-75% profit split</b></div>', unsafe_allow_html=True)
@@ -3236,21 +3232,44 @@ elif st.session_state.page == "dashboard":
     name  = st.session_state.user.get("name","Trader")
     email = st.session_state.user.get("email","")
 
-    challenge = db_get_active_challenge(uid)
-    account   = db_get_account(challenge["id"]) if challenge else None
-
-    if not challenge or not account:
+    all_challenges = db_get_all_challenges(uid)
+    
+    if not all_challenges:
         st.markdown(
             f'<div style="text-align:center;padding:6rem 2rem;">'
             f'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:2.5rem;letter-spacing:5px;color:var(--text);">Welcome, {name.upper()}</div>'
-            f'<div style="font-size:.85rem;color:var(--dim);margin:.5rem 0 2rem;font-weight:300;letter-spacing:.5px;">No active challenge. Activate one to start trading.</div>'
+            f'<div style="font-size:.85rem;color:var(--dim);margin:.5rem 0 2rem;font-weight:300;letter-spacing:.5px;">No challenges found. Start your first challenge to begin trading.</div>'
             f'</div>',
             unsafe_allow_html=True
         )
         _,c,_ = st.columns([2,1,2])
         with c:
-            if st.button("Activate Challenge", use_container_width=True): goto("plans")
+            if st.button("Start Challenge", use_container_width=True): goto("plans")
         footer(); st.stop()
+        
+    st.markdown('<div style="font-size:.58rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;font-weight:600;">Select Account</div>', unsafe_allow_html=True)
+    
+    options = []
+    for ch in all_challenges:
+        status = ch.get("status", "unknown").upper()
+        emoji = "🟢" if status == "ACTIVE" else "🏆" if status == "PASSED" else "❌" if status == "FAILED" else "⏳"
+        options.append(f"{emoji} {ch['plan'].upper()} — {status} (ID: {ch['id']})")
+        
+    c1, c2 = st.columns([3, 1])
+    with c1:
+        sel_idx = st.selectbox("Select Account", range(len(options)), format_func=lambda i: options[i], label_visibility="collapsed")
+    with c2:
+        if st.button("+ New Challenge", use_container_width=True): goto("plans")
+        
+    challenge = all_challenges[sel_idx]
+    account = db_get_account(challenge["id"])
+    
+    if not account:
+        st.error("Account details not found.")
+        st.stop()
+        
+    is_active = challenge.get("status") == "active"
+
 
     balance = float(account.get("balance",0))
     initial = float(account.get("initial_capital",1))
@@ -3284,6 +3303,10 @@ elif st.session_state.page == "dashboard":
     if phase_type == "instant":   phase_badge = "INSTANT FUNDED"
     elif phase_type == "1step":   phase_badge = "ONE-STEP"
     else:                         phase_badge = "TWO-STEP"
+    
+    ch_status = challenge.get("status", "unknown").upper()
+    status_col = "var(--green)" if ch_status == "ACTIVE" else "var(--gold)" if ch_status == "PASSED" else "var(--red)"
+    status_emoji = "&#x25CF;" if ch_status == "ACTIVE" else "🏆" if ch_status == "PASSED" else "❌"
 
     st.markdown(
         f'<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.5rem;">'
@@ -3292,7 +3315,7 @@ elif st.session_state.page == "dashboard":
         f'<div style="width:30px;height:1px;background:var(--cyan);margin-top:.6rem;opacity:.5;"></div></div>'
         f'<div style="display:flex;gap:.5rem;align-items:center;">'
         f'<div style="border:1px solid rgba(0,212,255,.2);padding:4px 14px;font-size:.58rem;color:var(--cyan);letter-spacing:2.5px;text-transform:uppercase;font-weight:700;">{phase_badge}</div>'
-        f'<div style="border:1px solid rgba(0,184,122,.2);padding:4px 14px;font-size:.58rem;color:var(--green);letter-spacing:2.5px;text-transform:uppercase;font-weight:700;">&#x25CF; ACTIVE</div>'
+        f'<div style="border:1px solid {status_col};padding:4px 14px;font-size:.58rem;color:{status_col};letter-spacing:2.5px;text-transform:uppercase;font-weight:700;">{status_emoji} {ch_status}</div>'
         f'</div></div>',
         unsafe_allow_html=True
     )
@@ -3396,7 +3419,9 @@ elif st.session_state.page == "dashboard":
             unsafe_allow_html=True
         )
 
-        if st.button("Execute Trade", use_container_width=True, key="exec"):
+        if not is_active:
+            st.button("Execute Trade (Account Inactive)", use_container_width=True, disabled=True)
+        elif st.button("Execute Trade", use_container_width=True, key="exec"):
             # Exact moment live price
             real_entry_price = get_live_price(t_sym)
             
@@ -3754,6 +3779,47 @@ elif st.session_state.page == "history":
     st.markdown('<div style="color:var(--dim);text-align:center;padding:3rem;background:var(--s1);border:1px solid var(--border);border-radius:4px;">Trade history table is currently being synchronized. View recent trades on the Dashboard.</div>', unsafe_allow_html=True)
     footer()
 
+
+# ══════════════════════════════════════════════════════════════
+# LEADERBOARD
+# ══════════════════════════════════════════════════════════════
+elif st.session_state.page == "leaderboard":
+    nav()
+    sec("Global Leaderboard", "Top traders ranked by total profit percentage.")
+    lb = db_get_leaderboard()
+    
+    if not lb:
+        st.markdown('<div style="text-align:center;padding:3rem;color:var(--dim);border:1px solid var(--border);background:var(--s1);border-radius:4px;">No leaderboard data available yet.</div>', unsafe_allow_html=True)
+    else:
+        st.markdown('<div style="display:grid;grid-template-columns:50px 3fr 2fr 2fr 2fr;padding:1rem;background:var(--s2);font-size:.65rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;border-bottom:1px solid var(--border);"><span>Rank</span><span>Trader</span><span>Plan</span><span>Status</span><span style="text-align:right;">Profit %</span></div>', unsafe_allow_html=True)
+        
+        for i, row in enumerate(lb):
+            rank = i + 1
+            rank_html = f'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.5rem;color:var(--gold);">{rank}</div>' if rank <= 3 else f'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.2rem;color:var(--dim);">{rank}</div>'
+            name = row.get("name", "Unknown")
+            country = row.get("country", "")
+            if country: name += f' <span style="font-size:.7rem;color:var(--dim);">({country})</span>'
+            
+            plan = row.get("plan", "").upper()
+            status = row.get("status", "ACTIVE").upper()
+            prof_pct = row.get("profit_pct", 0)
+            
+            prof_col = "var(--green)" if prof_pct >= 0 else "var(--red)"
+            status_emoji = "🟢" if status == "ACTIVE" else "🏆" if status == "PASSED" else "❌"
+            
+            st.markdown(
+                f'<div style="display:grid;grid-template-columns:50px 3fr 2fr 2fr 2fr;padding:1rem;border-bottom:1px solid var(--border);align-items:center;background:var(--s1);transition:background .2s;">'
+                f'{rank_html}'
+                f'<div style="font-weight:600;color:var(--text);font-size:.9rem;">{name}</div>'
+                f'<div style="font-family:\'JetBrains Mono\',monospace;font-size:.75rem;color:var(--cyan);">{plan}</div>'
+                f'<div style="font-size:.7rem;color:var(--dim);letter-spacing:1px;">{status_emoji} {status}</div>'
+                f'<div style="text-align:right;font-family:\'JetBrains Mono\',monospace;font-size:1.1rem;color:{prof_col};font-weight:700;">+{prof_pct:.2f}%</div>'
+                f'</div>',
+                unsafe_allow_html=True
+            )
+            
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    footer()
 
 # ══════════════════════════════════════════════════════════════
 # PROFILE / ME
