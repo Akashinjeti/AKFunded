@@ -26,7 +26,7 @@ supabase = get_supabase()
 # ─── GLOBAL STYLES ─────────────────────────────────────────────
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&family=Caveat:wght@500;600;700&display=swap');
 
 :root {
   --gold:#9d00ff; /* Neon Purple */
@@ -1107,10 +1107,10 @@ def build_certificate_html(name, plan, capital, pnl_pct, days, date_str, challen
 
         f'<div style="position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:16px 90px 26px;border-top:1px solid {accent_bord};">'
         '<div style="text-align:center;">'
-        f'<div style="font-family:\'Alex Brush\',cursive;font-size:2.4rem;color:{accent};line-height:1.1;letter-spacing:1px;">Akash Injeti</div>'
+        f'<div style="font-family:\\\'Caveat\\\',cursive;font-size:3.2rem;color:var(--neon);text-shadow:0 0 15px rgba(223,0,255,0.6);line-height:0.9;letter-spacing:1px;font-weight:600;">Akash Injeti</div>'
         f'<div style="width:130px;height:1px;background:{accent_bord};margin:5px auto;"></div>'
-        '<div style="font-size:0.5rem;color:#3a6a4a;letter-spacing:1.5px;text-transform:uppercase;">Akash Injeti</div>'
-        '<div style="font-size:0.48rem;color:#2a5a3a;letter-spacing:1px;text-transform:uppercase;">Founder, AKFunded</div>'
+        '<div style="font-size:0.5rem;color:var(--dim);letter-spacing:1.5px;text-transform:uppercase;">Akash Injeti</div>'
+        '<div style="font-size:0.48rem;color:var(--dim2);letter-spacing:1px;text-transform:uppercase;">Founder, AKFunded</div>'
         '</div>'
         f'<div style="text-align:center;">'
         f'<div style="width:54px;height:54px;border:2px solid {accent_bord};border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto;background:{accent_bd2};">'
@@ -1295,14 +1295,14 @@ def build_certificate_email_html(name, plan, capital, pnl_pct, days, date_str):
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr valign="middle">
           <td width="38%" align="left" valign="middle">
-            <p style="margin:0;font-family:Georgia,serif;font-style:italic;font-size:22px;
-              color:#00B87A;">Akash Injeti</p>
+            <p style="margin:0;font-family:'Caveat',cursive;font-size:26px;font-weight:600;
+              color:#c300ff;text-shadow:0 0 10px rgba(195,0,255,0.4);">Akash Injeti</p>
             <table cellpadding="0" cellspacing="0" border="0">
               <tr><td width="140" height="1"
-                style="background:#1a3a1a;font-size:1px;line-height:1px;padding-top:6px;">&nbsp;</td></tr>
+                style="background:#35005c;font-size:1px;line-height:1px;padding-top:6px;">&nbsp;</td></tr>
             </table>
             <p style="margin:6px 0 2px;font-family:Arial,Helvetica,sans-serif;font-size:7px;
-              color:#3a6a4a;letter-spacing:1.5px;text-transform:uppercase;">AKASH INJETI</p>
+              color:#9c7eb5;letter-spacing:1.5px;text-transform:uppercase;">AKASH INJETI</p>
             <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:7px;
               color:#2a5a3a;letter-spacing:1px;text-transform:uppercase;">FOUNDER, AKFUNDED</p>
           </td>
@@ -1622,13 +1622,18 @@ def nav():
 def footer():
     st.markdown(
         '<div class="ak-footer">'
-        f'<div style="display:flex;align-items:center;justify-content:center;gap:1.5rem;margin-bottom:1rem;">'
-        f'<img src="{LOGO_URL}" onerror="this.style.display=\'none\'" style="height:20px;width:20px;object-fit:contain;opacity:.4;" />'
-        '<span style="font-size:.72rem;letter-spacing:4px;color:#1e1e1e;font-weight:700;">AKFUNDED</span>'
-        '<span style="color:#1e1e1e;">|</span>'
-        f'<a href="{IG_URL}" target="_blank" style="color:#2a2a2a;text-decoration:none;font-size:.68rem;letter-spacing:1.5px;">Instagram: <b style="color:#3a3a3a;">{IG_HANDLE}</b></a>'
+        f'<div style="display:flex;align-items:center;justify-content:center;gap:1.5rem;margin-bottom:2rem;">'
+        f'<img src="{LOGO_URL}" onerror="this.style.display=\\\'none\\\'" style="height:20px;width:20px;object-fit:contain;opacity:.4;" />'
+        '<span style="font-size:.72rem;letter-spacing:4px;color:var(--dim2);font-weight:700;">AKFUNDED</span>'
+        '<span style="color:var(--dim2);">|</span>'
+        f'<a href="{IG_URL}" target="_blank" style="color:var(--dim);text-decoration:none;font-size:.68rem;letter-spacing:1.5px;">Instagram: <b style="color:var(--cyan);">{IG_HANDLE}</b></a>'
         '</div>'
-        '<div style="color:#1e1e1e;">Built by <b>Akash Injeti</b> &nbsp;&middot;&nbsp; Simulate. Prove. Get Funded. &nbsp;&middot;&nbsp; All accounts are simulated.</div>'
+        '<div style="text-align:center;margin-bottom:1.5rem;">'
+        f'<div style="font-family:\\\'Caveat\\\',cursive;font-size:3rem;color:var(--gold);line-height:0.8;margin-bottom:8px;text-shadow:0 0 10px var(--gold-glow);font-weight:600;">Akash Injeti</div>'
+        '<div style="width:160px;height:1px;background:var(--border2);margin:0 auto 8px;"></div>'
+        '<div style="font-size:0.55rem;color:var(--dim);letter-spacing:3px;text-transform:uppercase;">Akash Injeti &nbsp;&middot;&nbsp; Founder</div>'
+        '</div>'
+        '<div style="color:var(--dim2);font-size:.65rem;letter-spacing:1px;text-transform:uppercase;">Simulate. Prove. Get Funded. &nbsp;&middot;&nbsp; All accounts are simulated.</div>'
         '</div>',
         unsafe_allow_html=True
     )
