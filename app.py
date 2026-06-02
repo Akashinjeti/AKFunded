@@ -26,36 +26,36 @@ supabase = get_supabase()
 # ─── GLOBAL STYLES ─────────────────────────────────────────────
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Alex+Brush&family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&family=Dancing+Script:wght@700&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
 
 :root {
-  --gold:#D4A843;
-  --gold-dim:#5c450e;
-  --gold-glow:rgba(212,168,67,.15);
-  --black:#050505;
-  --s0:#080808;
-  --s1:#0d0d0d;
-  --s2:#111111;
-  --s3:#161616;
-  --border:#1e1e1e;
-  --border2:#252525;
-  --border3:#2e2e2e;
-  --text:#D8D8D8;
-  --dim:#505050;
-  --dim2:#3a3a3a;
-  --green:#00B87A;
-  --green-dim:rgba(0,184,122,.1);
-  --red:#E03A52;
-  --red-dim:rgba(224,58,82,.1);
-  --purple:#7B6EF6;
-  --blue:#2D7DD2;
-  --cyan:#00D4FF;
-  --cyan-dim:rgba(0,212,255,.1);
+  --gold:#F900FF; /* Cyber Magenta */
+  --gold-dim:#4a004d;
+  --gold-glow:rgba(249,0,255,.2);
+  --black:#020108; /* Deep Void */
+  --s0:#04030d;
+  --s1:rgba(12, 10, 25, 0.65); /* Glassmorphism Panel */
+  --s2:rgba(18, 15, 40, 0.7);
+  --s3:rgba(25, 22, 55, 0.8);
+  --border:rgba(0, 243, 255, 0.15); /* Electric Blue Border */
+  --border2:rgba(0, 243, 255, 0.3);
+  --border3:rgba(249, 0, 255, 0.3);
+  --text:#EAF0FF;
+  --dim:#687A9E;
+  --dim2:#3A4C6A;
+  --green:#00FF85; /* Neon Green */
+  --green-dim:rgba(0,255,133,.15);
+  --red:#FF003C; /* Cyber Red */
+  --red-dim:rgba(255,0,60,.15);
+  --purple:#A200FF;
+  --blue:#0066FF;
+  --cyan:#00F3FF; /* Electric Cyan */
+  --cyan-dim:rgba(0,243,255,.15);
   --neon:#39FF14;
 }
 
 html, body {
-  background:#050505!important;
+  background:#020108!important;
   font-family:'Rajdhani',sans-serif;
 }
 [class*="css"],.main,.stApp,.stApp>div,section.main,
@@ -2120,10 +2120,10 @@ if st.session_state.page == "home":
 <html>
 <head>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&display=swap');
-  *{{margin:0;padding:0;box-sizing:border-box;}}
-  body{{background:#050505;overflow:hidden;}}
-  #hero{{
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@400;600;700&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:#020108;overflow:hidden;}
+  #hero{
     position:relative;
     width:100%;
     height:600px;
@@ -2132,79 +2132,80 @@ if st.session_state.page == "home":
     align-items:center;
     justify-content:center;
     overflow:hidden;
-    background:#050505;
-  }}
-  #bgCanvas{{
+    background:#020108;
+  }
+  #bgCanvas{
     position:absolute;
     top:0;left:0;
     width:100%;height:100%;
     z-index:0;
-  }}
-  .hero-content{{
+  }
+  .hero-content{
     position:relative;
     z-index:2;
     text-align:center;
     display:flex;
     flex-direction:column;
     align-items:center;
-  }}
-  .hero-logo{{
+  }
+  .hero-logo{
     height:68px;width:68px;
     object-fit:contain;
     margin-bottom:1.6rem;
-    filter:drop-shadow(0 0 24px rgba(0,212,255,.5));
+    filter:drop-shadow(0 0 24px rgba(249,0,255,.5));
     animation:floatLogo 4s ease-in-out infinite;
-  }}
-  @keyframes floatLogo{{
-    0%,100%{{transform:translateY(0);}}
-    50%{{transform:translateY(-8px);}}
-  }}
-  .eyebrow{{
+  }
+  @keyframes floatLogo{
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(-8px);}
+  }
+  .eyebrow{
     display:inline-flex;
     align-items:center;
     gap:.6rem;
-    border:1px solid rgba(0,212,255,.25);
-    color:#00D4FF;
-    font-size:.6rem;
-    letter-spacing:3px;
-    padding:5px 18px;
+    border:1px solid rgba(249,0,255,.3);
+    color:#F900FF;
+    font-size:.65rem;
+    letter-spacing:4px;
+    padding:6px 20px;
     border-radius:2px;
-    margin-bottom:2.2rem;
+    margin-bottom:2.5rem;
     text-transform:uppercase;
-    background:rgba(0,212,255,.05);
-    font-family:'Rajdhani',sans-serif;
+    background:rgba(249,0,255,.05);
+    font-family:'Orbitron',sans-serif;
     font-weight:600;
   }}
   .eyebrow-dot{{
-    width:5px;height:5px;
-    background:#00D4FF;
+    width:6px;height:6px;
+    background:#00F3FF;
     border-radius:50%;
     display:inline-block;
     animation:blink 2s infinite;
-    box-shadow:0 0 8px #00D4FF;
+    box-shadow:0 0 10px #00F3FF;
   }}
   @keyframes blink{{0%,100%{{opacity:1;}}50%{{opacity:.2;}}}}
   .hero-h1{{
-    font-family:'Bebas Neue',sans-serif;
-    font-size:clamp(4rem,9vw,9.5rem);
-    line-height:.88;
-    letter-spacing:6px;
-    color:#fff;
+    font-family:'Orbitron',sans-serif;
+    font-weight:900;
+    font-size:clamp(3.5rem,7vw,7.5rem);
+    line-height:1;
+    letter-spacing:2px;
+    color:#EAF0FF;
     margin:0 0 1.5rem;
-    text-shadow:0 0 80px rgba(255,255,255,.05);
+    text-shadow:0 0 40px rgba(0,243,255,.2);
   }}
   .hero-h1 em{{
-    color:#00D4FF;
+    color:#00F3FF;
     font-style:normal;
-    text-shadow:0 0 60px rgba(0,212,255,.5), 0 0 120px rgba(0,212,255,.2);
+    text-shadow:0 0 40px rgba(0,243,255,.6), 0 0 80px rgba(0,243,255,.3);
   }}
   .hero-sub{{
-    font-size:.95rem;
-    color:#3a3a3a;
-    max-width:460px;
-    line-height:2;
-    font-weight:400;
-    letter-spacing:.3px;
+    font-size:1.1rem;
+    color:#687A9E;
+    max-width:500px;
+    line-height:1.8;
+    font-weight:500;
+    letter-spacing:1px;
     font-family:'Rajdhani',sans-serif;
   }}
 </style>
@@ -2235,50 +2236,67 @@ if st.session_state.page == "home":
   resize();
   window.addEventListener('resize', resize);
 
+  // ── 3D MOUSE PARALLAX TILT ──
+  const heroContent = document.querySelector('.hero-content');
+  const hero = document.getElementById('hero');
+  
+  hero.addEventListener('mousemove', e => {
+    const rect = hero.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width/2;
+    const y = e.clientY - rect.top - rect.height/2;
+    heroContent.style.transform = `perspective(1200px) rotateX(${-y/40}deg) rotateY(${x/40}deg) scale3d(1.05, 1.05, 1.05)`;
+    heroContent.style.transition = 'transform 0.1s ease-out';
+  });
+  
+  hero.addEventListener('mouseleave', () => {
+    heroContent.style.transform = `perspective(1200px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+    heroContent.style.transition = 'transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1)';
+  });
+
   // ── PARTICLES ──────────────────────────────────────────────
-  const PARTICLE_COUNT = 120;
+  const PARTICLE_COUNT = 180;
   const particles = Array.from({{length: PARTICLE_COUNT}}, () => ({{
     x: Math.random() * 1600,
     y: Math.random() * 600,
     z: Math.random() * 1200 + 100,
-    vx: (Math.random() - 0.5) * 0.4,
-    vy: (Math.random() - 0.5) * 0.3,
-    vz: -0.6 - Math.random() * 0.6,
-    color: Math.random() > 0.6 ? '#00D4FF' : Math.random() > 0.5 ? '#00B87A' : '#D4A843',
-    size: Math.random() * 1.5 + 0.4,
+    vx: (Math.random() - 0.5) * 1.5,
+    vy: (Math.random() - 0.5) * 1.0,
+    vz: -1.0 - Math.random() * 2.0,
+    color: Math.random() > 0.6 ? '#00F3FF' : Math.random() > 0.5 ? '#00FF85' : '#F900FF',
+    size: Math.random() * 2 + 0.5,
   }}));
 
   // ── GRID LINES (perspective) ──────────────────────────────
-  const GRID_ROWS = 12, GRID_COLS = 14;
+  const GRID_ROWS = 14, GRID_COLS = 16;
   const GRID_Z_NEAR = 60, GRID_Z_FAR = 1400;
   const GRID_W = 2800, GRID_H_WORLD = 600;
   let gridOffset = 0;
 
   // ── FLOATING RINGS ────────────────────────────────────────
   const rings = [
-    {{ x: 0.18, y: 0.38, r: 90,  rot: 0,   rotV: 0.008,  tiltX: 0.55, tiltY: 0.3,  color: '#00D4FF', alpha: 0.12 }},
-    {{ x: 0.82, y: 0.45, r: 70,  rot: 1.2, rotV: -0.006, tiltX: 0.4,  tiltY: 0.6,  color: '#00B87A', alpha: 0.10 }},
-    {{ x: 0.5,  y: 0.15, r: 50,  rot: 0.5, rotV: 0.012,  tiltX: 0.7,  tiltY: 0.2,  color: '#D4A843', alpha: 0.09 }},
-    {{ x: 0.12, y: 0.72, r: 44,  rot: 2.1, rotV: -0.009, tiltX: 0.3,  tiltY: 0.65, color: '#00D4FF', alpha: 0.08 }},
-    {{ x: 0.88, y: 0.78, r: 60,  rot: 1.8, rotV: 0.007,  tiltX: 0.5,  tiltY: 0.4,  color: '#7B6EF6', alpha: 0.09 }},
+    {{ x: 0.18, y: 0.38, r: 120, rot: 0,   rotV: 0.02,   tiltX: 0.55, tiltY: 0.3,  color: '#00F3FF', alpha: 0.2 }},
+    {{ x: 0.82, y: 0.45, r: 90,  rot: 1.2, rotV: -0.015, tiltX: 0.4,  tiltY: 0.6,  color: '#00FF85', alpha: 0.15 }},
+    {{ x: 0.5,  y: 0.15, r: 60,  rot: 0.5, rotV: 0.03,   tiltX: 0.7,  tiltY: 0.2,  color: '#F900FF', alpha: 0.2 }},
+    {{ x: 0.12, y: 0.72, r: 54,  rot: 2.1, rotV: -0.02,  tiltX: 0.3,  tiltY: 0.65, color: '#00F3FF', alpha: 0.15 }},
+    {{ x: 0.88, y: 0.78, r: 75,  rot: 1.8, rotV: 0.018,  tiltX: 0.5,  tiltY: 0.4,  color: '#A200FF', alpha: 0.15 }},
   ];
 
   // ── DATA STREAM LINES ─────────────────────────────────────
-  const streams = Array.from({{length: 18}}, () => ({{
+  const streams = Array.from({{length: 25}}, () => ({{
     x: Math.random() * 1600,
     y: 0,
-    len: 40 + Math.random() * 80,
-    speed: 1.2 + Math.random() * 2.2,
-    alpha: 0.04 + Math.random() * 0.08,
-    color: Math.random() > 0.5 ? '#00D4FF' : '#00B87A',
+    len: 60 + Math.random() * 100,
+    speed: 3 + Math.random() * 4,
+    alpha: 0.1 + Math.random() * 0.15,
+    color: Math.random() > 0.5 ? '#00F3FF' : '#F900FF',
   }}));
 
   // ── FLOATING PRICE TAGS ───────────────────────────────────
   const tags = [
-    {{ sym:'BTCUSDT', price:'69,450.20', chg:'+1.42%', up:true,  x:0.08, y:0.22, vy:-0.12 }},
-    {{ sym:'ETHUSDT', price:'3,780.40',  chg:'+2.12%', up:true,  x:0.80, y:0.28, vy: 0.10 }},
-    {{ sym:'SOLUSDT', price:'168.20',    chg:'+5.08%', up:true,  x:0.88, y:0.60, vy:-0.09 }},
-    {{ sym:'XRPUSDT', price:'0.52',      chg:'-1.20%', up:false, x:0.04, y:0.65, vy: 0.11 }},
+    {{ sym:'BTCUSDT', price:'69,450.20', chg:'+1.42%', up:true,  x:0.08, y:0.22, vy:-0.18, rz: -0.05 }},
+    {{ sym:'ETHUSDT', price:'3,780.40',  chg:'+2.12%', up:true,  x:0.80, y:0.28, vy: 0.15, rz:  0.03 }},
+    {{ sym:'SOLUSDT', price:'168.20',    chg:'+5.08%', up:true,  x:0.88, y:0.60, vy:-0.14, rz:  0.04 }},
+    {{ sym:'XRPUSDT', price:'0.52',      chg:'-1.20%', up:false, x:0.04, y:0.65, vy: 0.16, rz: -0.02 }},
   ];
   tags.forEach(t => {{ t.fy = t.y * 600; t.oy = t.fy; }});
 
@@ -2394,39 +2412,45 @@ if st.session_state.page == "home":
       if(t.fy < -40) t.fy = H + 20;
       if(t.fy > H + 20) t.fy = -40;
       const tx = t.x * W, ty = t.fy;
-      ctx.globalAlpha = 0.55;
-      ctx.fillStyle = '#0d0d0d';
-      ctx.strokeStyle = t.up ? 'rgba(0,184,122,0.35)' : 'rgba(224,58,82,0.35)';
-      ctx.lineWidth = 0.8;
-      const bw = 108, bh = 40;
+      ctx.save();
+      ctx.translate(tx + 54, ty + 20); // Center of tag
+      ctx.rotate(t.rz);
+      ctx.translate(-54, -20);
+      
+      ctx.globalAlpha = 0.65;
+      ctx.fillStyle = 'rgba(12,10,25,0.8)';
+      ctx.strokeStyle = t.up ? 'rgba(0,255,133,0.5)' : 'rgba(255,0,60,0.5)';
+      ctx.lineWidth = 1.2;
+      const bw = 114, bh = 44;
       ctx.beginPath();
-      ctx.rect(tx, ty, bw, bh);
+      ctx.rect(0, 0, bw, bh);
       ctx.fill(); ctx.stroke();
       // Left accent bar
-      ctx.fillStyle = t.up ? '#00B87A' : '#E03A52';
-      ctx.fillRect(tx, ty, 2, bh);
+      ctx.fillStyle = t.up ? '#00FF85' : '#FF003C';
+      ctx.fillRect(0, 0, 3, bh);
       // Symbol
-      ctx.globalAlpha = 0.7;
-      ctx.fillStyle = '#D8D8D8';
-      ctx.font = 'bold 9px Courier New';
-      ctx.fillText(t.sym, tx + 8, ty + 14);
+      ctx.globalAlpha = 0.9;
+      ctx.fillStyle = '#EAF0FF';
+      ctx.font = 'bold 10px Orbitron';
+      ctx.fillText(t.sym, 10, 15);
       // Price
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 11px Courier New';
-      ctx.fillText(t.price, tx + 8, ty + 27);
+      ctx.fillStyle = '#00F3FF';
+      ctx.font = 'bold 13px Rajdhani';
+      ctx.fillText(t.price, 10, 30);
       // Change
-      ctx.fillStyle = t.up ? '#00B87A' : '#E03A52';
-      ctx.font = '8px Courier New';
-      ctx.fillText(t.chg, tx + 8, ty + 38);
-      ctx.globalAlpha = 1;
+      ctx.fillStyle = t.up ? '#00FF85' : '#FF003C';
+      ctx.font = '9px Orbitron';
+      ctx.fillText(t.chg, 10, 40);
+      
+      ctx.restore();
     }});
   }}
 
   function drawCentralGlow(){{
-    const gx = W / 2, gy = H * 0.42;
-    const g1 = ctx.createRadialGradient(gx, gy, 0, gx, gy, W * 0.45);
-    g1.addColorStop(0, 'rgba(0,212,255,0.04)');
-    g1.addColorStop(0.4,'rgba(0,212,255,0.02)');
+    const gx = W / 2, gy = H * 0.45;
+    const g1 = ctx.createRadialGradient(gx, gy, 0, gx, gy, W * 0.55);
+    g1.addColorStop(0, 'rgba(0,243,255,0.06)');
+    g1.addColorStop(0.3,'rgba(249,0,255,0.03)');
     g1.addColorStop(1, 'transparent');
     ctx.globalAlpha = 1;
     ctx.fillStyle = g1;
