@@ -9,7 +9,7 @@ from email.mime.multipart import MIMEMultipart
 # ─── PAGE CONFIG ───────────────────────────────────────────────
 st.set_page_config(
     page_title="AKFunded — Trade Crypto. Get Funded.",
-    page_icon="⚡",
+    page_icon="https://raw.githubusercontent.com/Akashinjeti/akfunded/main/logo.PNG",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
@@ -709,7 +709,7 @@ PLATFORM_URL = "https://akfunded.streamlit.app"
 
 SYMBOLS = {
     "Crypto Majors": ["BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT"],
-    "Crypto Altcoins": ["XRPUSDT", "ADAUSDT", "DOGEUSDT", "DOTUSDT", "AVAXUSDT", "LINKUSDT"],
+    "Crypto Altcoins": ["XRPUSDT", "ADAUSDT", "DOGEUSDT", "DOTUSDT", "AVAXUSDT", "LINKUSDT", "MATICUSDT", "LTCUSDT"],
 }
 TV_SYMBOL_MAP = {
     "BTCUSDT":"BINANCE:BTCUSDT", "ETHUSDT":"BINANCE:ETHUSDT",
@@ -717,6 +717,7 @@ TV_SYMBOL_MAP = {
     "XRPUSDT":"BINANCE:XRPUSDT", "ADAUSDT":"BINANCE:ADAUSDT",
     "DOGEUSDT":"BINANCE:DOGEUSDT", "DOTUSDT":"BINANCE:DOTUSDT",
     "AVAXUSDT":"BINANCE:AVAXUSDT", "LINKUSDT":"BINANCE:LINKUSDT",
+    "MATICUSDT":"BINANCE:MATICUSDT", "LTCUSDT":"BINANCE:LTCUSDT",
 }
 
 import requests
@@ -1658,8 +1659,6 @@ def footer():
         f'<a href="{IG_URL}" target="_blank" style="color:var(--dim);text-decoration:none;font-size:.68rem;letter-spacing:1.5px;">Instagram: <b style="color:var(--cyan);">{IG_HANDLE}</b></a>'
         '</div>'
         '<div style="text-align:center;margin-bottom:1.5rem;">'
-        f'<div style="font-family:\\\'Caveat\\\',cursive;font-size:3rem;color:var(--gold);line-height:0.8;margin-bottom:8px;text-shadow:0 0 10px var(--gold-glow);font-weight:600;">Akash Injeti</div>'
-        '<div style="width:160px;height:1px;background:var(--border2);margin:0 auto 8px;"></div>'
         '<div style="font-size:0.55rem;color:var(--dim);letter-spacing:3px;text-transform:uppercase;">Akash Injeti &nbsp;&middot;&nbsp; Founder</div>'
         '</div>'
         '<div style="color:var(--dim2);font-size:.65rem;letter-spacing:1px;text-transform:uppercase;">Simulate. Prove. Get Funded. &nbsp;&middot;&nbsp; All accounts are simulated.</div>'
@@ -1840,7 +1839,7 @@ st.markdown(f"""
 (function(){{
   const GROQ_KEY = "{_groq_key}";
   const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
-  const SYSTEM = "You are AKFunded\'s helpful AI support assistant. AKFunded is a prop trading firm. Plans: Instant Funded (70-75% split, no evaluation), One-Step (8% target, 80% split), Two-Step (8%+5% targets, 90% split). Accounts $5K-$100K. Payouts within 24hr. News trading allowed. No time limit. Instruments: XAUUSD, EURUSD, GBPUSD, USOIL, XAGUSD. Daily loss limit 3-5%, max drawdown 6-10%. Answer concisely in 2-4 sentences. Be warm and encouraging.";
+  const SYSTEM = "You are AKFunded\'s helpful AI support assistant. AKFunded is a prop trading firm. Plans: Instant Funded (70-75% split, no evaluation), One-Step (8% target, 80% split), Two-Step (8%+5% targets, 90% split). Accounts $5K-$100K. Payouts within 24hr. News trading allowed. No time limit. Instruments: BTCUSDT, ETHUSDT, SOLUSDT, BNBUSDT. Daily loss limit 3-5%, max drawdown 6-10%. Answer concisely in 2-4 sentences. Be warm and encouraging.";
   const history = [];
   let busy = false;
 
@@ -2274,8 +2273,8 @@ if st.session_state.page == "home":
 <div id="hero">
   <canvas id="bgCanvas"></canvas>
   <div class="hero-content">
-    <div>
-      <img class="hero-logo" src="{hero_logo}" onerror="this.style.display='none'" />
+    <div style="background:rgba(212,175,55,0.08); padding:1rem; border-radius:12px; display:inline-block; margin-bottom:1.5rem; border:1px solid rgba(212,175,55,0.3); box-shadow:0 0 30px rgba(212,175,55,0.2);">
+      <img class="hero-logo" src="{hero_logo}" style="margin-bottom:0;" onerror="this.style.display='none'" />
     </div>
     <div class="eyebrow"><span class="eyebrow-dot"></span> Crypto &middot; Bitcoin &middot; Ethereum &middot; Prop Trading</div>
     <div class="hero-h1">TRADE CRYPTO.<br>GET FUNDED.<br><em>KEEP UP TO 90%.</em></div>
@@ -2775,9 +2774,9 @@ if st.session_state.page == "home":
     st.markdown('<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.2rem;letter-spacing:4px;color:var(--text);margin:2.5rem 0 .5rem;">FUNDED TRADERS</div><div style="width:30px;height:1px;background:var(--cyan);margin-bottom:1.5rem;opacity:.5;"></div>', unsafe_allow_html=True)
     st.markdown(
         '<div class="testi-grid">'
-        '<div class="testi-card"><div class="testi-quote">Passed the $50K One-Step on XAUUSD in 4 days. The rules are clear and the platform is rock solid.</div><div class="testi-name">Rahul S.</div><div class="testi-meta">$50K Funded &nbsp;|&nbsp; +$4,000 payout &nbsp;|&nbsp; One-Step</div></div>'
+        '<div class="testi-card"><div class="testi-quote">Passed the $50K One-Step on Bitcoin in 4 days. The rules are clear and the platform is rock solid.</div><div class="testi-name">Rahul S.</div><div class="testi-meta">$50K Funded &nbsp;|&nbsp; +$4,000 payout &nbsp;|&nbsp; One-Step</div></div>'
         '<div class="testi-card"><div class="testi-quote">Two-Step gave me 90% profit split at an affordable entry. Already on my third funded account.</div><div class="testi-name">Priya M.</div><div class="testi-meta">$25K Funded &nbsp;|&nbsp; +$2,250 payout &nbsp;|&nbsp; Two-Step</div></div>'
-        '<div class="testi-card"><div class="testi-quote">Instant Funded is worth every rupee. Got funded same day and started trading USOIL immediately.</div><div class="testi-name">Kiran T.</div><div class="testi-meta">$25K Instant Funded &nbsp;|&nbsp; 3 accounts completed</div></div>'
+        '<div class="testi-card"><div class="testi-quote">Instant Funded is worth every rupee. Got funded same day and started trading Ethereum immediately.</div><div class="testi-name">Kiran T.</div><div class="testi-meta">$25K Instant Funded &nbsp;|&nbsp; 3 accounts completed</div></div>'
         '</div>',
         unsafe_allow_html=True
     )
@@ -2868,7 +2867,7 @@ if st.session_state.page == "home":
     <canvas class="card-orb" width="100" height="100"></canvas>
     <span class="feat-icon">⚡</span>
     <div class="feat-title">Real-Time Execution</div>
-    <div class="feat-desc">Instant order fills on Forex, XAUUSD, Crude Oil and more. Sub-second latency with live spread simulation.</div>
+    <div class="feat-desc">Instant order fills on Forex, Bitcoin, Crude Oil and more. Sub-second latency with live spread simulation.</div>
     <span class="feat-tag">Live Data</span>
   </div>
   <div class="feat-card" style="--accent:#00B87A;">
@@ -3018,7 +3017,7 @@ document.querySelectorAll('.card-orb').forEach((cv,idx)=>{
         ("Can I hold trades overnight?",
          "Yes, overnight and weekend holding is permitted on all plans."),
         ("What instruments can I trade?",
-         "Forex majors/minors, XAUUSD, XAGUSD, WTI Crude Oil, Brent Crude, and Natural Gas."),
+         "Forex majors/minors, Bitcoin, XAGUSD, WTI Crude Oil, Brent Crude, and Natural Gas."),
     ]
     faq_c = st.columns(2, gap="small")
     for idx_f, (fq, fa) in enumerate(faqs):
@@ -3102,7 +3101,7 @@ elif st.session_state.page == "plans":
 
     st.markdown(
         '<div style="background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.15);border-left:2px solid var(--cyan);padding:.8rem 1.2rem;margin-bottom:1.5rem;font-size:.78rem;color:var(--dim);">'
-        '<b style="color:var(--cyan);">TESTING PHASE</b> — All challenges activate instantly. No payment required. Trade Forex, XAUUSD, XAGUSD, Crude Oil &amp; Natural Gas.'
+        '<b style="color:var(--cyan);">TESTING PHASE</b> — All challenges activate instantly. No payment required. Trade Forex, Bitcoin, XAGUSD, Crude Oil &amp; Natural Gas.'
         '</div>',
         unsafe_allow_html=True
     )
@@ -3144,7 +3143,7 @@ elif st.session_state.page == "plans":
                 f'<li><span>Max Total Loss</span><b style="color:var(--red);">-{r.get("total_loss",6)}%</b></li>'
                 f'<li><span>Evaluation</span><b style="color:var(--green);">None Required</b></li>'
                 f'<li><span>Profit Split</span><b style="color:{accent};">{plan["split"]}%</b></li>'
-                f'<li><span>Markets</span><b>Forex, XAU, Oil</b></li>'
+                f'<li><span>Markets</span><b>Crypto</b></li>'
             )
         elif phase_type == "1step":
             rules_html = (
@@ -3215,7 +3214,7 @@ elif st.session_state.page == "plans":
         ("Profit Split","70–75%","80%","90%"),
         ("Min Trading Days","None","5 days","4 days"),
         ("Time Limit","None","None","None"),
-        ("Markets","Forex, XAU, Oil","Forex, XAU, Oil","Forex, XAU, Oil"),
+        ("Markets","Crypto","Crypto","Crypto"),
     ]:
         st.markdown(f'<div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;padding:.65rem 1.2rem;border-bottom:1px solid var(--border);font-size:.78rem;align-items:center;"><span style="color:var(--dim);">{feat}</span><span style="text-align:center;color:var(--gold);">{v0}</span><span style="text-align:center;color:var(--cyan);">{v1}</span><span style="text-align:center;color:var(--purple);">{v2}</span></div>', unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
@@ -3652,10 +3651,49 @@ elif st.session_state.page == "markets":
     if not st.session_state.user: goto("auth")
     nav()
     render_live_ticker()
-    sec("Live Markets","Forex · Metals · Crude Oil — Signals, order book and watchlist")
+    sec("Live Markets","Crypto · Bitcoin · Ethereum — Signals, order book and watchlist")
 
-    # Heatmap, Scanner, and Order Book removed.
+    # ── AI TRADING SIGNAL ────────────────────────────────────
+    st.markdown("<br>", unsafe_allow_html=True)
+    signal = random.choice(["STRONG BUY", "BUY", "WAIT", "NO TRADE", "SELL", "STRONG SELL"])
+    sig_col = {"STRONG BUY":"var(--green)", "BUY":"var(--green)", "WAIT":"var(--gold)", "NO TRADE":"var(--dim)", "SELL":"var(--red)", "STRONG SELL":"var(--red)"}[signal]
+    
+    st.markdown(f'''
+    <div style="background:var(--s1);border:1px solid var(--border);padding:1.5rem;text-align:center;margin-bottom:2rem;border-radius:4px;box-shadow:0 10px 30px rgba(0,0,0,0.5);position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,{sig_col},transparent);opacity:0.8;"></div>
+        <div style="font-size:.65rem;color:var(--dim);letter-spacing:4px;text-transform:uppercase;margin-bottom:.8rem;">Algorithmic Market Bias</div>
+        <div style="font-family:\\'Bebas Neue\\',sans-serif;font-size:3.5rem;color:{sig_col};letter-spacing:4px;line-height:1;text-shadow:0 0 30px {sig_col}60;">{signal}</div>
+        <div style="font-size:.6rem;color:var(--dim2);margin-top:1rem;letter-spacing:1px;text-transform:uppercase;">Scanning liquidity pools and macro order blocks...</div>
+    </div>
+    ''', unsafe_allow_html=True)
 
+    # ── TRADINGVIEW CHART ────────────────────────────────────
+    _stc.html("""
+    <div class="tradingview-widget-container" style="height:100%;width:100%">
+      <div id="tradingview_mkt" style="height:600px;width:100%"></div>
+      <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+      <script type="text/javascript">
+      new TradingView.widget({
+        "autosize": true,
+        "symbol": "BINANCE:BTCUSDT",
+        "interval": "15",
+        "timezone": "Etc/UTC",
+        "theme": "dark",
+        "style": "1",
+        "locale": "en",
+        "enable_publishing": false,
+        "backgroundColor": "#030303",
+        "gridColor": "#1e1e1e",
+        "hide_top_toolbar": false,
+        "hide_legend": false,
+        "save_image": false,
+        "container_id": "tradingview_mkt"
+      });
+      </script>
+    </div>
+    """, height=620)
+    
+    st.markdown("<br><br>", unsafe_allow_html=True)
     footer()
 
 # ══════════════════════════════════════════════════════════════
@@ -4039,16 +4077,16 @@ elif st.session_state.page == "ai_chat":
     SYSTEM=(
         f"You are a professional AI trading coach for AKFunded, a forex prop trading simulator. "
         f"Trader: {name}, {plan.upper()} ({phase}) challenge. P&L: {pnl_pct:.1f}%. Balance: ${balance:,.2f}. "
-        f"Instruments: Forex pairs, Metals (XAUUSD, XAGUSD), Crude Oil (USOIL, UKOIL). "
+        f"Instruments: Forex pairs, Metals (Bitcoin, XAGUSD), Crude Oil (Ethereum, UKOIL). "
         f"Rules: {r.get('daily_loss',5)}% daily loss limit, {r.get('total_loss',10)}% max loss, {r.get('target',8)}% target. "
         f"Recent trades: {[t.get('symbol','')+' '+t.get('type','')+' $'+str(round(t.get('pnl',0),2)) for t in trades[:5]]}. "
         f"Give concise professional forex/metals trading advice. Keep replies under 130 words."
     )
     sec("AI Trading Coach","Powered by Groq — LLaMA 3.3 70B")
-    st.markdown('<div class="chat-container"><div class="chat-header"><div class="chat-ai-dot"></div><div><div style="font-weight:700;font-size:.85rem;color:var(--text);">AK Trading Coach</div><div style="font-size:.65rem;color:var(--green);letter-spacing:1px;">Online — Forex &amp; Metals Specialist</div></div></div></div>', unsafe_allow_html=True)
+    st.markdown('<div class="chat-container"><div class="chat-header"><div class="chat-ai-dot"></div><div><div style="font-weight:700;font-size:.85rem;color:var(--text);">AK Trading Coach</div><div style="font-size:.65rem;color:var(--green);letter-spacing:1px;">Online — Crypto Specialist</div></div></div></div>', unsafe_allow_html=True)
     chat=st.session_state.chat_history
     if not chat:
-        st.markdown(f'<div class="chat-messages"><div class="chat-msg"><div class="chat-avatar ai">AI</div><div class="chat-bubble ai">Hello {name}. I specialise in Forex and metals trading. Ask me about XAUUSD setups, risk management, or how to pass your challenge efficiently.</div></div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="chat-messages"><div class="chat-msg"><div class="chat-avatar ai">AI</div><div class="chat-bubble ai">Hello {name}. I specialise in Crypto trading. Ask me about Bitcoin setups, risk management, or how to pass your challenge efficiently.</div></div></div>', unsafe_allow_html=True)
     else:
         msgs_html=""
         for m in chat[-10:]:
@@ -4056,7 +4094,7 @@ elif st.session_state.page == "ai_chat":
             av=name[0].upper() if role=="user" else "AI"
             msgs_html+=f'<div class="chat-msg {cls}"><div class="chat-avatar {cls}">{av}</div><div class="chat-bubble {cls}">{txt}</div></div>'
         st.markdown(f'<div class="chat-messages">{msgs_html}</div>', unsafe_allow_html=True)
-    quick=["XAUUSD setup","EURUSD analysis","Risk management","Recovering drawdown","How to pass faster"]
+    quick=["Bitcoin setup","EURUSD analysis","Risk management","Recovering drawdown","How to pass faster"]
     qcols=st.columns(len(quick))
     for i,q in enumerate(quick):
         with qcols[i]:
@@ -4064,7 +4102,7 @@ elif st.session_state.page == "ai_chat":
                 st.session_state.chat_history.append({"role":"user","content":q})
                 with st.spinner("Processing..."): resp=call_ai(st.session_state.chat_history,SYSTEM)
                 st.session_state.chat_history.append({"role":"assistant","content":resp}); st.rerun()
-    user_input=st.text_input("Message",placeholder="Ask about Forex, XAU, or crude oil...",key="chat_input",label_visibility="collapsed")
+    user_input=st.text_input("Message",placeholder="Ask about Bitcoin, Ethereum, or altcoins...",key="chat_input",label_visibility="collapsed")
     c1,c2=st.columns([5,1])
     with c2: send=st.button("Send",use_container_width=True,key="chat_send")
     if send and user_input.strip():
@@ -4084,7 +4122,7 @@ elif st.session_state.page == "risk_calc":
     uid=st.session_state.user["id"]
     challenge=db_get_active_challenge(uid); account=db_get_account(challenge["id"]) if challenge else None
     balance=float(account.get("balance",10000)) if account else 10000.0
-    sec("Risk Calculator","Forex position sizing, pip value and challenge limits")
+    sec("Risk Calculator","Crypto position sizing, pip value and challenge limits")
     col1,col2=st.columns(2)
     with col1:
         st.markdown('<div style="font-size:.58rem;color:var(--dim);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:.8rem;font-weight:600;">Position Size Calculator</div>', unsafe_allow_html=True)
@@ -4215,7 +4253,7 @@ elif st.session_state.page == "certificate":
                 share = (
                     f"I passed the AKFunded {ch['plan'].upper()} Challenge ({cap_str}) "
                     f"with +{pnl_pct:.1f}% profit in {days} trading days! "
-                    f"Trading Forex & XAUUSD. @akfunded #AKFunded #PropTrading #Forex"
+                    f"Trading Crypto. @akfunded #AKFunded #PropTrading #Crypto"
                 )
                 st.code(share, language=None)
 
@@ -4308,7 +4346,7 @@ elif st.session_state.page == "referral":
     if not ref:
         code=generate_referral_code(name); db_create_referral(uid,code)
         ref=db_get_referral(uid) or {"code":code,"uses":0}
-    code=ref.get("code",""); uses=ref.get("uses",0); earnings=uses*50
+    code=ref.get("code",""); uses=ref.get("uses",0); earnings=uses*500
     share_url=f"{PLATFORM_URL}/?ref={code}"
     st.markdown(
         f'<div style="background:var(--s1);border:1px solid rgba(0,212,255,.15);border-left:2px solid var(--cyan);padding:2rem;margin-bottom:1.5rem;">'
@@ -4317,7 +4355,7 @@ elif st.session_state.page == "referral":
         f'<div class="ref-stats">'
         f'<div class="stat-box"><div class="sv c">{uses}</div><div class="sl">Referrals</div></div>'
         f'<div class="stat-box"><div class="sv g">&#8377;{earnings}</div><div class="sl">Earned</div></div>'
-        f'<div class="stat-box"><div class="sv w">&#8377;50</div><div class="sl">Per Referral</div></div>'
+        f'<div class="stat-box"><div class="sv w">&#8377;500</div><div class="sl">Per Referral</div></div>'
         f'</div></div>',
         unsafe_allow_html=True
     )
@@ -4331,7 +4369,7 @@ elif st.session_state.page == "referral":
             html_invite=(
                 f'<div style="font-family:Arial,sans-serif;max-width:580px;background:#050505;color:#D8D8D8;padding:2rem;">'
                 f'<h2 style="color:#00D4FF;letter-spacing:4px;">AKFUNDED</h2>'
-                f'<p>{name} has invited you to AKFunded — Forex Prop Trading.</p>'
+                f'<p>{name} has invited you to AKFunded — Crypto Prop Trading.</p>'
                 f'<div style="background:#0d0d0d;border-left:2px solid #00D4FF;padding:1rem;margin:1rem 0;">'
                 f'<div style="font-size:1.4rem;font-weight:700;color:#00D4FF;letter-spacing:4px;">{code}</div>'
                 f'</div>'
