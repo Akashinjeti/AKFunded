@@ -1585,20 +1585,20 @@ def nav():
     if logged_in:
         is_admin = st.session_state.user.get("email","") == st.secrets.get("ADMIN_EMAIL","admin@akfunded.com")
         if is_admin:
-            c0,c1,c2,c3,c4,c5,c6,c7,c8,c9 = st.columns([1.2,.8,.8,.8,.8,.8,1,.7,.7,.4])
-            with c7:
+            c0,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10 = st.columns([1.2,.8,.8,.8,.8,.8,.8,1,.7,.7,.4])
+            with c8:
                 unread = sum(1 for n in st.session_state.notifications if n.get("unread"))
                 if st.button("Alerts"+(f" ({unread})" if unread else ""),key="nb"): goto("notifications")
-            with c8:
-                if st.button("Admin",key="na"): goto("admin")
             with c9:
+                if st.button("Admin",key="na"): goto("admin")
+            with c10:
                 if st.button("Me",key="npr"): goto("profile")
         else:
-            c0,c1,c2,c3,c4,c5,c6,c7,c8 = st.columns([1.2,.8,.8,.8,.8,.8,1,.7,.4])
-            with c7:
+            c0,c1,c2,c3,c4,c5,c6,c7,c8,c9 = st.columns([1.2,.8,.8,.8,.8,.8,.8,1,.7,.4])
+            with c8:
                 unread = sum(1 for n in st.session_state.notifications if n.get("unread"))
                 if st.button("Alerts"+(f" ({unread})" if unread else ""),key="nb"): goto("notifications")
-            with c8:
+            with c9:
                 if st.button("Me",key="npr"): goto("profile")
         with c1:
             if st.button("Dashboard",key="nd"): goto("dashboard")
@@ -1611,6 +1611,8 @@ def nav():
         with c5:
             if st.button("History",  key="nh"): goto("history")
         with c6:
+            if st.button("Payouts",  key="npo"): goto("payouts")
+        with c7:
             if st.button("Leaderboard",key="nl"): goto("leaderboard")
     else:
         c1,c2,c3 = st.columns([5,1,1])
@@ -4047,6 +4049,65 @@ elif st.session_state.page == "certificate":
             '</div></div>',
             unsafe_allow_html=True
         )
+    footer()
+
+# ══════════════════════════════════════════════════════════════
+# PAYOUTS
+# ══════════════════════════════════════════════════════════════
+elif st.session_state.page == "payouts":
+    if not st.session_state.user: goto("auth")
+    nav()
+    uid = st.session_state.user["id"]
+    challenge = db_get_active_challenge(uid)
+    account = db_get_account(challenge["id"]) if challenge else None
+
+    st.markdown('<div style="margin-top:2rem;"></div>', unsafe_allow_html=True)
+    sec("Request Withdrawal", "Withdraw your profits to your crypto wallet or bank account.")
+
+    can_withdraw = False
+    if challenge and account:
+        r = RULES.get(challenge["plan"], {})
+        phase_type = r.get("phase", "")
+        if phase_type == "instant" or challenge.get("status") == "funded":
+            balance = float(account.get("balance", 0))
+            initial = float(account.get("initial_capital", 1))
+            if balance > initial:
+                can_withdraw = True
+
+    if can_withdraw:
+        profit = float(account.get("balance", 0)) - float(account.get("initial_capital", 1))
+        st.markdown(f'<div style="background:var(--s1);border:1px solid var(--border);padding:1.5rem;border-radius:4px;margin-bottom:2rem;">'
+                    f'<div style="font-size:.65rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;">Available Profit to Withdraw</div>'
+                    f'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:3rem;color:var(--gold);line-height:1;margin-top:8px;">${profit:,.2f}</div>'
+                    f'</div>', unsafe_allow_html=True)
+        
+        st.markdown("### Select Withdrawal Method")
+        c1, c2 = st.columns(2)
+        with c1:
+            st.markdown(
+                '<div class="card" style="text-align:center;padding:2rem;">'
+                '<div style="font-size:2rem;margin-bottom:1rem;">🏛️</div>'
+                '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.5rem;letter-spacing:2px;color:var(--text);">Rise Wallet</div>'
+                '<div style="font-size:.7rem;color:var(--gold);letter-spacing:1px;margin-top:8px;font-weight:700;">COMING SOON</div>'
+                '</div>', unsafe_allow_html=True
+            )
+        with c2:
+            st.markdown(
+                '<div class="card" style="text-align:center;padding:2rem;">'
+                '<div style="font-size:2rem;margin-bottom:1rem;">🔗</div>'
+                '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.5rem;letter-spacing:2px;color:var(--text);">Crypto (USDT/USDC)</div>'
+                '<div style="font-size:.7rem;color:var(--gold);letter-spacing:1px;margin-top:8px;font-weight:700;">COMING SOON</div>'
+                '</div>', unsafe_allow_html=True
+            )
+    else:
+        st.markdown(
+            '<div style="background:var(--s1);border:1px solid var(--border);padding:2rem;text-align:center;">'
+            '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.8rem;color:var(--text);letter-spacing:2px;margin-bottom:10px;">Not Eligible for Withdrawal</div>'
+            '<div style="font-size:.85rem;color:var(--dim);">You need an active Instant Funding account or a Passed 2-Step Funded account in profit to request a withdrawal.</div>'
+            '</div>', unsafe_allow_html=True
+        )
+    
+    st.markdown("<br><br>", unsafe_allow_html=True)
     footer()
 
 # ══════════════════════════════════════════════════════════════
