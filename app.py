@@ -3525,38 +3525,7 @@ elif st.session_state.page == "markets":
     render_live_ticker()
     sec("Live Markets","Forex · Metals · Crude Oil — Signals, order book and watchlist")
 
-    tab_hm, tab_sc, tab_ob, tab_wl = st.tabs(["  Heatmap  ","  Crypto Opportunities  ","  Order Book  ","  Watchlist  "])
-
-    with tab_hm:
-        def _badge_html(icon, title, desc, earned):
-        _op   = "1" if earned else "0.22"
-        _bord = "rgba(0,212,255,.35)" if earned else "var(--border)"
-        _glow = "box-shadow:0 0 18px rgba(0,212,255,.12);" if earned else ""
-        _tag  = '<div style="font-size:.46rem;color:var(--cyan);letter-spacing:2px;margin-top:4px;">EARNED</div>' if earned else \
-                '<div style="font-size:.46rem;color:var(--dim);letter-spacing:2px;margin-top:4px;">LOCKED</div>'
-        return (
-            f'<div style="background:var(--s1);border:1px solid {_bord};{_glow}'
-            f'padding:1rem .8rem;text-align:center;opacity:{_op};">'
-            f'<div style="font-size:1.5rem;margin-bottom:.4rem;">{icon}</div>'
-            f'<div style="font-size:.6rem;font-weight:700;color:var(--text);letter-spacing:1px;">{title}</div>'
-            f'<div style="font-size:.5rem;color:var(--dim);margin-top:3px;line-height:1.4;">{desc}</div>'
-            f'{_tag}</div>'
-        )
-
-    _BADGES = [
-        ("⚡", "First Trade",  "Execute your first trade",       tt >= 1),
-        ("🔥", "Hot Streak",   "Win 3 trades in a row",           win_streak >= 3),
-        ("💰", "In Profit",    "Achieve positive total P&L",      ap > 0 and tt > 0),
-        ("🎯", "Sharp Eye",    "Reach 60%+ win rate (5+ trades)", wr >= 60 and tt >= 5),
-        ("🏆", "Funded",       "Pass an evaluation",              funded_badge),
-        ("💎", "Elite",        "10+ winning trades",              wt >= 10),
-        ("🚀", "Consistent",   "Trade 5+ different days",         days >= 5),
-        ("🌍", "Diversified",  "Trade 3+ instruments",            len(set(_t.get("symbol","") for _t in all_trades)) >= 3),
-    ]
-    _bcols = st.columns(8, gap="small")
-    for _bi, (_icon, _title, _desc, _earned) in enumerate(_BADGES):
-        with _bcols[_bi]:
-            st.markdown(_badge_html(_icon, _title, _desc, _earned), unsafe_allow_html=True)
+    # Heatmap, Scanner, and Order Book removed.
 
     # ── TRADING DNA ──────────────────────────────────────────
     st.markdown("<br>", unsafe_allow_html=True)
