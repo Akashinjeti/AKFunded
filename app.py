@@ -2240,18 +2240,18 @@ if st.session_state.page == "home":
   const heroContent = document.querySelector('.hero-content');
   const hero = document.getElementById('hero');
   
-  hero.addEventListener('mousemove', e => {
+  hero.addEventListener('mousemove', e => {{
     const rect = hero.getBoundingClientRect();
     const x = e.clientX - rect.left - rect.width/2;
     const y = e.clientY - rect.top - rect.height/2;
-    heroContent.style.transform = `perspective(1200px) rotateX(${-y/40}deg) rotateY(${x/40}deg) scale3d(1.05, 1.05, 1.05)`;
+    heroContent.style.transform = `perspective(1200px) rotateX(${{-y/40}}deg) rotateY(${{x/40}}deg) scale3d(1.05, 1.05, 1.05)`;
     heroContent.style.transition = 'transform 0.1s ease-out';
-  });
+  }});
   
-  hero.addEventListener('mouseleave', () => {
+  hero.addEventListener('mouseleave', () => {{
     heroContent.style.transform = `perspective(1200px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
     heroContent.style.transition = 'transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1)';
-  });
+  }});
 
   // ── PARTICLES ──────────────────────────────────────────────
   const PARTICLE_COUNT = 180;
