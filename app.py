@@ -842,6 +842,17 @@ def db_get_journal(uid):
         return supabase.table("journal_entries").select("*").eq("user_id",uid).order("created_at",desc=True).limit(30).execute().data or []
     except: return []
 
+def db_add_journal_entry(uid, text, mood, symbol):
+    try:
+        supabase.table("journal_entries").insert({
+            "user_id": uid,
+            "entry_text": text,
+            "mood": mood,
+            "symbol": symbol
+        }).execute()
+        return True
+    except: return False
+
 def db_get_leaderboard():
     try:
         challenges = supabase.table("challenges").select("*").in_("status",["passed","active"]).execute().data or []
@@ -1613,21 +1624,21 @@ def nav():
     if logged_in:
         is_admin = st.session_state.user.get("email","") == st.secrets.get("ADMIN_EMAIL","admin@akfunded.com")
         if is_admin:
-            c0,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10 = st.columns([1.2,.8,.8,.8,.8,.8,.8,1,.7,.7,.4])
+            c0,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10 = st.columns([0.8,.8,.8,.8,.8,.8,.8,1,.7,.7,.8])
             with c8:
                 unread = sum(1 for n in st.session_state.notifications if n.get("unread"))
                 if st.button("Alerts"+(f" ({unread})" if unread else ""),key="nb"): goto("notifications")
             with c9:
                 if st.button("Admin",key="na"): goto("admin")
             with c10:
-                if st.button("Me",key="npr"): goto("profile")
+                if st.button("My Profile",key="npr"): goto("profile")
         else:
-            c0,c1,c2,c3,c4,c5,c6,c7,c8,c9 = st.columns([1.2,.8,.8,.8,.8,.8,.8,1,.7,.4])
+            c0,c1,c2,c3,c4,c5,c6,c7,c8,c9 = st.columns([0.8,.8,.8,.8,.8,.8,.8,1,.7,.8])
             with c8:
                 unread = sum(1 for n in st.session_state.notifications if n.get("unread"))
                 if st.button("Alerts"+(f" ({unread})" if unread else ""),key="nb"): goto("notifications")
             with c9:
-                if st.button("Me",key="npr"): goto("profile")
+                if st.button("My Profile",key="npr"): goto("profile")
         with c1:
             if st.button("Dashboard",key="nd"): goto("dashboard")
         with c2:
@@ -3368,13 +3379,18 @@ elif st.session_state.page == "dashboard":
         unsafe_allow_html=True
     )
 
+    def reset_trade_inputs():
+        for k in ["tentry", "texit", "tsl"]:
+            if k in st.session_state:
+                del st.session_state[k]
+
     col_chart, col_trade = st.columns([2,1], gap="medium")
     with col_chart:
         st.markdown('<div style="font-size:.58rem;color:var(--dim);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:.8rem;font-weight:600;">Live Chart — TradingView</div>', unsafe_allow_html=True)
-        mkt      = st.selectbox("Market", list(SYMBOLS.keys()), key="mkt")
+        mkt      = st.selectbox("Market", list(SYMBOLS.keys()), key="mkt", on_change=reset_trade_inputs)
         sym_list = SYMBOLS[mkt]
-        sym_pick = st.selectbox("Symbol", sym_list, key="csym")
-        tv_sym   = TV_SYMBOL_MAP.get(sym_pick, f"FX:{sym_pick}")
+        sym_pick = st.selectbox("Symbol", sym_list, key="csym", on_change=reset_trade_inputs)
+        tv_sym   = TV_SYMBOL_MAP.get(sym_pick, f"BINANCE:{sym_pick}")
         st.components.v1.html(
             f'<div style="height:400px;width:100%;"><div id="tvc" style="height:100%;width:100%;"></div>'
             f'<script src="https://s3.tradingview.com/tv.js"></script>'
@@ -3387,7 +3403,7 @@ elif st.session_state.page == "dashboard":
 
     with col_trade:
         st.markdown('<div style="font-size:.58rem;color:var(--dim);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:.8rem;font-weight:600;">Execute Trade</div>', unsafe_allow_html=True)
-        t_sym   = st.selectbox("Symbol", [s for g in SYMBOLS.values() for s in g], key="tsym")
+        t_sym   = sym_pick
         live_px = get_live_price(t_sym)
         t_dir   = st.selectbox("Direction", ["BUY","SELL"], key="ttype")
         decimal = 5 if get_all_market_data().get(t_sym,{}).get("price",1) < 10 else 2
@@ -3801,9 +3817,50 @@ elif st.session_state.page in ["portfolio", "analytics"]:
 elif st.session_state.page == "journal":
     if not st.session_state.user: goto("auth")
     nav()
+    uid = st.session_state.user["id"]
     st.markdown('<div style="margin-top:2rem;"></div>', unsafe_allow_html=True)
     sec("Trading Journal", "Log your thoughts, emotions, and trade rationale.")
-    st.markdown('<div style="color:var(--dim);text-align:center;padding:3rem;background:var(--s1);border:1px solid var(--border);border-radius:4px;">Journal feature is currently under development for the Beta. Check back soon!</div>', unsafe_allow_html=True)
+    
+    st.markdown('<div style="background:var(--s1);border:1px solid var(--border);padding:1.5rem;margin-bottom:2rem;border-left:2px solid var(--gold);">', unsafe_allow_html=True)
+    st.markdown('<div style="font-size:.65rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:1rem;font-weight:600;">New Entry</div>', unsafe_allow_html=True)
+    
+    c1, c2 = st.columns(2)
+    with c1: j_sym = st.text_input("Asset / Symbol", placeholder="e.g. BTCUSDT", key="jsym")
+    with c2: j_mood = st.selectbox("Psychology / Mood", ["Focused", "Anxious", "Confident", "Revenge Trading", "Tired", "Euphoric"], key="jmood")
+    
+    j_text = st.text_area("Entry details", placeholder="Why did you take this trade? What is your macro bias? Did you stick to your rules?", height=120, key="jtext")
+    
+    if st.button("Save Entry", key="jsave"):
+        if j_text.strip() == "":
+            st.error("Please enter some text for your journal.")
+        else:
+            db_add_journal_entry(uid, j_text, j_mood, j_sym)
+            st.success("Entry saved successfully!")
+            time.sleep(1); st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    entries = db_get_journal(uid)
+    if not entries:
+        st.markdown('<div style="text-align:center;color:var(--dim);font-size:.8rem;padding:2rem;">No journal entries found. Start writing above!</div>', unsafe_allow_html=True)
+    else:
+        for e in entries:
+            dt = e.get("created_at", "")[:10]
+            mood = e.get("mood", "Neutral")
+            mood_col = "var(--green)" if mood in ["Focused", "Confident"] else "var(--red)" if mood in ["Revenge Trading", "Anxious"] else "var(--gold)"
+            sym = e.get("symbol", "") or "General"
+            txt = e.get("entry_text", "")
+            
+            st.markdown(f'''
+            <div style="background:var(--s0);border:1px solid var(--border);padding:1.2rem;margin-bottom:1rem;position:relative;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem;border-bottom:1px solid var(--border);padding-bottom:.5rem;">
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--cyan);">{sym.upper()}</div>
+                    <div style="font-size:.65rem;color:var(--dim);letter-spacing:1px;">{dt}</div>
+                </div>
+                <div style="font-size:.85rem;color:var(--text);line-height:1.6;margin-bottom:1rem;">{txt}</div>
+                <div style="display:inline-block;padding:3px 10px;border:1px solid {mood_col}40;color:{mood_col};font-size:.55rem;letter-spacing:1px;text-transform:uppercase;background:{mood_col}10;">{mood}</div>
+            </div>
+            ''', unsafe_allow_html=True)
+            
     footer()
 
 # ══════════════════════════════════════════════════════════════
