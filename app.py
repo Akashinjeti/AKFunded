@@ -723,7 +723,8 @@ import requests
 @st.cache_data(ttl=1)
 def get_all_market_data():
     try:
-        r = requests.get("https://api.binance.com/api/v3/ticker/24hr", timeout=10)
+        r = requests.get("https://data-api.binance.vision/api/v3/ticker/24hr", timeout=10)
+        r.raise_for_status()
         data = r.json()
         
         my_symbols = [s for g in SYMBOLS.values() for s in g]
@@ -742,7 +743,9 @@ def get_all_market_data():
                 market_data[s] = {"price":1.0, "change":0.0, "vol":"Low", "name":s}
         return market_data
     except Exception as e:
-        print(f"Binance API Error: {e}")
+        import traceback
+        err_msg = f"Binance API Error: {e}\\n{traceback.format_exc()}"
+        with open("binance_error.log", "w") as _errF: _errF.write(err_msg)
         my_symbols = [s for g in SYMBOLS.values() for s in g]
         return {s: {"price": 1.0, "change": 0.0, "vol": "Low", "name": s} for s in my_symbols}
 
