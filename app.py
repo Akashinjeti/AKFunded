@@ -29,33 +29,33 @@ st.markdown("""
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&family=Caveat:wght@500;600;700&display=swap');
 
 :root {
-  --gold:#9d00ff; /* Neon Purple */
-  --gold-dim:#35005c;
-  --gold-glow:rgba(157, 0, 255, 0.25);
-  --black:#05000a; /* Darkest Purple-Black */
-  --s0:#0b0014;
-  --s1:rgba(18, 0, 36, 0.65); /* Glass Purple */
-  --s2:rgba(28, 5, 50, 0.75);
-  --s3:rgba(42, 10, 75, 0.85);
-  --border:rgba(157, 0, 255, 0.2); 
-  --border2:rgba(157, 0, 255, 0.35);
-  --border3:rgba(212, 102, 255, 0.4);
-  --text:#f4e6ff;
-  --dim:#9c7eb5;
-  --dim2:#5c4075;
-  --green:#00ffcc; /* Cyan/Teal for Profits */
-  --green-dim:rgba(0, 255, 204, 0.15);
-  --red:#ff0073; /* Hot Pink for Losses */
-  --red-dim:rgba(255, 0, 115, 0.15);
-  --purple:#c300ff;
-  --blue:#6200ff;
-  --cyan:#e066ff; /* Lavender/Pink Accent */
-  --cyan-dim:rgba(224, 102, 255, 0.15);
-  --neon:#df00ff;
+  --gold:#D4AF37; /* Royal Gold */
+  --gold-dim:#40350a;
+  --gold-glow:rgba(212, 175, 55, 0.25);
+  --black:#030303; /* Royal Black */
+  --s0:#080808;
+  --s1:rgba(18, 18, 18, 0.65); /* Glass Black */
+  --s2:rgba(25, 25, 25, 0.75);
+  --s3:rgba(35, 35, 35, 0.85);
+  --border:rgba(212, 175, 55, 0.2); 
+  --border2:rgba(212, 175, 55, 0.35);
+  --border3:rgba(212, 175, 55, 0.5);
+  --text:#f9f9f9;
+  --dim:#a3a3a3;
+  --dim2:#666666;
+  --green:#00c853; /* Success Green */
+  --green-dim:rgba(0, 200, 83, 0.15);
+  --red:#ff3d00; /* Danger Red */
+  --red-dim:rgba(255, 61, 0, 0.15);
+  --purple:#F4D03F; /* Bright Gold */
+  --blue:#E5B80B;
+  --cyan:#F3E5AB; /* Vanilla Gold Accent */
+  --cyan-dim:rgba(243, 229, 171, 0.15);
+  --neon:#FFDF00; /* Pure Gold */
 }
 
 html, body {
-  background:#05000a!important;
+  background:#030303!important;
   font-family:'Rajdhani',sans-serif;
 }
 [class*="css"],.main,.stApp,.stApp>div,section.main,
@@ -2194,25 +2194,25 @@ if st.session_state.page == "home":
     display:inline-flex;
     align-items:center;
     gap:.6rem;
-    border:1px solid rgba(157,0,255,.3);
-    color:#9d00ff;
+    border:1px solid rgba(212,175,55,.3);
+    color:#D4AF37;
     font-size:.65rem;
     letter-spacing:4px;
     padding:6px 20px;
     border-radius:2px;
     margin-bottom:2.5rem;
     text-transform:uppercase;
-    background:rgba(157,0,255,.05);
+    background:rgba(212,175,55,.05);
     font-family:'Orbitron',sans-serif;
     font-weight:600;
   }}
   .eyebrow-dot{{
     width:6px;height:6px;
-    background:#e066ff;
+    background:#F3E5AB;
     border-radius:50%;
     display:inline-block;
     animation:blink 2s infinite;
-    box-shadow:0 0 10px #e066ff;
+    box-shadow:0 0 10px #F3E5AB;
   }}
   @keyframes blink{{0%,100%{{opacity:1;}}50%{{opacity:.2;}}}}
   .hero-h1{{
@@ -2223,12 +2223,12 @@ if st.session_state.page == "home":
     letter-spacing:2px;
     color:#EAF0FF;
     margin:0 0 1.5rem;
-    text-shadow:0 0 40px rgba(224,102,255,.2);
+    text-shadow:0 0 40px rgba(243,229,171,.2);
   }}
   .hero-h1 em{{
-    color:#e066ff;
+    color:#F3E5AB;
     font-style:normal;
-    text-shadow:0 0 40px rgba(224,102,255,.6), 0 0 80px rgba(224,102,255,.3);
+    text-shadow:0 0 40px rgba(243,229,171,.6), 0 0 80px rgba(243,229,171,.3);
   }}
   .hero-sub{{
     font-size:1.1rem;
