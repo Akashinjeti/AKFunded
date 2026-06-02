@@ -700,7 +700,7 @@ import requests
 @st.cache_data(ttl=1)
 def get_all_market_data():
     try:
-        r = requests.get("https://api.binance.com/api/v3/ticker/24hr", timeout=3)
+        r = requests.get("https://api.binance.com/api/v3/ticker/24hr", timeout=10)
         data = r.json()
         
         my_symbols = [s for g in SYMBOLS.values() for s in g]
@@ -718,7 +718,8 @@ def get_all_market_data():
             if s not in market_data:
                 market_data[s] = {"price":1.0, "change":0.0, "vol":"Low", "name":s}
         return market_data
-    except:
+    except Exception as e:
+        print(f"Binance API Error: {e}")
         my_symbols = [s for g in SYMBOLS.values() for s in g]
         return {s: {"price": 1.0, "change": 0.0, "vol": "Low", "name": s} for s in my_symbols}
 
@@ -2212,7 +2213,7 @@ if st.session_state.page == "home":
 <div id="hero">
   <canvas id="bgCanvas"></canvas>
   <div class="hero-content">
-    <div style="margin-bottom:1.6rem;">
+    <div>
       <img class="hero-logo" src="{hero_logo}" onerror="this.style.display='none'" />
     </div>
     <div class="eyebrow"><span class="eyebrow-dot"></span> Crypto &middot; Bitcoin &middot; Ethereum &middot; Prop Trading</div>
@@ -2523,9 +2524,9 @@ if st.session_state.page == "home":
     }}
     setTimeout(()=>{{ el.style.opacity=1; requestAnimationFrame(step); }},300);
   }}
-  animCount("cnt-traders",10000,"","",1800);
+  animCount("cnt-traders",10500,"","+",1800);
   animCount("cnt-payouts",6500,"$","",2000);
-  setTimeout(()=>document.getElementById("cnt-payouts").textContent="$6.5M",2400);
+  setTimeout(()=>document.getElementById("cnt-payouts").textContent="$6.5M+",2400);
   setTimeout(()=>{{ document.getElementById("cnt-split").textContent="90%"; document.getElementById("cnt-split").style.opacity=1; }},600);
   setTimeout(()=>{{ document.getElementById("cnt-payout").textContent="24hr"; document.getElementById("cnt-payout").style.opacity=1; }},900);
 
@@ -3329,9 +3330,7 @@ elif st.session_state.page == "dashboard":
                 supabase.table("trades").insert({
                     "user_id":uid,"challenge_id":ch_id,"symbol":t_sym,"type":t_dir,
                     "entry_price":real_entry_price,"exit_price":t_exit,"quantity":t_qty,
-                    "pnl":actual_est,"closed_at":datetime.utcnow().isoformat(),
-                    # Store SL and TP for open positions tracking
-                    "stop_loss":t_sl, "take_profit":t_exit
+                    "pnl":actual_est,"closed_at":datetime.utcnow().isoformat()
                 }).execute()
                 supabase.table("accounts").update({
                     "balance":new_bal,"total_loss":new_tl,"daily_loss":new_daily,
