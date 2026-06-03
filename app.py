@@ -996,14 +996,21 @@ def send_passed_email(to_email, name, target, plan, capital):
 def call_ai(messages, system_prompt):
     try:
         import requests
-        headers = {"Authorization":f"Bearer {st.secrets.get('GROQ_API_KEY','')}","Content-Type":"application/json"}
-        body = {"model":"llama-3.3-70b-versatile","max_tokens":1000,
-                "messages":[{"role":"system","content":system_prompt},*messages]}
-        r = requests.post("https://api.groq.com/openai/v1/chat/completions",json=body,headers=headers,timeout=30)
+        key = st.secrets.get('GROQ_API_KEY','')
+        if not key:
+            return "⚠️ Please add your GROQ_API_KEY to your Streamlit secrets to activate the AI Coach."
+            
+        headers = {"Authorization": f"Bearer {key}", "Content-Type": "application/json"}
+        body = {"model": "llama3-70b-8192", "max_tokens": 1000,
+                "messages": [{"role": "system", "content": system_prompt}, *messages]}
+                
+        r = requests.post("https://api.groq.com/openai/v1/chat/completions", json=body, headers=headers, timeout=30)
+        if r.status_code == 401: return "⚠️ Unauthorized: Your GROQ_API_KEY is invalid."
+        
         data = r.json()
-        return data["choices"][0]["message"]["content"] if data.get("choices") else "Unable to process request."
+        return data["choices"][0]["message"]["content"] if data.get("choices") else f"API Error: {data.get('error', {}).get('message', 'Unknown')}"
     except Exception as e:
-        return f"AI unavailable. ({e})"
+        return f"⚠️ AI service unavailable. Error: {e}"
 
 def compute_stats(trades):
     if not trades: return 0,0,0,0,0
@@ -3411,10 +3418,10 @@ elif st.session_state.page == "dashboard":
         live_px = get_live_price(t_sym)
         t_dir   = st.selectbox("Direction", ["BUY","SELL"], key="ttype")
         decimal = 5 if get_all_market_data().get(t_sym,{}).get("price",1) < 10 else 2
-        t_entry = st.number_input("Entry Price", min_value=0.00001, value=float(live_px), format=f"%.{decimal}f", key="tentry")
-        t_qty   = st.number_input("Lot Size / Units", min_value=0.01, value=0.10, step=0.01, format="%.2f", key="tqty")
-        t_exit  = st.number_input("Exit Price", min_value=0.00001, value=float(round(live_px*1.015,decimal)), format=f"%.{decimal}f", key="texit")
-        t_sl    = st.number_input("Stop Loss", min_value=0.00001, value=float(round(live_px*0.985,decimal)), format=f"%.{decimal}f", key="tsl")
+        t_entry = st.number_input("Entry Price", min_value=0.00001, value=float(live_px), format=f"%.{decimal}f", key=f"tentry_{t_sym}")
+        t_qty   = st.number_input("Lot Size / Units", min_value=0.01, value=0.10, step=0.01, format="%.2f", key=f"tqty_{t_sym}")
+        t_exit  = st.number_input("Exit Price", min_value=0.00001, value=float(round(live_px*1.015,decimal)), format=f"%.{decimal}f", key=f"texit_{t_sym}")
+        t_sl    = st.number_input("Stop Loss", min_value=0.00001, value=float(round(live_px*0.985,decimal)), format=f"%.{decimal}f", key=f"tsl_{t_sym}")
 
         lot_mult   = 100000 if get_all_market_data().get(t_sym,{}).get("price",1) < 100 else 1
         est        = (t_exit-t_entry)*t_qty*lot_mult if t_dir=="BUY" else (t_entry-t_exit)*t_qty*lot_mult
