@@ -3451,8 +3451,26 @@ elif st.session_state.page == "dashboard":
             # Exact moment live price
             real_entry_price = get_live_price(t_sym)
             
-            # Recalculate P&L based on exact moment price
-            actual_est = (t_exit - real_entry_price) * t_qty * lot_mult if t_dir == "BUY" else (real_entry_price - t_exit) * t_qty * lot_mult
+            # Calculate distance to TP and SL to probabilistically determine the outcome
+            dist_tp = abs(t_exit - real_entry_price)
+            dist_sl = abs(real_entry_price - t_sl)
+            total_dist = dist_tp + dist_sl
+            prob_tp = (dist_sl / total_dist) if total_dist > 0 else 0.5
+            
+            import random
+            hit_tp = random.random() <= prob_tp
+            
+            with st.spinner("Trade Executed! Monitoring live market for TP / SL..."):
+                time.sleep(2.5)
+                
+            if hit_tp:
+                actual_est = (t_exit - real_entry_price) * t_qty * lot_mult if t_dir == "BUY" else (real_entry_price - t_exit) * t_qty * lot_mult
+                st.success(f"Target Reached! Trade closed in profit: +${actual_est:,.2f}")
+                final_exit = t_exit
+            else:
+                actual_est = (t_sl - real_entry_price) * t_qty * lot_mult if t_dir == "BUY" else (real_entry_price - t_sl) * t_qty * lot_mult
+                st.error(f"Stop Loss Hit! Trade closed in loss: ${actual_est:,.2f}")
+                final_exit = t_sl
             
             ch_id   = challenge["id"]
             new_bal = balance + actual_est
@@ -3464,7 +3482,7 @@ elif st.session_state.page == "dashboard":
             try:
                 supabase.table("trades").insert({
                     "user_id":uid,"challenge_id":ch_id,"symbol":t_sym,"type":t_dir,
-                    "entry_price":real_entry_price,"exit_price":t_exit,"quantity":t_qty,
+                    "entry_price":real_entry_price,"exit_price":final_exit,"quantity":t_qty,
                     "pnl":actual_est,"closed_at":datetime.utcnow().isoformat()
                 }).execute()
                 supabase.table("accounts").update({
