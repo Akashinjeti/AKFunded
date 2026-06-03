@@ -792,8 +792,11 @@ RULES = {
 }
 
 # ─── SESSION STATE ──────────────────────────────────────────────
+query_params = st.query_params
+initial_page = query_params.get("page", "home")
+
 for k, v in [
-    ("user",None),("page","home"),("notifications",[]),
+    ("user",None),("page",initial_page),("notifications",[]),
     ("chat_history",[]),("watchlist",["BTCUSDT","ETHUSDT","BNBUSDT","SOLUSDT"]),
 ]:
     if k not in st.session_state:
@@ -1606,6 +1609,7 @@ def build_certificate_pdf(name, plan, capital, pnl_pct, days, date_str):
 
 def goto(page):
     st.session_state.page = page
+    st.query_params["page"] = page
     st.rerun()
 
 # ─── UI HELPERS ────────────────────────────────────────────────
