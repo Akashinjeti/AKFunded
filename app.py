@@ -3448,92 +3448,15 @@ elif st.session_state.page == "dashboard":
         if not is_active:
             st.button("Execute Trade (Account Inactive)", use_container_width=True, disabled=True)
         elif st.button("Execute Trade", use_container_width=True, key="exec"):
-            # Exact moment live price
-            real_entry_price = get_live_price(t_sym)
-            
-            # Calculate distance to TP and SL to probabilistically determine the outcome
-            dist_tp = abs(t_exit - real_entry_price)
-            dist_sl = abs(real_entry_price - t_sl)
-            total_dist = dist_tp + dist_sl
-            prob_tp = (dist_sl / total_dist) if total_dist > 0 else 0.5
-            
-            import random
-            hit_tp = random.random() <= prob_tp
-            
-            with st.spinner("Trade Executed! Monitoring live market for TP / SL..."):
-                time.sleep(2.5)
-                
-            if hit_tp:
-                actual_est = (t_exit - real_entry_price) * t_qty * lot_mult if t_dir == "BUY" else (real_entry_price - t_exit) * t_qty * lot_mult
-                st.success(f"Target Reached! Trade closed in profit: +${actual_est:,.2f}")
-                final_exit = t_exit
-            else:
-                actual_est = (t_sl - real_entry_price) * t_qty * lot_mult if t_dir == "BUY" else (real_entry_price - t_sl) * t_qty * lot_mult
-                st.error(f"Stop Loss Hit! Trade closed in loss: ${actual_est:,.2f}")
-                final_exit = t_sl
-            
-            ch_id   = challenge["id"]
-            new_bal = balance + actual_est
-            new_tl  = min(0.0, new_bal-initial)
-            new_days = days+1
-            new_daily = float(account.get("daily_loss",0)) + (actual_est if actual_est < 0 else 0)
-            daily_loss_pct = abs(new_daily)/initial*100 if new_daily < 0 else 0
-            total_loss_pct = abs(new_tl)/initial*100 if new_tl < 0 else 0
-            try:
-                supabase.table("trades").insert({
-                    "user_id":uid,"challenge_id":ch_id,"symbol":t_sym,"type":t_dir,
-                    "entry_price":real_entry_price,"exit_price":final_exit,"quantity":t_qty,
-                    "pnl":actual_est,"closed_at":datetime.utcnow().isoformat()
-                }).execute()
-                supabase.table("accounts").update({
-                    "balance":new_bal,"total_loss":new_tl,"daily_loss":new_daily,
-                    "days_traded":new_days,"updated_at":datetime.utcnow().isoformat()
-                }).eq("challenge_id",ch_id).execute()
-                new_pct = ((new_bal-initial)/initial)*100
-                if total_loss_pct >= r.get("total_loss",10):
-                    supabase.table("challenges").update({"status":"failed"}).eq("id",ch_id).execute()
-                    reason = f"Max total loss of {r.get('total_loss',10)}% breached."
-                    send_breach_email(email,name,reason,challenge["plan"],int(initial))
-                    push_notification(uid,"⚠","Account Breached","Max total loss reached.")
-                    st.error("Account breached — max total loss reached.")
-                elif daily_loss_pct >= r.get("daily_loss",5):
-                    supabase.table("challenges").update({"status":"failed"}).eq("id",ch_id).execute()
-                    reason = f"Max daily loss of {r.get('daily_loss',5)}% breached."
-                    send_breach_email(email,name,reason,challenge["plan"],int(initial))
-                    push_notification(uid,"⚠","Account Breached","Daily loss limit breached.")
-                    st.error("Account breached — daily loss limit hit.")
-                elif target > 0 and new_pct >= target and new_days >= r.get("min_days",0):
-                    supabase.table("challenges").update({"status":"passed"}).eq("id",ch_id).execute()
-                    push_notification(uid,"🏆","Challenge Passed!",f"Profit target of +{target}% achieved.")
-                    send_passed_email(email, name, target, challenge["plan"], int(initial))
-                    st.components.v1.html("""
-                    <script>
-                    const w = window.parent; const d = w.document;
-                    if(!d.getElementById('g-confetti-style')){
-                        const s = d.createElement('style'); s.id = 'g-confetti-style';
-                        s.innerHTML = `@keyframes gFall{0%{transform:translateY(-10vh) rotateZ(0deg) rotateX(0deg);opacity:1;}100%{transform:translateY(110vh) rotateZ(720deg) rotateX(360deg);opacity:0;}} .g-confetti{position:fixed;z-index:999999;width:12px;height:24px;background:linear-gradient(135deg,#D4AF37,#FFDF00);box-shadow:0 0 10px rgba(212,175,55,0.6);pointer-events:none;} @keyframes passAnim{0%{opacity:0;transform:translate(-50%,-50%) scale(0.5);} 15%{opacity:1;transform:translate(-50%,-50%) scale(1.1);} 25%{transform:translate(-50%,-50%) scale(1);} 80%{opacity:1;transform:translate(-50%,-50%) scale(1);} 100%{opacity:0;transform:translate(-50%,-50%) scale(1.3);}}`;
-                        d.head.appendChild(s);
-                    }
-                    for(let i=0; i<150; i++) {
-                        const c = d.createElement('div'); c.className = 'g-confetti';
-                        c.style.left = Math.random() * 100 + 'vw';
-                        c.style.animation = 'gFall ' + (Math.random() * 2 + 2) + 's linear forwards';
-                        c.style.animationDelay = Math.random() * 1 + 's';
-                        d.body.appendChild(c); setTimeout(()=>c.remove(), 4000);
-                    }
-                    const text = d.createElement('div');
-                    text.innerHTML = '<h1 style="color:#D4AF37;text-shadow:0 0 40px #D4AF37, 0 0 80px #D4AF37;font-size:clamp(4rem,10vw,8rem);font-family:Orbitron,sans-serif;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:999999;animation:passAnim 3.5s forwards;text-align:center;line-height:1;margin:0;">CHALLENGE<br>PASSED!</h1>';
-                    d.body.appendChild(text); setTimeout(()=>text.remove(), 4000);
-                    </script>
-                    """, height=0, width=0)
-                    st.success("Challenge passed! Certificate available.")
-                else:
-                    push_notification(uid,"⚡","Trade Executed",f"{t_dir} {t_sym} — P&L: {es}${actual_est:,.2f}")
-                    if actual_est>=0: st.success(f"Trade executed. P&L: {es}${actual_est:,.2f}")
-                    else: st.warning(f"Trade executed. P&L: ${actual_est:,.2f}")
-            except Exception as e:
-                st.error(f"Trade execution error: {e}")
-            time.sleep(1); st.rerun()
+            st.session_state.active_trade = {
+                "t_sym": t_sym, "t_dir": t_dir, "t_qty": t_qty, "t_entry": get_live_price(t_sym),
+                "t_exit": t_exit, "t_sl": t_sl, "lot_mult": lot_mult, "ch_id": challenge["id"],
+                "initial": initial, "balance": balance, "days": days, "target": target,
+                "challenge": challenge, "account": account, "r": r, "uid": uid,
+                "name": name, "email": email
+            }
+            st.session_state.trade_resolved = False
+            goto("live_trade")
 
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown('<div style="font-size:.58rem;color:var(--dim);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:.8rem;font-weight:600;">Recent Trades</div>', unsafe_allow_html=True)
@@ -3744,6 +3667,129 @@ elif st.session_state.page == "markets":
 # ══════════════════════════════════════════════════════════════
 # PORTFOLIO & ANALYTICS
 # ══════════════════════════════════════════════════════════════
+elif st.session_state.page == "live_trade":
+    if not st.session_state.user: goto("auth")
+    nav()
+    trade = st.session_state.get("active_trade")
+    if not trade:
+        st.warning("No active trade found.")
+        if st.button("Back to Markets"): goto("markets")
+        st.stop()
+        
+    sec("Live Trade Monitor", f"Active Position: {trade['t_sym']} | {trade['t_dir']}")
+    
+    t_sym = trade["t_sym"]
+    t_dir = trade["t_dir"]
+    t_qty = trade["t_qty"]
+    t_entry = trade["t_entry"]
+    t_exit = trade["t_exit"]
+    t_sl = trade["t_sl"]
+    lot_mult = trade["lot_mult"]
+    
+    import time, random
+    ui = st.empty()
+    
+    if not st.session_state.get("trade_resolved", False):
+        max_ticks = 40
+        resolved = False
+        curr_px = t_entry
+        
+        for i in range(max_ticks):
+            volatility = curr_px * 0.0006
+            curr_px += random.uniform(-volatility, volatility)
+            
+            pnl = (curr_px - t_entry) * t_qty * lot_mult if t_dir == "BUY" else (t_entry - curr_px) * t_qty * lot_mult
+            
+            hit_tp = (t_dir == "BUY" and curr_px >= t_exit) or (t_dir == "SELL" and curr_px <= t_exit)
+            hit_sl = (t_dir == "BUY" and curr_px <= t_sl) or (t_dir == "SELL" and curr_px >= t_sl)
+            
+            c = "var(--green)" if pnl >= 0 else "var(--red)"
+            s = "+" if pnl >= 0 else ""
+            
+            html = f"""
+            <div style="background:var(--s1);border:1px solid var(--border);padding:3rem;text-align:center;border-radius:8px;max-width:600px;margin:0 auto;">
+                <div style="font-size:1rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:1rem;">🔴 Live Market Data</div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:4rem;color:{c};text-shadow:0 0 20px {c};">{s}${pnl:,.2f}</div>
+                <div style="font-size:1.5rem;color:var(--text);margin-top:1rem;font-family:'JetBrains Mono',monospace;">{t_sym} : {curr_px:.5f}</div>
+                <div style="display:flex;justify-content:space-around;margin-top:2rem;font-size:1rem;color:var(--dim);border-top:1px solid var(--border);padding-top:1rem;">
+                    <div>Entry: <br><span style="color:var(--text);">{t_entry:.5f}</span></div>
+                    <div>Target: <br><span style="color:var(--green);">{t_exit:.5f}</span></div>
+                    <div>Stop: <br><span style="color:var(--red);">{t_sl:.5f}</span></div>
+                </div>
+                <div style="margin-top:2rem;font-size:.7rem;color:var(--dim);">Simulating live tick data... Please wait for TP/SL to hit.</div>
+            </div>
+            """
+            ui.markdown(html, unsafe_allow_html=True)
+            
+            if hit_tp or hit_sl:
+                break
+                
+            time.sleep(0.5)
+            
+        ui.empty()
+        
+        # DB Execution logic
+        ch_id = trade["ch_id"]
+        initial = trade["initial"]
+        balance = trade["balance"]
+        uid = trade["uid"]
+        r = trade["r"]
+        account = trade["account"]
+        target = trade["target"]
+        email = trade["email"]
+        name = trade["name"]
+        days = trade["days"]
+        
+        new_bal = balance + pnl
+        new_tl  = min(0.0, new_bal-initial)
+        new_days = days+1
+        new_daily = float(account.get("daily_loss",0)) + (pnl if pnl < 0 else 0)
+        daily_loss_pct = abs(new_daily)/initial*100 if new_daily < 0 else 0
+        total_loss_pct = abs(new_tl)/initial*100 if new_tl < 0 else 0
+        
+        try:
+            from datetime import datetime
+            supabase.table("trades").insert({
+                "user_id":uid,"challenge_id":ch_id,"symbol":t_sym,"type":t_dir,
+                "entry_price":t_entry,"exit_price":curr_px,"quantity":t_qty,
+                "pnl":pnl,"closed_at":datetime.utcnow().isoformat()
+            }).execute()
+            supabase.table("accounts").update({
+                "balance":new_bal,"total_loss":new_tl,"daily_loss":new_daily,
+                "days_traded":new_days,"updated_at":datetime.utcnow().isoformat()
+            }).eq("challenge_id",ch_id).execute()
+            new_pct = ((new_bal-initial)/initial)*100
+            
+            if total_loss_pct >= r.get("total_loss",10):
+                supabase.table("challenges").update({"status":"failed"}).eq("id",ch_id).execute()
+            elif daily_loss_pct >= r.get("daily_loss",5):
+                supabase.table("challenges").update({"status":"failed"}).eq("id",ch_id).execute()
+            elif target > 0 and new_pct >= target and new_days >= r.get("min_days",0):
+                supabase.table("challenges").update({"status":"passed"}).eq("id",ch_id).execute()
+        except Exception as e:
+            st.error(f"Error saving to DB: {e}")
+        
+        st.session_state.trade_resolved = True
+        st.session_state.final_pnl = pnl
+        st.session_state.hit_tp = hit_tp
+        st.session_state.hit_sl = hit_sl
+        
+    st.markdown('<div style="text-align:center;">', unsafe_allow_html=True)
+    p = st.session_state.get("final_pnl", 0)
+    if st.session_state.get("hit_tp"):
+        st.success(f"🏆 Target Reached! Trade closed in profit: +${p:,.2f}")
+    elif st.session_state.get("hit_sl"):
+        st.error(f"⚠️ Stop Loss Hit! Trade closed in loss: ${p:,.2f}")
+    else:
+        st.warning(f"⏳ Trade closed by time limit. P&L: ${p:,.2f}")
+        
+    if st.button("Return to Markets"):
+        st.session_state.active_trade = None
+        goto("markets")
+    st.markdown('</div>', unsafe_allow_html=True)
+    footer()
+
+
 elif st.session_state.page in ["portfolio", "analytics"]:
     if not st.session_state.user: goto("auth")
     nav()
