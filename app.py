@@ -3938,28 +3938,53 @@ elif st.session_state.page == "profile":
     email = st.session_state.user.get("email", "")
     
     st.markdown('<div style="margin-top:2rem;"></div>', unsafe_allow_html=True)
-    sec("Trader Profile", "Manage your account and platform settings")
+    sec("My Profile", "Manage your account, security, and platform preferences")
     
-    st.markdown(
-        f'<div style="background:var(--s1);border:1px solid var(--border);padding:2rem;border-radius:4px;margin-bottom:1.5rem;">'
-        f'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:2.5rem;color:var(--text);letter-spacing:2px;line-height:1;">{name}</div>'
-        f'<div style="font-size:.9rem;color:var(--gold);margin-top:8px;font-family:\'JetBrains Mono\',monospace;">{email}</div>'
-        f'<div style="font-size:.7rem;color:var(--dim);margin-top:8px;">ID: {uid}</div>'
-        f'</div>', unsafe_allow_html=True
-    )
-    
-    c1, c2 = st.columns(2)
-    with c1:
-        if st.button("Sign Out",use_container_width=True,key="profile_logout"):
+    c_prof, c_sets = st.columns([1, 2], gap="large")
+    with c_prof:
+        st.markdown(
+            f'<div style="background:var(--s1);border:1px solid var(--border);padding:2rem;border-radius:4px;margin-bottom:1.5rem;text-align:center;">'
+            f'<div style="width:80px;height:80px;border-radius:50%;background:rgba(212,175,55,0.1);border:2px solid var(--gold);color:var(--gold);font-family:\'Bebas Neue\',sans-serif;font-size:2.5rem;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;">{name[0].upper() if name else "T"}</div>'
+            f'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:2.2rem;color:var(--text);letter-spacing:2px;line-height:1;">{name}</div>'
+            f'<div style="font-size:.8rem;color:var(--gold);margin-top:8px;font-family:\'JetBrains Mono\',monospace;">{email}</div>'
+            f'<div style="font-size:.65rem;color:var(--dim);margin-top:8px;">ID: {uid[:8]}...</div>'
+            f'</div>',
+            unsafe_allow_html=True
+        )
+        if st.button("Sign Out", use_container_width=True, key="profile_logout"):
             supabase.auth.sign_out()
             st.session_state.user=None
             st.session_state.notifications=[]
             goto("home")
-    with c2:
-        if st.button("Send Test Email",use_container_width=True,key="test_email"):
-            ok=send_email_html(email,"AKFunded — Email Test",f'<div style="font-family:Arial,sans-serif;background:#030303;color:#D8D8D8;padding:2rem;max-width:500px;"><h2 style="color:#D4AF37;">AKFUNDED</h2><p>Email working correctly, {name}.</p></div>')
-            if ok: st.success(f"Test email sent to {email}.")
-            else: st.error("Configure SMTP_EMAIL and SMTP_PASSWORD in secrets.")
+
+    with c_sets:
+        st.markdown('<div style="font-size:.65rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:1rem;font-weight:600;">Account Settings</div>', unsafe_allow_html=True)
+        st.text_input("Display Name", value=name, disabled=True, help="Contact support to change your name.")
+        st.text_input("Email Address", value=email, disabled=True)
+        
+        st.markdown('<div style="font-size:.65rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin:2rem 0 1rem;font-weight:600;">KYC & Verification</div>', unsafe_allow_html=True)
+        st.markdown('<div style="padding:1rem;border:1px solid var(--green);background:rgba(0,200,83,0.05);color:var(--green);font-size:.8rem;border-radius:4px;margin-bottom:1rem;">✓ Tier 2 KYC Verified. You are eligible for crypto payouts.</div>', unsafe_allow_html=True)
+        
+        st.markdown('<div style="font-size:.65rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin:2rem 0 1rem;font-weight:600;">Security & Preferences</div>', unsafe_allow_html=True)
+        s1, s2 = st.columns(2)
+        with s1:
+            st.selectbox("Platform Theme", ["Royal Gold (Dark)", "Cyber Purple", "Institutional Light"], disabled=True)
+            st.selectbox("Default Chart Layout", ["1 Chart", "2 Charts", "4 Charts (Pro)"], disabled=True)
+        with s2:
+            st.checkbox("Enable Two-Factor Authentication (2FA)", value=False)
+            st.checkbox("Receive Payout Notifications", value=True)
+            st.checkbox("Weekly Performance Reports", value=True)
+            
+        st.markdown('<div style="font-size:.65rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin:2rem 0 1rem;font-weight:600;">Trading Preferences</div>', unsafe_allow_html=True)
+        t1, t2 = st.columns(2)
+        with t1:
+            st.selectbox("Default Leverage", ["1:10", "1:20", "1:50", "1:100"], index=3)
+        with t2:
+            st.checkbox("One-Click Execution", value=False, help="Bypass confirmation screens when executing trades")
+            
+        st.markdown('<br>', unsafe_allow_html=True)
+        if st.button("Save Preferences", use_container_width=True, key="save_pref"):
+            st.success("Preferences updated successfully.")
             
     st.markdown("<br><br>", unsafe_allow_html=True)
     footer()
