@@ -3687,108 +3687,107 @@ elif st.session_state.page == "live_trade":
     lot_mult = trade["lot_mult"]
     
     import time, random
-    ui = st.empty()
     
     if not st.session_state.get("trade_resolved", False):
-        max_ticks = 40
-        resolved = False
-        curr_px = t_entry
+        if "curr_px" not in st.session_state:
+            st.session_state.curr_px = t_entry
+            
+        # Simulate next tick
+        curr_px = st.session_state.curr_px
+        volatility = curr_px * 0.0006
+        curr_px += random.uniform(-volatility, volatility)
+        st.session_state.curr_px = curr_px
         
-        for i in range(max_ticks):
-            volatility = curr_px * 0.0006
-            curr_px += random.uniform(-volatility, volatility)
-            
-            pnl = (curr_px - t_entry) * t_qty * lot_mult if t_dir == "BUY" else (t_entry - curr_px) * t_qty * lot_mult
-            
-            hit_tp = (t_dir == "BUY" and curr_px >= t_exit) or (t_dir == "SELL" and curr_px <= t_exit)
-            hit_sl = (t_dir == "BUY" and curr_px <= t_sl) or (t_dir == "SELL" and curr_px >= t_sl)
-            
-            c = "var(--green)" if pnl >= 0 else "var(--red)"
-            s = "+" if pnl >= 0 else ""
-            
-            html = f"""
-            <div style="background:var(--s1);border:1px solid var(--border);padding:3rem;text-align:center;border-radius:8px;max-width:600px;margin:0 auto;">
-                <div style="font-size:1rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:1rem;">🔴 Live Market Data</div>
-                <div style="font-family:'JetBrains Mono',monospace;font-size:4rem;color:{c};text-shadow:0 0 20px {c};">{s}${pnl:,.2f}</div>
-                <div style="font-size:1.5rem;color:var(--text);margin-top:1rem;font-family:'JetBrains Mono',monospace;">{t_sym} : {curr_px:.5f}</div>
-                <div style="display:flex;justify-content:space-around;margin-top:2rem;font-size:1rem;color:var(--dim);border-top:1px solid var(--border);padding-top:1rem;">
-                    <div>Entry: <br><span style="color:var(--text);">{t_entry:.5f}</span></div>
-                    <div>Target: <br><span style="color:var(--green);">{t_exit:.5f}</span></div>
-                    <div>Stop: <br><span style="color:var(--red);">{t_sl:.5f}</span></div>
-                </div>
-                <div style="margin-top:2rem;font-size:.7rem;color:var(--dim);">Simulating live tick data... Please wait for TP/SL to hit.</div>
+        pnl = (curr_px - t_entry) * t_qty * lot_mult if t_dir == "BUY" else (t_entry - curr_px) * t_qty * lot_mult
+        
+        c = "var(--green)" if pnl >= 0 else "var(--red)"
+        s = "+" if pnl >= 0 else ""
+        
+        st.markdown(f"""
+        <div style="background:var(--s1);border:1px solid var(--border);padding:3rem;text-align:center;border-radius:8px;max-width:600px;margin:0 auto;margin-bottom:2rem;">
+            <div style="font-size:1rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:1rem;">🔴 Live Market Data</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:4rem;color:{c};text-shadow:0 0 20px {c};">{s}${pnl:,.2f}</div>
+            <div style="font-size:1.5rem;color:var(--text);margin-top:1rem;font-family:'JetBrains Mono',monospace;">{t_sym} : {curr_px:.5f}</div>
+            <div style="display:flex;justify-content:space-around;margin-top:2rem;font-size:1rem;color:var(--dim);border-top:1px solid var(--border);padding-top:1rem;">
+                <div>Entry: <br><span style="color:var(--text);">{t_entry:.5f}</span></div>
+                <div>Target: <br><span style="color:var(--green);">{t_exit:.5f}</span></div>
+                <div>Stop: <br><span style="color:var(--red);">{t_sl:.5f}</span></div>
             </div>
-            """
-            ui.markdown(html, unsafe_allow_html=True)
-            
-            if hit_tp or hit_sl:
-                break
+            <div style="margin-top:2rem;font-size:.7rem;color:var(--dim);">Monitoring open trade... Waiting for Manual Close.</div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        col1, col2, col3 = st.columns([1,2,1])
+        with col2:
+            if st.button("Close Trade Manually", use_container_width=True, type="primary"):
+                st.session_state.trade_resolved = True
+                st.session_state.final_pnl = pnl
+                st.session_state.final_exit = curr_px
+                st.rerun()
                 
-            time.sleep(0.5)
-            
-        ui.empty()
-        
-        # DB Execution logic
-        ch_id = trade["ch_id"]
-        initial = trade["initial"]
-        balance = trade["balance"]
-        uid = trade["uid"]
-        r = trade["r"]
-        account = trade["account"]
-        target = trade["target"]
-        email = trade["email"]
-        name = trade["name"]
-        days = trade["days"]
-        
-        new_bal = balance + pnl
-        new_tl  = min(0.0, new_bal-initial)
-        new_days = days+1
-        new_daily = float(account.get("daily_loss",0)) + (pnl if pnl < 0 else 0)
-        daily_loss_pct = abs(new_daily)/initial*100 if new_daily < 0 else 0
-        total_loss_pct = abs(new_tl)/initial*100 if new_tl < 0 else 0
-        
-        try:
-            from datetime import datetime
-            supabase.table("trades").insert({
-                "user_id":uid,"challenge_id":ch_id,"symbol":t_sym,"type":t_dir,
-                "entry_price":t_entry,"exit_price":curr_px,"quantity":t_qty,
-                "pnl":pnl,"closed_at":datetime.utcnow().isoformat()
-            }).execute()
-            supabase.table("accounts").update({
-                "balance":new_bal,"total_loss":new_tl,"daily_loss":new_daily,
-                "days_traded":new_days,"updated_at":datetime.utcnow().isoformat()
-            }).eq("challenge_id",ch_id).execute()
-            new_pct = ((new_bal-initial)/initial)*100
-            
-            if total_loss_pct >= r.get("total_loss",10):
-                supabase.table("challenges").update({"status":"failed"}).eq("id",ch_id).execute()
-            elif daily_loss_pct >= r.get("daily_loss",5):
-                supabase.table("challenges").update({"status":"failed"}).eq("id",ch_id).execute()
-            elif target > 0 and new_pct >= target and new_days >= r.get("min_days",0):
-                supabase.table("challenges").update({"status":"passed"}).eq("id",ch_id).execute()
-        except Exception as e:
-            st.error(f"Error saving to DB: {e}")
-        
-        st.session_state.trade_resolved = True
-        st.session_state.final_pnl = pnl
-        st.session_state.hit_tp = hit_tp
-        st.session_state.hit_sl = hit_sl
-        
-    st.markdown('<div style="text-align:center;">', unsafe_allow_html=True)
-    p = st.session_state.get("final_pnl", 0)
-    if st.session_state.get("hit_tp"):
-        st.success(f"🏆 Target Reached! Trade closed in profit: +${p:,.2f}")
-    elif st.session_state.get("hit_sl"):
-        st.error(f"⚠️ Stop Loss Hit! Trade closed in loss: ${p:,.2f}")
+        time.sleep(1.0)
+        st.rerun()
     else:
-        st.warning(f"⏳ Trade closed by time limit. P&L: ${p:,.2f}")
+        # Run DB Logic Exactly Once
+        if "db_saved" not in st.session_state:
+            ch_id = trade["ch_id"]
+            initial = trade["initial"]
+            balance = trade["balance"]
+            uid = trade["uid"]
+            r = trade["r"]
+            account = trade["account"]
+            target = trade["target"]
+            
+            pnl = st.session_state.final_pnl
+            curr_px = st.session_state.final_exit
+            
+            new_bal = balance + pnl
+            new_tl  = min(0.0, new_bal-initial)
+            new_days = trade["days"] + 1
+            new_daily = float(account.get("daily_loss",0)) + (pnl if pnl < 0 else 0)
+            daily_loss_pct = abs(new_daily)/initial*100 if new_daily < 0 else 0
+            total_loss_pct = abs(new_tl)/initial*100 if new_tl < 0 else 0
+            
+            try:
+                from datetime import datetime
+                supabase.table("trades").insert({
+                    "user_id":uid,"challenge_id":ch_id,"symbol":t_sym,"type":t_dir,
+                    "entry_price":t_entry,"exit_price":curr_px,"quantity":t_qty,
+                    "pnl":pnl,"closed_at":datetime.utcnow().isoformat()
+                }).execute()
+                supabase.table("accounts").update({
+                    "balance":new_bal,"total_loss":new_tl,"daily_loss":new_daily,
+                    "days_traded":new_days,"updated_at":datetime.utcnow().isoformat()
+                }).eq("challenge_id",ch_id).execute()
+                new_pct = ((new_bal-initial)/initial)*100
+                
+                if total_loss_pct >= r.get("total_loss",10):
+                    supabase.table("challenges").update({"status":"failed"}).eq("id",ch_id).execute()
+                elif daily_loss_pct >= r.get("daily_loss",5):
+                    supabase.table("challenges").update({"status":"failed"}).eq("id",ch_id).execute()
+                elif target > 0 and new_pct >= target and new_days >= r.get("min_days",0):
+                    supabase.table("challenges").update({"status":"passed"}).eq("id",ch_id).execute()
+            except Exception as e:
+                st.error(f"Error saving to DB: {e}")
+                
+            st.session_state.db_saved = True
+            
+        st.markdown('<div style="text-align:center;">', unsafe_allow_html=True)
+        p = st.session_state.final_pnl
+        if p >= 0:
+            st.success(f"🏆 Trade closed manually in profit: +${p:,.2f}")
+        else:
+            st.error(f"⚠️ Trade closed manually in loss: ${p:,.2f}")
+            
+        if st.button("Return to Markets"):
+            st.session_state.active_trade = None
+            st.session_state.trade_resolved = False
+            if "curr_px" in st.session_state: del st.session_state.curr_px
+            if "db_saved" in st.session_state: del st.session_state.db_saved
+            goto("markets")
+        st.markdown('</div>', unsafe_allow_html=True)
         
-    if st.button("Return to Markets"):
-        st.session_state.active_trade = None
-        goto("markets")
-    st.markdown('</div>', unsafe_allow_html=True)
     footer()
-
 
 elif st.session_state.page in ["portfolio", "analytics"]:
     if not st.session_state.user: goto("auth")
